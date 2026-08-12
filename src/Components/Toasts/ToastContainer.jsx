@@ -12,7 +12,6 @@ import {
     Sword,
     Info,
     X,
-    AlertTriangle,
     Radio
 } from 'lucide-react';
 import './Toasts.css';
