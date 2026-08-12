@@ -13,32 +13,32 @@ const WarLogs = () => {
 
   // Real Data with Translation Keys
   const logs = [
-    {
-      id: 1,
-      opponent: t("warLogs.war1.opponent"),
-      date: "2026-01-18",
-      result: "EASY_WIN",
-      duration: t("warLogs.war1.duration"),
-      mvp: "@Hejhej01928, @Polskaexe_v3",
-      reason: t("warLogs.war1.reason"),
-      members: t("warLogs.war1.members"),
-      victoryImg: "https://via.placeholder.com/1200x600?text=Victory+Celebration+Nightfall",
-      enemyKD: [
-        { name: "@Rushwinter", kills: 1, deaths: 10 },
-        { name: "@imsocool_leon", kills: 2, deaths: 3 },
-        { name: "@lucularo", kills: 0, deaths: 4 },
-        { name: "@umgqqqqqqqaa", kills: 14, deaths: 16 },
-        { name: "@Birkpro12", kills: 3, deaths: 20 },
-        { name: "@renopro203", kills: 7, deaths: 5 },
-      ],
-      memberKD: [
-        { name: "@Hejhej01928", kills: 54, deaths: 20 },
-        { name: "@Polskaexe_v3", kills: 11, deaths: 5 },
-        { name: "@Pioter_M200", kills: 0, deaths: 1 },
-        { name: "@Tygosaures10", kills: 6, deaths: 0 },
-        { name: "@SAMISALAMI7", kills: 17, deaths: 10 },
-      ]
-    }
+    //{
+      //id: 1,
+      //opponent: t("warLogs.war1.opponent"),
+      //date: "2026-01-18",
+      //result: "EASY_WIN",
+      //duration: t("warLogs.war1.duration"),
+      //mvp: "@Hejhej01928, @Polskaexe_v3",
+      //reason: t("warLogs.war1.reason"),
+      //members: t("warLogs.war1.members"),
+      //victoryImg: "https://via.placeholder.com/1200x600?text=Victory+Celebration+Nightfall",
+      //enemyKD: [
+        //{ name: "@Rushwinter", kills: 1, deaths: 10 },
+        //{ name: "@imsocool_leon", kills: 2, deaths: 3 },
+        //{ name: "@lucularo", kills: 0, deaths: 4 },
+        //{ name: "@umgqqqqqqqaa", kills: 14, deaths: 16 },
+        //{ name: "@Birkpro12", kills: 3, deaths: 20 },
+       // { name: "@renopro203", kills: 7, deaths: 5 },
+      //],
+      //memberKD: [
+       // { name: "@Hejhej01928", kills: 54, deaths: 20 },
+        //{ name: "@Polskaexe_v3", kills: 11, deaths: 5 },
+        //{ name: "@Pioter_M200", kills: 0, deaths: 1 },
+        //{ name: "@Tygosaures10", kills: 6, deaths: 0 },
+        //{ name: "@SAMISALAMI7", kills: 17, deaths: 10 },
+      //]
+    //}
   ];
 
   return (

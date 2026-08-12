@@ -53,7 +53,7 @@ const LoadingScreen = () => {
                 </div>
 
                 <h2 className="loading-title-new">
-                    NIGHTFALL SQUADRON
+                    Zjednoczona Polska Korona
                 </h2>
 
                 <div className="progress-container">

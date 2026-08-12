@@ -1,131 +1,713 @@
 /* src/Components/Pages/KOS.jsx */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../Navbar/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Skull,
     Search,
-    AlertTriangle,
     Target,
+    Building2,
     ShieldAlert,
-    //Terminal,
     Cpu,
-    Eye
+    Eye,
+    ExternalLink,
+    ChevronDown,
+    ChevronUp,
+    Youtube,
+    Clapperboard,
+    Image,
+    User,
+    Database,
+    Plus,
+    Trash2,
+    MessageCircle,
+    Link2,
+    Upload,
+    Loader2,
+    Lock,
+    Wifi
 } from 'lucide-react';
 import DecodedText from '../Shared/DecodedText';
+import kosTargets from '../../data/kosTargets.json';
 import './KOS.css';
+
+const INITIAL_PERSONAL = 4;
+const INITIAL_FACTION = 3;
+const STORAGE_PERSONAL = 'zpk_kos_personal';
+const STORAGE_FACTION = 'zpk_kos_faction';
+const STORAGE_HIDDEN = 'zpk_kos_hidden'; // nazwy celów usuniętych przez admina
+
+const REASON_KEYS = [
+    'reasonExploit',
+    'reasonSpy',
+    'reasonScam',
+    'reasonRaid',
+    'reasonGrief',
+    'reasonImpersonation',
+    'reasonHate'
+];
+
+const EvidenceIcon = ({ type, size = 14 }) => {
+    if (type === 'youtube') return <Youtube size={size} />;
+    if (type === 'discord') return <MessageCircle size={size} />;
+    if (type === 'other') return <Link2 size={size} />;
+    return <Clapperboard size={size} />; // medal + fallback
+};
+
+const readSession = () => {
+    try {
+        return JSON.parse(localStorage.getItem('ZPK_auth_session') || '{}');
+    } catch (e) {
+        return {};
+    }
+};
+
+// Merge code-defined targets with locally stored ones.
+// WAŻNE: cele z kodu (statyczne) mają pierwszeństwo — to one są
+// źródłem prawdy (customowy powód, poprawne ścieżki dowodów).
+// Cele z localStorage są dodawane TYLKO gdy nie ma ich w kodzie.
+// Dzięki temu stara/nieaktualna wersja zapisana w przeglądarce
+// nie nadpisuje poprawionej wersji z kodu.
+// hiddenList = nazwy usuniętych celów (usunięte nie wracają po odświeżeniu).
+// Tylko cele z poprawną nazwą trafiają do listy — chroni przed pustymi
+// obiektami (placeholdery w kodzie) oraz uszkodzonymi danymi w localStorage.
+const mergeTargets = (staticList, storedList, hiddenList = []) => {
+    const map = new Map();
+    const isUsable = (t) =>
+        t && typeof t.name === 'string' && t.name.trim() !== '';
+    staticList.forEach((t) => {
+        if (isUsable(t) && !hiddenList.includes(t.name)) map.set(t.name, t);
+    });
+    storedList.forEach((t) => {
+        if (isUsable(t) && !map.has(t.name) && !hiddenList.includes(t.name)) {
+            map.set(t.name, t);
+        }
+    });
+    return Array.from(map.values());
+};
+
+const loadStored = (key, fallback) => {
+    try {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+        }
+    } catch (e) {
+        /* ignore corrupted storage */
+    }
+    return [];
+};
+
+const parseEvidenceLines = (text) =>
+    text
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => {
+            const [type, a, b] = line.split('|').map((s) => s.trim());
+            if (!a) return null;
+            if (type === 'image') return { type: 'image', src: a };
+            if (type === 'youtube') return { type: 'youtube', url: a, title: b || '' };
+            if (type === 'medal') return { type: 'medal', url: a, title: b || '' };
+            if (type === 'discord') return { type: 'discord', url: a, title: b || '' };
+            if (type === 'other') return { type: 'other', url: a, title: b || '' };
+            return null;
+        })
+        .filter(Boolean);
 
 const KOS = () => {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
+    const [activeFilter, setActiveFilter] = useState('all'); // all, personal, faction
+    const [selectedTarget, setSelectedTarget] = useState(null); // { type, ...target }
+    const [expandedReasons, setExpandedReasons] = useState({}); // cardKey -> bool
+    const [showAll, setShowAll] = useState({ personal: false, faction: false });
+    const [manageOpen, setManageOpen] = useState(false);
+    const [manageTab, setManageTab] = useState('personal'); // personal, faction
+    const [uploading, setUploading] = useState(false);
+    const [uploadError, setUploadError] = useState('');
+    // null = jeszcze nie sprawdzone, true = chmura aktywna, false = tryb lokalny
+    const [cloudReady, setCloudReady] = useState(null);
+    const [form, setForm] = useState({
+        name: '',
+        reasonMode: 'preset', // 'preset' | 'custom'
+        reasonKey: REASON_KEYS[0],
+        customReason: '',
+        robloxLink: '',
+        leaders: '',
+        allies: '',
+        firepower: '',
+        evidenceText: ''
+    });
 
-    // Personal Targets (Nicki Osób)
-    const personalTargets = [
-        {
-            name: "???",
-            threat: "???",
-            reason: t('kos.reason1', '???'),
-            lastSeen: "???",
-            status: "???"
-        },
-    ];
+    const session = readSession();
+    const isAdmin = session.is_admin === true;
 
-    // Faction Targets (Frakcje)
-    const factionTargets = [
-        {
-            name: "???",
-            threat: "???",
-            reason: t('kos.reason1', '???'),
-            lastSeen: "???",
-            status: "???"
-        },
-    ];
+    // ==================================================================
+    // 📌 CELE PODSTAWOWE (FALLBACK) — EDYTUJ JE W src/data/kosTargets.json
+    //
+    // UWAGA: po wdrożeniu funkcji kos-store (Netlify Blobs) głównym
+    // źródłem prawdy jest wspólna chmura — cele dodane przez adminów
+    // na stronie /kos zapisują się tam i widzą je wszyscy gracze.
+    // Ten plik JSON to baza startowa oraz fallback, gdyby chmura nie
+    // odpowiedziała (offline / lokalny dev). Po zmianie pliku:
+    // git commit + git push → Netlify sam zbuduje i wdroży stronę.
+    //
+    // Struktura pliku:
+    //   {
+    //     "personal": [ ...obiekty OSOB... ],
+    //     "factions": [ ...obiekty KLANÓW... ]
+    //   }
+    //
+    // Dostępne reasonKey (powód → tłumaczenie w Locales/en.json i pl.json):
+    //   reasonExploit, reasonSpy, reasonScam, reasonRaid,
+    //   reasonGrief, reasonImpersonation, reasonHate
+    //
+    // CUSTOMOWY POWÓD: zamiast reasonKey wpisz własny tekst w polu
+    //   "reason": "Twój własny powód np. zdrada sojuszu"
+    //
+    // Dowody (evidence) — możesz dodać dowolną liczbę, typy:
+    //   { "type": "image",   "src": "/kos/nazwa-pliku.png" }   ← zdjęcia w folderze public/kos/
+    //   { "type": "youtube", "url": "...", "title": "..." }
+    //   { "type": "medal",   "url": "...", "title": "..." }
+    //   { "type": "discord", "url": "https://discord.com/channels/...", "title": "..." }
+    //   { "type": "other",   "url": "...", "title": "..." }
+    //
+    // Dla KLANÓW dodatkowo pole intel:
+    //   "intel": { "leaders": "Lider1, Lider2", "allies": "Klan Sojuszniczy", "firepower": "HEAVY_ARMORED" }
+    // ==================================================================
+    // Zabezpieczenie przed literówką w pliku JSON (np. "personal": {})
+    const staticPersonalTargets = Array.isArray(kosTargets.personal) ? kosTargets.personal : [];
+    const staticFactionTargets = Array.isArray(kosTargets.factions) ? kosTargets.factions : [];
 
-    const filteredPersonal = personalTargets.filter(target =>
-        target.name.toLowerCase().includes(searchTerm.toLowerCase())
+    // Cele lokalne (z localStorage) — łączone z celami statycznymi
+    // (lokalne nadpisują statyczne o tej samej nazwie)
+    const initialHidden = loadStored(STORAGE_HIDDEN);
+    const [hiddenNames, setHiddenNames] = useState(() => initialHidden);
+    const [personalTargets, setPersonalTargets] = useState(() =>
+        mergeTargets(staticPersonalTargets, loadStored(STORAGE_PERSONAL), initialHidden)
+    );
+    const [factionTargets, setFactionTargets] = useState(() =>
+        mergeTargets(staticFactionTargets, loadStored(STORAGE_FACTION), initialHidden)
     );
 
-    const filteredFactions = factionTargets.filter(target =>
-        target.name.toLowerCase().includes(searchTerm.toLowerCase())
+    // Automatyczny zapis do localStorage po każdej zmianie
+    useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_PERSONAL, JSON.stringify(personalTargets));
+        } catch (e) {
+            /* ignore */
+        }
+    }, [personalTargets]);
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_FACTION, JSON.stringify(factionTargets));
+        } catch (e) {
+            /* ignore */
+        }
+    }, [factionTargets]);
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_HIDDEN, JSON.stringify(hiddenNames));
+        } catch (e) {
+            /* ignore */
+        }
+    }, [hiddenNames]);
+
+    // ============================================================
+    // ☁️ WSPÓLNA BAZA (Netlify Blobs) — ładowanie na starcie
+    // Jeśli funkcja /api/kos-store odpowie, lista celów jest
+    // wspólna dla WSZYSTKICH graczy (koniec z per-przeglądarka).
+    // W razie błędu (offline / lokalny dev / nie wdrożona funkcja)
+    // strona wraca do kosTargets.json + localStorage — nie pokazuje
+    // nigdy pustki i nigdy nie wysypie się.
+    // ============================================================
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const res = await fetch('/api/kos-store');
+                const data = await res.json();
+                if (cancelled || !res.ok || !data || data.ok !== true) {
+                    setCloudReady(false);
+                    return;
+                }
+                const personal = Array.isArray(data.personal) ? data.personal : [];
+                const factions = Array.isArray(data.factions) ? data.factions : [];
+                // Chmura jest źródłem prawdy — localStorage pomijane
+                setPersonalTargets(mergeTargets(personal, []));
+                setFactionTargets(mergeTargets(factions, []));
+                setCloudReady(true);
+            } catch (err) {
+                if (!cancelled) setCloudReady(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const upsertTarget = (list, target) => [
+        ...list.filter((x) => x.name !== target.name),
+        target
+    ];
+
+    const handleAddTarget = async (e) => {
+        e.preventDefault();
+        if (!form.name.trim()) return;
+        const newName = form.name.trim();
+        // Jeśli cel był wcześniej usunięty, przywróć go (usuń z ukrytych)
+        setHiddenNames((prev) => prev.filter((n) => n !== newName));
+        const newTarget = {
+            name: newName,
+            evidence: parseEvidenceLines(form.evidenceText)
+        };
+        if (form.reasonMode === 'custom' && form.customReason.trim()) {
+            newTarget.reason = form.customReason.trim();
+        } else {
+            newTarget.reasonKey = form.reasonKey;
+        }
+        if (manageTab === 'personal') {
+            newTarget.robloxLink = form.robloxLink.trim();
+        } else {
+            newTarget.intel = {
+                leaders: form.leaders.trim() || '???',
+                allies: form.allies.trim() || '???',
+                firepower: form.firepower.trim() || 'UNKNOWN'
+            };
+        }
+        const section = manageTab === 'personal' ? 'personal' : 'faction';
+        const applyLocal = () => {
+            if (section === 'personal') {
+                setPersonalTargets((prev) => upsertTarget(prev, newTarget));
+            } else {
+                setFactionTargets((prev) => upsertTarget(prev, newTarget));
+            }
+        };
+
+        // ☁️ Zapis do wspólnej chmury (Netlify Blobs) — jeśli dostępna
+        if (cloudReady) {
+            try {
+                const sessionData = readSession();
+                const res = await fetch('/api/kos-store', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        access_token: sessionData.access_token,
+                        type: section,
+                        target: newTarget
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data && data.ok) {
+                    // Chmura zwróciła pełną listę — aktualizujemy z niej
+                    setPersonalTargets(mergeTargets(Array.isArray(data.personal) ? data.personal : [], []));
+                    setFactionTargets(mergeTargets(Array.isArray(data.factions) ? data.factions : [], []));
+                } else {
+                    // Chmura odrzuciła zapis (np. brak roli admina) — lokalny upsert
+                    setCloudReady(false);
+                    applyLocal();
+                }
+            } catch (err) {
+                // Błąd sieci — lokalny upsert (strona nie wywala się)
+                setCloudReady(false);
+                applyLocal();
+            }
+        } else {
+            // Tryb lokalny (bez chmury) — jak dotychczas
+            applyLocal();
+        }
+
+        setForm({
+            name: '',
+            reasonMode: 'preset',
+            reasonKey: REASON_KEYS[0],
+            customReason: '',
+            robloxLink: '',
+            leaders: '',
+            allies: '',
+            firepower: '',
+            evidenceText: ''
+        });
+    };
+
+    const handleRemoveTarget = async (name) => {
+        // Zapamiętaj nazwę jako ukrytą, żeby cel nie wrócił po odświeżeniu
+        setHiddenNames((prev) => (prev.includes(name) ? prev : [...prev, name]));
+        const section = manageTab === 'personal' ? 'personal' : 'faction';
+        const applyLocal = () => {
+            if (section === 'personal') {
+                setPersonalTargets((prev) => prev.filter((x) => x.name !== name));
+            } else {
+                setFactionTargets((prev) => prev.filter((x) => x.name !== name));
+            }
+        };
+
+        // ☁️ Usunięcie z wspólnej chmury — jeśli dostępna
+        if (cloudReady) {
+            try {
+                const sessionData = readSession();
+                const res = await fetch('/api/kos-store', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        access_token: sessionData.access_token,
+                        type: section,
+                        name
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data && data.ok) {
+                    setPersonalTargets(mergeTargets(Array.isArray(data.personal) ? data.personal : [], []));
+                    setFactionTargets(mergeTargets(Array.isArray(data.factions) ? data.factions : [], []));
+                    return;
+                }
+                setCloudReady(false);
+            } catch (err) {
+                /* fallthrough do trybu lokalnego */
+                setCloudReady(false);
+            }
+        }
+        applyLocal();
+    };
+
+    const handleResetLocal = () => {
+        if (window.confirm(t('kos.manage.resetConfirm'))) {
+            try {
+                localStorage.removeItem(STORAGE_PERSONAL);
+                localStorage.removeItem(STORAGE_FACTION);
+                localStorage.removeItem(STORAGE_HIDDEN);
+            } catch (e) {
+                /* ignore */
+            }
+            setHiddenNames([]);
+            setPersonalTargets(mergeTargets(staticPersonalTargets, []));
+            setFactionTargets(mergeTargets(staticFactionTargets, []));
+        }
+    };
+
+    const matchesSearch = (target) =>
+        target.name.toLowerCase().includes(searchTerm.trim().toLowerCase());
+
+    const filteredPersonal = personalTargets.filter(
+        (target) =>
+            matchesSearch(target) &&
+            (activeFilter === 'all' || activeFilter === 'personal')
     );
 
-    const renderTargetGrid = (targets, sectionType) => {
+    const filteredFactions = factionTargets.filter(
+        (target) =>
+            matchesSearch(target) &&
+            (activeFilter === 'all' || activeFilter === 'faction')
+    );
+
+    const visiblePersonal = showAll.personal
+        ? filteredPersonal
+        : filteredPersonal.slice(0, INITIAL_PERSONAL);
+
+    const visibleFactions = showAll.faction
+        ? filteredFactions
+        : filteredFactions.slice(0, INITIAL_FACTION);
+
+    const totalThreats = personalTargets.length + factionTargets.length;
+    const totalEvidence = [...personalTargets, ...factionTargets].reduce(
+        (sum, target) => sum + (target.evidence ? target.evidence.length : 0),
+        0
+    );
+    const monitoredFactions = factionTargets.length;
+
+    const resetVisibility = () => setShowAll({ personal: false, faction: false });
+
+    const toggleReason = (cardKey) =>
+        setExpandedReasons((prev) => ({ ...prev, [cardKey]: !prev[cardKey] }));
+
+    const getReasonText = (target) => {
+        if (target.reason) return target.reason; // custom reason (plain text)
+        return target.reasonKey
+            ? t(`kos.reasons.${target.reasonKey}`)
+            : t('kos.reasons.reasonMissing');
+    };
+
+    const getEvidenceTitle = (ev) => {
+        if (ev.title) return ev.title;
+        if (ev.type === 'youtube') return t('kos.evidence.youtube');
+        if (ev.type === 'medal') return t('kos.evidence.medal');
+        if (ev.type === 'discord') return t('kos.evidence.discord');
+        return t('kos.evidence.other');
+    };
+
+    const handleUpload = async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        setUploading(true);
+        setUploadError('');
+        try {
+            const reader = new FileReader();
+            const base64 = await new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+            const sessionData = readSession();
+            const res = await fetch('/api/upload-evidence', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    access_token: sessionData.access_token,
+                    filename: file.name,
+                    file_base64: base64
+                })
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) {
+                throw new Error(data.error || 'UPLOAD_FAILED');
+            }
+            const line = `image|${data.url}`;
+            setForm((f) => ({
+                ...f,
+                evidenceText: f.evidenceText.trim() ? `${f.evidenceText.trim()}\n${line}` : line
+            }));
+        } catch (err) {
+            setUploadError(err.message || 'UPLOAD_FAILED');
+        } finally {
+            setUploading(false);
+            e.target.value = ''; // allow re-selecting the same file
+        }
+    };
+
+    const renderEvidenceStrip = (target) => {
+        const evidence = target.evidence || [];
         return (
-            <motion.main 
-                className="kos-container"
-                variants={{
-                    hidden: { opacity: 0 },
-                    visible: {
-                        opacity: 1,
-                        transition: { staggerChildren: 0.1 }
-                    }
-                }}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.05 }}
+            <div className="evidence-strip">
+                {evidence.slice(0, 3).map((ev, i) =>
+                    ev.type === 'image' ? (
+                        <a
+                            key={i}
+                            href={ev.src}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="evidence-thumb"
+                            title={t('kos.evidence.images')}
+                        >
+                            <img src={ev.src} alt={`evidence-${i}`} loading="lazy" />
+                        </a>
+                ) : (
+                    <a
+                        key={i}
+                        href={ev.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`evidence-chip ${ev.type}`}
+                        title={getEvidenceTitle(ev)}
+                    >
+                        <EvidenceIcon type={ev.type} />
+                    </a>
+                )
+                )}
+                {evidence.length > 3 && (
+                    <span className="evidence-more">+{evidence.length - 3}</span>
+                )}
+            </div>
+        );
+    };
+
+    const renderTargetCard = (target, sectionType, index) => {
+        const cardKey = `${sectionType}-${target.name}`;
+        const isExpanded = !!expandedReasons[cardKey];
+        const reason = getReasonText(target);
+        const showReasonToggle = reason.length > 55;
+
+        return (
+            <motion.div
+                key={cardKey}
+                className="kos-card"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                layout
             >
-                <div className="kos-grid">
-                    <AnimatePresence mode="popLayout">
-                        {targets.map((target, index) => (
-                            <motion.div
-                                key={`${sectionType}-${target.name}`}
-                                className={`kos-card ${target.threat.toLowerCase()}`}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ duration: 0.3, delay: index * 0.1 }}
-                            >
-                                <div className="card-top">
-                                    <div className="threat-badge">
-                                        <AlertTriangle size={12} />
-                                        <span>{target.threat}</span>
-                                    </div>
-                                    <div className="target-icon">
-                                        <Target size={32} />
-                                    </div>
-                                </div>
-
-                                <div className="card-body">
-                                    <h3 className="target-name">{target.name}</h3>
-                                    <div className="info-row">
-                                        <span className="info-label">{t('kos.reasonLabel', 'REASON')}:</span>
-                                        <span className="info-val">{target.reason}</span>
-                                    </div>
-                                    <div className="info-row">
-                                        <span className="info-label">{t('kos.lastSeenLabel', 'LAST_SEEN')}:</span>
-                                        <span className="info-val">{target.lastSeen}</span>
-                                    </div>
-                                    <div className="info-row">
-                                        <span className="info-label">{t('kos.statusLabel', 'STATUS')}:</span>
-                                        <span className="info-val status-active">{target.status}</span>
-                                    </div>
-                                </div>
-
-                                <div className="card-footer">
-                                    <button className="view-details-btn">
-                                        <Eye size={14} />
-                                        <span>{t('kos.viewIntel', 'VIEW_INTEL')}</span>
-                                    </button>
-                                </div>
-
-                                {/* HUD Decorations */}
-                                <div className="scan-line"></div>
-                                <div className="c-tl"></div><div className="c-tr"></div>
-                                <div className="c-bl"></div><div className="c-br"></div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
+                <div className="card-top">
+                    <div className="evidence-badge">
+                        <Image size={12} />
+                        <span>{t('kos.evidence.badge', { count: (target.evidence || []).length })}</span>
+                    </div>
+                    <div className="target-icon">
+                        {sectionType === 'faction' ? (
+                            <Building2 size={32} />
+                        ) : (
+                            <Target size={32} />
+                        )}
+                    </div>
                 </div>
 
-                {targets.length === 0 && (
-                    <div className="no-results">
-                        <ShieldAlert size={48} />
-                        <p>{t('kos.noResults', 'NO_MATCHING_THREATS_FOUND_IN_ARCHIVE')}</p>
+                <div className="card-body">
+                    <h3 className="target-name">{target.name}</h3>
+                    <div className="info-row">
+                        <span className="info-label">{t('kos.reasonLabel')}:</span>
+                        <span className={`info-val reason-text ${isExpanded ? '' : 'clamped'}`}>
+                            {reason}
+                        </span>
                     </div>
+                    {showReasonToggle && (
+                        <button
+                            className="see-more-toggle"
+                            onClick={() => toggleReason(cardKey)}
+                        >
+                            {isExpanded ? t('kos.seeLess') : t('kos.seeMore')}
+                            {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                        </button>
+                    )}
+                    {renderEvidenceStrip(target)}
+                </div>
+
+                <div className="card-footer">
+                    {sectionType === 'personal' ? (
+                        <div className="card-footer-row">
+                            <button
+                                className="view-details-btn"
+                                onClick={() => setSelectedTarget({ type: 'personal', ...target })}
+                            >
+                                <Eye size={14} />
+                                <span>{t('kos.viewDossier')}</span>
+                            </button>
+                            <a
+                                href={target.robloxLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="roblox-link-btn"
+                                title={t('kos.intel.robloxProfile')}
+                            >
+                                <ExternalLink size={14} />
+                            </a>
+                        </div>
+                    ) : (
+                        <button
+                            className="view-details-btn"
+                            onClick={() => setSelectedTarget({ type: 'faction', ...target })}
+                        >
+                            <Eye size={14} />
+                            <span>{t('kos.viewDossier')}</span>
+                        </button>
+                    )}
+                </div>
+
+                {/* HUD Decorations */}
+                <div className="scan-line"></div>
+                <div className="c-tl"></div><div className="c-tr"></div>
+                <div className="c-bl"></div><div className="c-br"></div>
+            </motion.div>
+        );
+    };
+
+    const renderTargetGrid = (targets, sectionType) => (
+        <motion.main
+            className="kos-container"
+            variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.1 }
+                }
+            }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.05 }}
+        >
+            <div className="kos-grid">
+                <AnimatePresence mode="popLayout">
+                    {targets.map((target, index) => renderTargetCard(target, sectionType, index))}
+                </AnimatePresence>
+            </div>
+        </motion.main>
+    );
+
+    const renderLoadMore = (sectionKey, filteredCount) => {
+        if (filteredCount <= (sectionKey === 'personal' ? INITIAL_PERSONAL : INITIAL_FACTION)) {
+            return null;
+        }
+        const isShown = showAll[sectionKey];
+        return (
+            <div className="load-more-wrap">
+                <button
+                    className="load-more-btn"
+                    onClick={() => setShowAll((prev) => ({ ...prev, [sectionKey]: !prev[sectionKey] }))}
+                >
+                    {isShown ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    {isShown ? t('kos.showLess') : t('kos.showAll')}
+                </button>
+                <span className="showing-counter">
+                    {isShown ? filteredCount : (sectionKey === 'personal' ? INITIAL_PERSONAL : INITIAL_FACTION)}
+                    {' / '}{filteredCount}
+                </span>
+            </div>
+        );
+    };
+
+    const renderNoResults = () => (
+        <div className="no-results">
+            <ShieldAlert size={48} />
+            <p>{t('kos.noResults')}</p>
+        </div>
+    );
+
+    const renderEvidenceSection = (evidence) => {
+        const evs = evidence || [];
+        const images = evs.filter((ev) => ev.type === 'image');
+        const videos = evs.filter((ev) => ev.type !== 'image');
+        return (
+            <div className="evidence-section">
+                <h4 className="evidence-title">
+                    <Image size={14} />
+                    {t('kos.evidence.title')}
+                </h4>
+                {images.length > 0 && (
+                    <>
+                        <span className="evidence-label">{t('kos.evidence.images')}</span>
+                        <div className="evidence-gallery">
+                            {images.map((ev, i) => (
+                                <a
+                                    key={i}
+                                    href={ev.src}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="evidence-gallery-item"
+                                >
+                                    <img src={ev.src} alt={`screenshot-${i}`} loading="lazy" />
+                                    <div className="evidence-zoom">
+                                        <Search size={16} />
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </>
                 )}
-            </motion.main>
+                {videos.length > 0 && (
+                    <>
+                        <span className="evidence-label">{t('kos.evidence.recordings')}</span>
+                        <div className="evidence-videos">
+                            {videos.map((ev, i) => (
+                                <a
+                                    key={i}
+                                    href={ev.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`evidence-video ${ev.type}`}
+                                >
+                                    <EvidenceIcon type={ev.type} size={16} />
+                                    <span>{getEvidenceTitle(ev)}</span>
+                                    <ExternalLink size={12} />
+                                </a>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
         );
     };
 
@@ -146,51 +728,425 @@ const KOS = () => {
                     <DecodedText text={t('kos.title', 'KOS DATABASE')} delay={0.2} />
                 </h1>
                 <p className="kos-subtitle">
-                    {t('kos.subtitle', 'Official watchlist of individuals and entities posing a threat to Nightfall Squadron.')}
+                    {t('kos.subtitle', 'Official watchlist of individuals and entities posing a threat to Zjednoczona Polska Korona.')}
                 </p>
 
-                {/* Search Bar */}
-                <div className="search-container">
-                    <div className="search-box">
-                        <Search size={18} className="search-icon" />
-                        <input
-                            type="text"
-                            placeholder={t('kos.search', 'SEARCH_BY_NAME...')}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        <div className="search-glow"></div>
+                {/* Search & Stats Bar */}
+                <div className="kos-dashboard">
+                    <div className="stats-panel">
+                        <div className="stat-item">
+                            <span className="stat-label">{t('kos.stats.total')}</span>
+                            <span className="stat-value">{totalThreats}</span>
+                        </div>
+                        <div className="stat-item highlight">
+                            <span className="stat-label">{t('kos.stats.evidence')}</span>
+                            <span className="stat-value">{totalEvidence}</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-label">{t('kos.stats.monitored')}</span>
+                            <span className="stat-value">{monitoredFactions}</span>
+                        </div>
+                    </div>
+
+                    <div className="search-and-filters">
+                        <div className="search-box">
+                            <Search size={18} className="search-icon" />
+                            <input
+                                type="text"
+                                placeholder={t('kos.search')}
+                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    resetVisibility();
+                                }}
+                            />
+                        </div>
+
+                        <div className="filter-tabs">
+                            {['all', 'personal', 'faction'].map((filter) => (
+                                <button
+                                    key={filter}
+                                    className={`filter-btn ${activeFilter === filter ? 'active' : ''}`}
+                                    onClick={() => {
+                                        setActiveFilter(filter);
+                                        resetVisibility();
+                                    }}
+                                >
+                                    {t(`kos.filters.${filter}`)}
+                                </button>
+                            ))}
+                        </div>
+
+                        {isAdmin ? (
+                            <button className="manage-btn" onClick={() => setManageOpen(true)}>
+                                <Database size={14} />
+                                <span>{t('kos.manage.open')}</span>
+                            </button>
+                        ) : (
+                            <button
+                                className="manage-btn manage-btn-locked"
+                                disabled
+                                title={t('kos.manage.adminOnly')}
+                            >
+                                <Lock size={14} />
+                                <span>{t('kos.manage.adminOnly')}</span>
+                            </button>
+                        )}
                     </div>
                 </div>
             </section>
 
-            {/* Personal Targets Section */}
-            <section className="kos-section">
-                <div className="section-header">
-                    <h2>{t('kos.personalSection', 'PERSONAL TARGETS')}</h2>
-                    <div className="section-divider"></div>
-                </div>
-                {filteredPersonal.length > 0 ? renderTargetGrid(filteredPersonal, 'personal') : (
-                    <div className="no-results">
-                        <ShieldAlert size={48} />
-                        <p>{t('kos.noResults', 'NO_MATCHING_THREATS_FOUND_IN_ARCHIVE')}</p>
+            {/* Combined/Filtered Sections */}
+            {(activeFilter === 'all' || activeFilter === 'personal') && (
+                <section className="kos-section">
+                    <div className="section-header">
+                        <h2>{t('kos.personalSection')}</h2>
+                        <div className="section-divider"></div>
                     </div>
-                )}
-            </section>
+                    {filteredPersonal.length > 0 ? (
+                        <>
+                            {renderTargetGrid(visiblePersonal, 'personal')}
+                            {renderLoadMore('personal', filteredPersonal.length)}
+                        </>
+                    ) : (
+                        renderNoResults()
+                    )}
+                </section>
+            )}
 
-            {/* Faction Targets Section */}
-            <section className="kos-section">
-                <div className="section-header">
-                    <h2>{t('kos.factionSection', 'FACTION TARGETS')}</h2>
-                    <div className="section-divider"></div>
-                </div>
-                {filteredFactions.length > 0 ? renderTargetGrid(filteredFactions, 'faction') : (
-                    <div className="no-results">
-                        <ShieldAlert size={48} />
-                        <p>{t('kos.noResults', 'NO_MATCHING_THREATS_FOUND_IN_ARCHIVE')}</p>
+            {(activeFilter === 'all' || activeFilter === 'faction') && (
+                <section className="kos-section">
+                    <div className="section-header">
+                        <h2>{t('kos.factionSection')}</h2>
+                        <div className="section-divider"></div>
                     </div>
+                    {filteredFactions.length > 0 ? (
+                        <>
+                            {renderTargetGrid(visibleFactions, 'faction')}
+                            {renderLoadMore('faction', filteredFactions.length)}
+                        </>
+                    ) : (
+                        renderNoResults()
+                    )}
+                </section>
+            )}
+
+            {/* Target Dossier Modal (personal + faction) */}
+            <AnimatePresence>
+                {selectedTarget && (
+                    <motion.div
+                        className="intel-modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setSelectedTarget(null)}
+                    >
+                        <motion.div
+                            className="intel-modal"
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="intel-header">
+                                {selectedTarget.type === 'faction' ? (
+                                    <Building2 className="intel-icon" size={32} />
+                                ) : (
+                                    <User className="intel-icon" size={32} />
+                                )}
+                                <div>
+                                    <h2 className="intel-title">{selectedTarget.name}</h2>
+                                    <p className="intel-subtitle">
+                                        {selectedTarget.type === 'faction'
+                                            ? 'FACTION_DOSSIER'
+                                            : 'PERSONAL_DOSSIER'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="intel-grid">
+                                {selectedTarget.type === 'faction' ? (
+                                    <>
+                                        <div className="intel-item">
+                                            <span className="intel-label">{t('kos.intel.factionLeaders')}</span>
+                                            <span className="intel-value">{selectedTarget.intel?.leaders ?? '???'}</span>
+                                        </div>
+                                        <div className="intel-item">
+                                            <span className="intel-label">{t('kos.intel.allies')}</span>
+                                            <span className="intel-value">{selectedTarget.intel?.allies ?? '???'}</span>
+                                        </div>
+                                        <div className="intel-item wide">
+                                            <span className="intel-label">{t('kos.intel.firepower')}</span>
+                                            <span className="intel-value">{selectedTarget.intel?.firepower ?? 'UNKNOWN'}</span>
+                                        </div>
+                                    </>
+                                ) : null}
+                                <div className="intel-item wide">
+                                    <span className="intel-label">{t('kos.reasonLabel')}</span>
+                                    <span className="intel-value">{getReasonText(selectedTarget)}</span>
+                                </div>
+                            </div>
+
+                            {renderEvidenceSection(selectedTarget.evidence)}
+
+                            {selectedTarget.type === 'personal' && (
+                                <a
+                                    href={selectedTarget.robloxLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="modal-profile-btn"
+                                >
+                                    <ExternalLink size={14} />
+                                    <span>{t('kos.intel.robloxProfile')}</span>
+                                </a>
+                            )}
+
+                            <button className="close-intel-btn" onClick={() => setSelectedTarget(null)}>
+                                {t('kos.intel.close')}
+                            </button>
+
+                            <div className="intel-hud-corners">
+                                <div className="h-tl"></div><div className="h-tr"></div>
+                                <div className="h-bl"></div><div className="h-br"></div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
                 )}
-            </section>
+            </AnimatePresence>
+
+            {/* Local Management Modal */}
+            <AnimatePresence>
+                {manageOpen && (
+                    <motion.div
+                        className="intel-modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setManageOpen(false)}
+                    >
+                        <motion.div
+                            className="manage-modal"
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="intel-header">
+                                <Database className="intel-icon" size={32} />
+                                <div>
+                                    <h2 className="intel-title">{t('kos.manage.title')}</h2>
+                                    <p className="intel-subtitle">{t('kos.manage.subtitle')}</p>
+                                </div>
+                            </div>
+
+                            {/* Wskaźnik trybu zapisu: wspólna chmura vs tryb lokalny */}
+                            {cloudReady !== null && (
+                                <div className={`cloud-status ${cloudReady ? 'cloud-online' : 'cloud-offline'}`}>
+                                    <Wifi size={14} />
+                                    <span>
+                                        {cloudReady
+                                            ? t('kos.manage.cloudOnline')
+                                            : t('kos.manage.cloudOffline')}
+                                    </span>
+                                </div>
+                            )}
+
+                            {!isAdmin && (
+                                <div className="manage-admin-warning">
+                                    <ShieldAlert size={16} />
+                                    <span>{t('kos.manage.adminOnlyWarning')}</span>
+                                </div>
+                            )}
+
+                            <div className="manage-tabs">
+                                {['personal', 'faction'].map((tab) => (
+                                    <button
+                                        key={tab}
+                                        className={`manage-tab ${manageTab === tab ? 'active' : ''}`}
+                                        onClick={() => setManageTab(tab)}
+                                    >
+                                        {t(`kos.filters.${tab}`)}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <form className="manage-form" onSubmit={handleAddTarget}>
+                                <div className="manage-field">
+                                    <label>{t('kos.manage.nameLabel')}</label>
+                                    <input
+                                        type="text"
+                                        value={form.name}
+                                        onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                                        placeholder={t('kos.manage.namePlaceholder')}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="manage-field">
+                                    <label>{t('kos.manage.reasonLabel')}</label>
+                                    <div className="reason-mode-tabs">
+                                        <button
+                                            type="button"
+                                            className={`reason-mode-tab ${form.reasonMode === 'preset' ? 'active' : ''}`}
+                                            onClick={() => setForm((f) => ({ ...f, reasonMode: 'preset' }))}
+                                        >
+                                            {t('kos.manage.reasonPreset')}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`reason-mode-tab ${form.reasonMode === 'custom' ? 'active' : ''}`}
+                                            onClick={() => setForm((f) => ({ ...f, reasonMode: 'custom' }))}
+                                        >
+                                            {t('kos.manage.reasonCustom')}
+                                        </button>
+                                    </div>
+                                    {form.reasonMode === 'preset' ? (
+                                        <select
+                                            value={form.reasonKey}
+                                            onChange={(e) => setForm((f) => ({ ...f, reasonKey: e.target.value }))}
+                                        >
+                                            {REASON_KEYS.map((key) => (
+                                                <option key={key} value={key}>
+                                                    {t(`kos.reasons.${key}`)}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            value={form.customReason}
+                                            onChange={(e) => setForm((f) => ({ ...f, customReason: e.target.value }))}
+                                            placeholder={t('kos.manage.customReasonPlaceholder')}
+                                        />
+                                    )}
+                                </div>
+
+                                {manageTab === 'personal' ? (
+                                    <div className="manage-field">
+                                        <label>{t('kos.manage.robloxLinkLabel')}</label>
+                                        <input
+                                            type="url"
+                                            value={form.robloxLink}
+                                            onChange={(e) => setForm((f) => ({ ...f, robloxLink: e.target.value }))}
+                                            placeholder="https://www.roblox.com/users/123456/profile"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="manage-field-row">
+                                        <div className="manage-field">
+                                            <label>{t('kos.intel.factionLeaders')}</label>
+                                            <input
+                                                type="text"
+                                                value={form.leaders}
+                                                onChange={(e) => setForm((f) => ({ ...f, leaders: e.target.value }))}
+                                                placeholder="Lider1, Lider2"
+                                            />
+                                        </div>
+                                        <div className="manage-field">
+                                            <label>{t('kos.intel.allies')}</label>
+                                            <input
+                                                type="text"
+                                                value={form.allies}
+                                                onChange={(e) => setForm((f) => ({ ...f, allies: e.target.value }))}
+                                                placeholder="Klan Sojuszniczy"
+                                            />
+                                        </div>
+                                        <div className="manage-field">
+                                            <label>{t('kos.intel.firepower')}</label>
+                                            <input
+                                                type="text"
+                                                value={form.firepower}
+                                                onChange={(e) => setForm((f) => ({ ...f, firepower: e.target.value }))}
+                                                placeholder="HEAVY_ARMORED"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="manage-field">
+                                    <label>{t('kos.manage.evidenceLabel')}</label>
+                                    <textarea
+                                        rows={4}
+                                        value={form.evidenceText}
+                                        onChange={(e) => setForm((f) => ({ ...f, evidenceText: e.target.value }))}
+                                        placeholder={t('kos.manage.evidenceHint')}
+                                    />
+                                </div>
+
+                                {isAdmin && (
+                                    <div className="upload-box">
+                                        <label className="upload-btn">
+                                            {uploading ? (
+                                                <Loader2 size={14} className="spin" />
+                                            ) : (
+                                                <Upload size={14} />
+                                            )}
+                                            <span>
+                                                {uploading
+                                                    ? t('kos.manage.uploading')
+                                                    : t('kos.manage.uploadBtn')}
+                                            </span>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleUpload}
+                                                disabled={uploading}
+                                            />
+                                        </label>
+                                        {uploadError && (
+                                            <span className="upload-error">{t('kos.manage.uploadError')}</span>
+                                        )}
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    className="manage-add-btn"
+                                    disabled={form.reasonMode === 'custom' && !form.customReason.trim()}
+                                >
+                                    <Plus size={14} />
+                                    <span>{t('kos.manage.addBtn')}</span>
+                                </button>
+                            </form>
+
+                            <div className="manage-list">
+                                <h4 className="manage-list-title">{t('kos.manage.listTitle')}</h4>
+                                {(manageTab === 'personal' ? personalTargets : factionTargets).length === 0 ? (
+                                    <p className="manage-empty">{t('kos.manage.empty')}</p>
+                                ) : (
+                                    (manageTab === 'personal' ? personalTargets : factionTargets).map((target) => (
+                                        <div key={target.name} className="manage-item">
+                                            <span className="manage-item-name">{target.name}</span>
+                                            <span className="manage-item-reason">{getReasonText(target)}</span>
+                                            <button
+                                                type="button"
+                                                className="manage-remove-btn"
+                                                onClick={() => handleRemoveTarget(target.name)}
+                                                title={t('kos.manage.remove')}
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+
+                            <button type="button" className="manage-reset-btn" onClick={handleResetLocal}>
+                                {t('kos.manage.resetBtn')}
+                            </button>
+
+                            <button className="close-intel-btn" onClick={() => setManageOpen(false)}>
+                                {t('kos.intel.close')}
+                            </button>
+
+                            <div className="intel-hud-corners">
+                                <div className="h-tl"></div><div className="h-tr"></div>
+                                <div className="h-bl"></div><div className="h-br"></div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <footer className="kos-footer">
                 <div className="footer-deco">

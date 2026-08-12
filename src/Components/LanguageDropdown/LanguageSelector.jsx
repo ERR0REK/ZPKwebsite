@@ -6,22 +6,9 @@ const LanguageSelector = ({ onSelect, forceShow = false }) => {
     const { i18n } = useTranslation();
     const [showModal, setShowModal] = useState(forceShow);
 
-    // === LISTA JĘZYKÓW ===
-    // Aby dodać nowy język:
-    // 1. Dodaj nowy obiekt do poniższej tablicy
-    // 2. Upewnij się, że kod języka (np. 'de') pasuje do pliku w src/Locales/
-    // 3. Utwórz plik tłumaczenia: src/Locales/{langCode}.json
-    // 4. Dodaj konfigurację w src/i18n.js
-    // Przykład: { code: 'fr', name: 'Français', flag: '🇫🇷' }
     const languages = [
-        { code: 'en', name: 'English', flag: '🇬🇧' },
-        { code: 'pl', name: 'Polish', flag: '🇵🇱' },
-        // { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-        // { code: 'fr', name: 'Français', flag: '🇫🇷' },
-        // { code: 'es', name: 'Español', flag: '🇪🇸' },
-        // { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-        // { code: 'ja', name: '日本語', flag: '🇯🇵' },
-        // { code: 'zh', name: '中文', flag: '🇨🇳' },
+        { code: 'en', name: 'English', label: 'EN' },
+        { code: 'pl', name: 'Polish', label: 'PL' },
     ];
 
     useEffect(() => {
@@ -37,24 +24,22 @@ const LanguageSelector = ({ onSelect, forceShow = false }) => {
         if (onSelect) onSelect(lang);
     };
 
-    const scroll = (direction) => {
-        const container = document.querySelector('.language-carousel');
-        if (container) {
-            const scrollAmount = 150;
-            if (direction === 'left') {
-                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-            } else {
-                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-            }
-        }
+    const handleMissingLanguage = (e) => {
+        e.preventDefault();
+        localStorage.setItem('selectedLanguage', 'en');
+        i18n.changeLanguage('en');
+        setShowModal(false);
+        if (onSelect) onSelect('en');
+        window.open('https://discord.gg/ZPK', '_blank', 'noopener,noreferrer');
     };
+
+    const currentLang = i18n.language;
 
     return (
         <>
             {showModal && (
                 <div className="language-modal-overlay">
                     <div className="language-modal">
-                        {/* HUD Elements */}
                         <div className="lang-hud-tl"></div><div className="lang-hud-tr"></div>
                         <div className="lang-hud-bl"></div><div className="lang-hud-br"></div>
 
@@ -63,38 +48,39 @@ const LanguageSelector = ({ onSelect, forceShow = false }) => {
                             <p className="language-modal-desc">Unauthorized access restricted. Choose a secure translation uplink to proceed.</p>
                         </div>
 
-                        <div className="language-carousel-wrapper">
-                            <button
-                                className="carousel-btn carousel-btn-left"
-                                onClick={() => scroll('left')}
-                                aria-label="Poprzedni język"
-                            >
-                                ◀
-                            </button>
-
-                            <div className="language-carousel">
+                        <div className="language-list-container">
+                            <div className="language-list">
                                 {languages.map((lang) => (
                                     <button
                                         key={lang.code}
-                                        className="lang-btn"
+                                        className={`lang-btn ${currentLang === lang.code ? 'lang-btn-active' : ''}`}
                                         onClick={() => handleLanguageSelect(lang.code)}
                                     >
-                                        <span className="lang-flag">{lang.flag}</span>
-                                        <span className="lang-name">{lang.name}</span>
+                                        <div className="lang-code-box">[ {lang.label} ]</div>
+                                        <div className="lang-name">{lang.name}</div>
+                                        {currentLang === lang.code && (
+                                            <span className="lang-active-badge">UPLINK SECURED</span>
+                                        )}
+                                        <div className="scan-line-btn"></div>
                                     </button>
                                 ))}
                             </div>
-
-                            <button
-                                className="carousel-btn carousel-btn-right"
-                                onClick={() => scroll('right')}
-                                aria-label="Następny język"
-                            >
-                                ▶
-                            </button>
                         </div>
 
-                        <p className="language-hint">💡 {languages.length > 2 ? 'Scroll to see more' : 'Choose a language to continue'}</p>
+                        <div className="language-footer">
+                            <p className="language-hint">💡 Scroll to view more options</p>
+                            <div className="translation-prompt">
+                                <p className="translation-text">
+                                    Language not listed? You can translate it from English to your native language.
+                                </p>
+                                <button onClick={handleMissingLanguage} className="translation-link">
+                                    [ CLICK HERE TO HELP TRANSLATE ]
+                                </button>
+                                <p className="translation-warning">
+                                    * This will temporarily set your interface to English.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
@@ -103,5 +89,3 @@ const LanguageSelector = ({ onSelect, forceShow = false }) => {
 };
 
 export default LanguageSelector;
-
-/* src/Components/LanguageDropdown/LanguageSelector.jsx */

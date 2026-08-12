@@ -29,7 +29,7 @@
     width: 100%;
     height: 100%;
     background: linear-gradient(rgba(5, 7, 10, 0) 50%, rgba(0, 0, 0, 0.2) 50%),
-        linear-gradient(90deg, var(--military-green-glow), rgba(56, 189, 248, 0.03));
+        linear-gradient(90deg, var(--ZPK-red-glow), rgba(251, 191, 36, 0.03));
     background-size: 100% 4px, 4px 100%;
     pointer-events: none;
     z-index: 2;
@@ -44,7 +44,7 @@
 
 .login-card {
     background: var(--bg-alt);
-    border: 1px solid var(--military-green-glow);
+    border: 1px solid var(--ZPK-red-glow);
     padding: 40px;
     position: relative;
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
@@ -60,12 +60,12 @@
     width: 80px;
     height: 80px;
     margin-bottom: 15px;
-    filter: drop-shadow(0 0 10px var(--military-green-glow));
+    filter: drop-shadow(0 0 10px var(--ZPK-red-glow));
 }
 
 .login-title {
     font-size: 1.8rem;
-    color: var(--military-green);
+    color: var(--ZPK-red);
     margin-bottom: 5px;
 }
 
@@ -132,14 +132,14 @@
     text-align: left;
     background: rgba(0, 0, 0, 0.3);
     padding: 20px;
-    border: 1px solid rgba(0, 243, 255, 0.1);
+    border: 1px solid var(--ZPK-red-glow);
 }
 
 .req-header {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: var(--cyber-blue);
+    color: var(--ZPK-gold);
     margin-bottom: 15px;
     font-family: var(--font-header);
     font-size: 0.8rem;
@@ -161,7 +161,7 @@
 }
 
 .req-icon {
-    color: var(--military-green);
+    color: var(--ZPK-red);
 }
 
 .req-notice {
@@ -195,7 +195,7 @@
 }
 
 .footer-link:hover {
-    color: var(--military-green);
+    color: var(--ZPK-red);
 }
 
 .dot {
@@ -208,7 +208,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: rgba(0, 255, 102, 0.5);
+    color: var(--ZPK-red-glow);
     font-family: var(--font-header);
     font-size: 0.6rem;
 }
@@ -218,7 +218,7 @@
     position: absolute;
     width: 15px;
     height: 15px;
-    border: 2px solid var(--military-green);
+    border: 2px solid var(--ZPK-red);
 }
 
 .corner.tl {
@@ -255,7 +255,7 @@
     left: 0;
     width: 100%;
     height: 1px;
-    background: var(--military-green);
+    background: var(--ZPK-red);
     opacity: 0.3;
     animation: scanVert 4s linear infinite;
 }

@@ -10,7 +10,8 @@
 }
 
 .warlogs-bg {
-    display: none; /* Using global SpaceBackground */
+    display: none;
+    /* Using global SpaceBackground */
 }
 
 .warlogs-container {
@@ -54,13 +55,13 @@
 .warlogs-header h1 {
     font-size: clamp(2.5rem, 8vw, 4rem);
     font-family: var(--font-header);
-    background: linear-gradient(90deg, var(--starlight-white), var(--nfs-blue));
+    background: linear-gradient(90deg, var(--ZPK-white), var(--ZPK-red));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: 12px;
     text-transform: uppercase;
-    text-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+    text-shadow: 0 0 30px var(--ZPK-red-glow);
     margin: 0;
     position: relative;
     display: inline-block;
@@ -90,13 +91,13 @@
 .deco-line {
     width: 80px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--nfs-blue), transparent);
+    background: linear-gradient(90deg, transparent, var(--ZPK-gold), transparent);
 }
 
 .deco-tech {
-    font-family: 'Share Tech Mono', monospace;
+    font-family: "Share Tech Mono", monospace;
     font-size: 1rem;
-    color: var(--nfs-purple);
+    color: var(--ZPK-red);
     letter-spacing: 4px;
     opacity: 0.8;
 }
@@ -105,8 +106,9 @@
 .warlogs-empty-state {
     text-align: center;
     padding: 60px 40px;
-    border: 1px solid var(--nfs-blue);
+    border: 1px solid var(--ZPK-gold);
     background: rgba(15, 15, 25, 0.6);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border-radius: 4px;
     max-width: 650px;
@@ -134,7 +136,7 @@
     margin: 0 auto 35px;
     position: relative;
     border-radius: 50%;
-    border: 1px solid rgba(56, 189, 248, 0.3);
+    border: 1px solid var(--ZPK-gold-glow);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -167,7 +169,7 @@
     left: 50%;
     width: 50%;
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--nfs-blue));
+    background: linear-gradient(90deg, transparent, var(--ZPK-gold));
     transform-origin: left center;
     animation: radarSpin 3s linear infinite;
     opacity: 0.8;
@@ -186,7 +188,7 @@
 .empty-title {
     font-family: var(--font-header);
     font-size: 2.5rem;
-    color: var(--starlight-white);
+    color: var(--ZPK-white);
     margin-bottom: 12px;
     text-transform: uppercase;
     letter-spacing: 4px;
@@ -207,8 +209,8 @@
 }
 
 .empty-subtitle {
-    font-family: 'Share Tech Mono', monospace;
-    color: var(--nfs-blue);
+    font-family: "Share Tech Mono", monospace;
+    color: var(--ZPK-gold);
     font-size: 1.1rem;
     margin-bottom: 25px;
     letter-spacing: 2px;
@@ -230,7 +232,7 @@
 }
 
 .empty-desc {
-    color: #889988;
+    color: var(--text-dim);
     line-height: 1.6;
     max-width: 400px;
     margin: 0 auto;
@@ -289,7 +291,7 @@
     .modal-sidebar {
         width: 100%;
         border-right: none;
-        border-bottom: 2px solid var(--military-green);
+        border-bottom: 2px solid var(--ZPK-red);
     }
 
     .modal-image-container {
@@ -324,8 +326,9 @@
 /* --- WarLog Card Styles --- */
 .warlog-card {
     background: rgba(15, 15, 25, 0.4);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(56, 189, 248, 0.2);
+    border: 1px solid var(--ZPK-red-glow);
     position: relative;
     cursor: pointer;
     overflow: hidden;
@@ -335,17 +338,17 @@
 }
 
 .warlog-card:hover {
-    box-shadow: 0 15px 40px rgba(168, 85, 247, 0.2);
-    border-color: var(--nfs-purple);
+    box-shadow: 0 15px 40px var(--ZPK-red-glow);
+    border-color: var(--ZPK-red);
     transform: translateY(-8px) scale(1.02);
-    background: rgba(168, 85, 247, 0.08);
+    background: rgba(239, 68, 68, 0.08);
 }
 
 .card-image-container {
     height: 180px;
     position: relative;
     overflow: hidden;
-    border-bottom: 1px solid var(--military-green-glow);
+    border-bottom: 1px solid var(--ZPK-red-glow);
 }
 
 .card-bg-img {
@@ -361,7 +364,10 @@
 
 .card-overlay {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
 }
 
@@ -380,13 +386,13 @@
 }
 
 .result-win {
-    background: var(--nfs-blue);
-    color: var(--starlight-white);
+    background: var(--ZPK-gold);
+    color: var(--ZPK-white);
 }
 
 .result-loss {
-    background: var(--nfs-purple);
-    color: var(--starlight-white);
+    background: var(--ZPK-red);
+    color: var(--ZPK-white);
 }
 
 .card-content {
@@ -400,7 +406,7 @@
     display: flex;
     justify-content: space-between;
     font-size: 0.85rem;
-    color: #88aa88;
+    color: var(--text-dim);
     margin-bottom: 10px;
 }
 
@@ -408,7 +414,7 @@
     font-family: var(--font-header);
     font-size: 1.4rem;
     margin: 0 0 15px 0;
-    color: var(--starlight-white);
+    color: var(--ZPK-white);
     text-transform: uppercase;
     letter-spacing: 2px;
 }
@@ -425,17 +431,17 @@
 }
 
 .preview-value.result-win {
-    color: var(--nfs-blue);
+    color: var(--ZPK-gold);
 }
 
 .preview-value.result-loss {
-    color: var(--nfs-purple);
+    color: var(--ZPK-red);
 }
 
 .details-btn {
     background: transparent;
-    border: 1px solid var(--nfs-blue);
-    color: var(--nfs-blue);
+    border: 1px solid var(--ZPK-gold);
+    color: var(--ZPK-gold);
     padding: 10px 16px;
     text-transform: uppercase;
     font-family: 'Share Tech Mono', monospace;
@@ -446,7 +452,7 @@
 }
 
 .warlog-card:hover .details-btn {
-    background: var(--nfs-blue);
+    background: var(--ZPK-gold);
     color: #000;
 }
 
@@ -454,7 +460,7 @@
     position: absolute;
     width: 12px;
     height: 12px;
-    border: 1px solid var(--nfs-blue);
+    border: 1px solid var(--ZPK-gold);
     transition: all 0.3s;
     opacity: 0.3;
 }
@@ -463,7 +469,7 @@
     width: 24px;
     height: 24px;
     opacity: 1;
-    border-color: var(--starlight-white);
+    border-color: var(--ZPK-white);
 }
 
 /* --- Modal Styles (Polished) --- */
@@ -474,6 +480,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.85);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     z-index: 2000;
     display: flex;
@@ -483,23 +490,24 @@
 }
 
 .warlog-modal {
-    background: rgba(10, 10, 20, 0.95);
+    background: rgba(10, 5, 5, 0.95);
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
-    border: 1px solid var(--nfs-blue);
+    border: 1px solid var(--ZPK-gold);
     width: 100%;
     max-width: 1000px;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
-    box-shadow: 0 0 60px rgba(56, 189, 248, 0.3);
+    box-shadow: 0 0 60px var(--ZPK-gold-glow);
     display: flex;
     flex-direction: column;
 }
 
 /* Richer Header */
 .modal-header {
-    background: linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, rgba(0, 0, 0, 0) 100%);
-    border-bottom: 1px solid var(--nfs-blue);
+    background: linear-gradient(90deg, rgba(251, 191, 36, 0.15) 0%, rgba(0, 0, 0, 0) 100%);
+    border-bottom: 1px solid var(--ZPK-gold);
     padding: 20px 30px;
     display: flex;
     justify-content: space-between;
@@ -509,14 +517,14 @@
 .modal-header h2 {
     margin: 0;
     font-family: var(--font-header);
-    color: var(--starlight-white);
+    color: var(--ZPK-white);
     letter-spacing: 4px;
-    text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    text-shadow: 0 0 15px var(--ZPK-gold-glow);
 }
 
 .close-btn {
     font-size: 2.5rem;
-    color: var(--military-green);
+    color: var(--ZPK-red);
     cursor: pointer;
     line-height: 0.6;
     transition: transform 0.2s;
@@ -531,20 +539,18 @@
     display: flex;
     flex-direction: row;
     padding: 0;
-    align-items: stretch;
-    background:
-        repeating-linear-gradient(45deg,
+    align-items: stretch;    background: repeating-linear-gradient(45deg,
             rgba(0, 0, 0, 0) 0px,
             rgba(0, 0, 0, 0) 10px,
-            rgba(168, 85, 247, 0.02) 10px,
-            rgba(168, 85, 247, 0.02) 11px);
+            rgba(239, 68, 68, 0.02) 10px,
+            rgba(239, 68, 68, 0.02) 11px);
 }
 
 /* Sidebar Styling - Polished */
 .modal-sidebar {
     width: 360px;
-    background: rgba(5, 5, 10, 0.6);
-    border-right: 1px solid rgba(56, 189, 248, 0.2);
+    background: rgba(5, 5, 5, 0.6);
+    border-right: 1px solid var(--ZPK-gold-glow);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -554,7 +560,7 @@
     height: 220px;
     width: 100%;
     position: relative;
-    border-bottom: 1px solid var(--military-green-glow);
+    border-bottom: 1px solid var(--ZPK-red-glow);
     overflow: hidden;
 }
 
@@ -601,7 +607,7 @@
 }
 
 .stat-value {
-    color: var(--starlight-white);
+    color: var(--ZPK-white);
     font-weight: bold;
     font-family: 'Share Tech Mono', monospace;
     font-size: 1.1rem;
@@ -611,7 +617,7 @@
 .stat-row.mvp-row {
     margin-top: 20px;
     border: 1px solid rgba(255, 215, 0, 0.3);
-    border-left: 4px solid #ffd700;
+    border-left: 4px solid var(--ZPK-gold);
     padding: 12px 15px;
     background: linear-gradient(90deg, rgba(255, 215, 0, 0.08) 0%, transparent 100%);
     position: relative;
@@ -661,14 +667,14 @@
 .modal-war-title {
     font-size: 2.2rem;
     margin: 0;
-    color: var(--military-green);
+    color: var(--ZPK-red);
     font-family: 'Orbitron', sans-serif;
     line-height: 1.1;
     text-transform: uppercase;
 }
 
 .log-date {
-    color: #556655;
+    color: var(--text-dim);
     font-size: 0.95rem;
     font-family: 'Share Tech Mono', monospace;
     margin-bottom: 10px;
@@ -679,15 +685,15 @@
 }
 
 .section-title {
-    color: #aaffaa;
+    color: var(--ZPK-gold);
     text-transform: uppercase;
     margin-bottom: 12px;
     font-size: 1rem;
     letter-spacing: 1.5px;
-    border-left: 3px solid var(--military-green);
+    border-left: 3px solid var(--ZPK-red);
     padding-left: 12px;
     display: inline-block;
-    background: linear-gradient(90deg, var(--military-green-glow), transparent);
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.06), transparent);
     width: 100%;
 }
 
@@ -702,7 +708,7 @@
     color: #fff;
     background: rgba(255, 255, 255, 0.03);
     padding: 15px;
-    border-left: 2px solid var(--military-green-glow);
+    border-left: 2px solid var(--ZPK-red-glow);
 }
 
 /* Members Grid Tags */
@@ -713,39 +719,39 @@
 }
 
 .member-tag {
-    background: rgba(0, 20, 10, 0.8);
-    border: 1px solid var(--military-green-glow);
+    background: rgba(10, 5, 5, 0.8);
+    border: 1px solid var(--ZPK-red-glow);
     padding: 6px 12px;
-    font-family: 'Share Tech Mono', monospace;
+    font-family: "Share Tech Mono", monospace;
     font-size: 0.95rem;
-    color: #e0f0e0;
+    color: var(--ZPK-white);
     transition: all 0.2s;
     position: relative;
 }
 
 .member-tag::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 3px;
     height: 100%;
-    background: var(--military-green);
+    background: var(--ZPK-red);
     opacity: 0.5;
 }
 
 .member-tag:hover {
-    background: rgba(0, 255, 102, 0.2);
-    border-color: var(--military-green);
+    background: rgba(239, 68, 68, 0.2);
+    border-color: var(--ZPK-red);
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px var(--military-green-glow);
+    box-shadow: 0 4px 10px var(--ZPK-red-glow);
 }
 
 /* --- Modal Tabs Styling --- */
 .modal-tabs {
     display: flex;
-    background: rgba(0, 50, 20, 0.3);
-    border-bottom: 1px solid rgba(0, 255, 102, 0.4);
+    background: rgba(239, 68, 68, 0.05);
+    border-bottom: 1px solid rgba(239, 68, 68, 0.2);
     padding: 10px 20px 0;
     gap: 10px;
 }
@@ -753,7 +759,7 @@
 .tab-btn {
     background: transparent;
     border: none;
-    color: #88aa88;
+    color: var(--text-dim);
     padding: 12px 20px;
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.9rem;
@@ -768,20 +774,20 @@
 }
 
 .tab-btn.active {
-    border-color: var(--nfs-blue);
-    color: var(--nfs-blue);
-    background: var(--nfs-blue-glow);
+    border-color: var(--ZPK-gold);
+    color: var(--ZPK-gold);
+    background: var(--ZPK-gold-glow);
 }
 
 .tab-btn.active::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 3px;
-    background: var(--nfs-purple);
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+    background: var(--ZPK-red);
+    box-shadow: 0 0 15px var(--ZPK-red-glow);
 }
 
 .tab-pane {
@@ -800,10 +806,10 @@
 
 .pane-title {
     font-family: 'Orbitron', sans-serif;
-    color: var(--military-green);
+    color: var(--ZPK-red);
     margin-bottom: 25px;
     letter-spacing: 2px;
-    border-bottom: 1px solid rgba(0, 255, 102, 0.2);
+    border-bottom: 1px solid var(--ZPK-red-glow);
     padding-bottom: 10px;
 }
 
@@ -817,7 +823,7 @@
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr;
     padding: 12px 20px;
-    background: var(--military-green-glow);
+    background: rgba(239, 68, 68, 0.1);
     color: #fff;
     font-family: 'Share Tech Mono', monospace;
     font-weight: bold;
@@ -836,8 +842,8 @@
 }
 
 .kd-row:hover {
-    background: rgba(0, 255, 102, 0.05);
-    border-color: var(--military-green-glow);
+    background: rgba(239, 68, 68, 0.05);
+    border-color: var(--ZPK-red-glow);
     transform: translateX(5px);
 }
 
@@ -852,7 +858,7 @@
 }
 
 .kills {
-    color: var(--military-green);
+    color: var(--ZPK-gold);
 }
 
 .deaths {
@@ -872,7 +878,7 @@
     .modal-sidebar {
         width: 100%;
         border-right: none;
-        border-bottom: 1px solid rgba(0, 255, 102, 0.2);
+        border-bottom: 1px solid var(--ZPK-red-glow);
     }
 }
 

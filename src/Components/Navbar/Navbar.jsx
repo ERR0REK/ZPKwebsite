@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import LanguageDropdown from '../LanguageDropdown/LanguageDropdown';
 import logo from '../../Assets/logo.png';
 import './Navbar.css';
 
@@ -23,7 +22,7 @@ const Navbar = () => {
 
     /* Logout button disabled temporarily
     const handleLogout = () => {
-        localStorage.removeItem('NFS_auth_session');
+        localStorage.removeItem('ZPK_auth_session');
         window.location.href = "/";
     };
     */
@@ -69,9 +68,6 @@ const Navbar = () => {
                         </li>
                         */}
                     </ul>
-                    <div className="nav-lang-mobile">
-                        <LanguageDropdown />
-                    </div>
                 </div>
             </div>
         </nav>

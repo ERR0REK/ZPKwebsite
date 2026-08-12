@@ -10,6 +10,8 @@ import DecodedText from "../Shared/DecodedText";
 
 /* Importowanie obrazków członków kadry */
 
+import ERR0N1XPFP from "../../Assets/StaffMembersPFP/ERR0N1XPFP.webp"
+
 /* Koniec importowania obrazków */
 
 import "../Staff/Staff.css";
@@ -21,13 +23,21 @@ export default function Staff() {
   // Dane przykładowe członków kadry
   // Można je zastąpić danymi z API lub bazy danych
   const staffData = {
-    factionCommand: [],
+    factionCommand: [
+      {
+        id: 1,
+        name: "(polonia.errorglitchtv) ☦ 𝕆ℕℝ_𝔼ℝℝ𝟘ℕ𝟙𝕏 ☦",
+        role: "Właściciel",
+        robloxUsername: "ERR0R_Gl1tchTV",
+        robloxUserId: "2537111023",
+        avatar: ERR0N1XPFP
+      }
+    ],
     factionCoLeader: [],
     technicalSpecialist: [],
     trialCoLeader: [],
     elder: [],
     trialElder: [],
-    intelligence: [],
     headAdministrator: [],
     seniorAdministrator: [],
     administrator: [],
@@ -135,13 +145,6 @@ export default function Staff() {
         <StaffRoleSection
           roleTitle={t("staff.roles.trialElder", "Trial Elder")}
           members={staffData.trialElder}
-          onMemberMoreInfo={handleMemberMoreInfo}
-        />
-
-        {/* Intelligence */}
-        <StaffRoleSection
-          roleTitle={t("staff.roles.intelligence", "Intelligence")}
-          members={staffData.intelligence}
           onMemberMoreInfo={handleMemberMoreInfo}
         />
 

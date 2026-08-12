@@ -3,27 +3,30 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, Terminal } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import './Security.css';
 
 const SecurityLayer = () => {
+    const { t } = useTranslation();
     const [showAlert, setShowAlert] = useState(false);
     const [violationType, setViolationType] = useState('');
 
-    // Whitelist for admins/devs to bypass anticheat and test localStorage
-    //const AUTHORIZED_ADMIN_IDS = ["687701665771814939"]; // User's ID from Discord
+    const AUTHORIZED_ADMIN_ID = "687701665771814939";
 
     useEffect(() => {
-        //const session = JSON.parse(localStorage.getItem('NFS_auth_session'));
-        //const isAdmin = session && AUTHORIZED_ADMIN_IDS.includes(session.user_id);
+        const checkBypass = () => {
+            const session = JSON.parse(localStorage.getItem('ZPK_auth_session'));
+            return session && session.user_id === AUTHORIZED_ADMIN_ID;
+        };
 
         const handleContextMenu = (e) => {
-            //if (isAdmin) return; // Bypass for admins
+            if (checkBypass()) return;
             e.preventDefault();
             triggerAlert('UNAUTHORIZED_ACCESS_CONTEXT_MENU');
         };
 
         const handleKeyDown = (e) => {
-            //if (isAdmin) return; // Bypass for admins
+            if (checkBypass()) return;
             // Block F12
             if (e.keyCode === 123) {
                 e.preventDefault();
@@ -83,7 +86,7 @@ const SecurityLayer = () => {
 
                         <div className="alert-header">
                             <ShieldAlert className="alert-icon" size={30} />
-                            <div className="alert-title-main">SECURITY_VIOLATION</div>
+                            <div className="alert-title-main">{t('security.violation_title')}</div>
                         </div>
 
                         <div className="alert-content">
@@ -92,14 +95,15 @@ const SecurityLayer = () => {
                                 <span>{violationType}</span>
                             </div>
                             <p className="alert-desc">
-                                Unauthorized access to unit source-code restricted by Nightfall Squadron protocols.
-                                IP_LOGGING: ACTIVE.
+                                {t('security.unauthorized_access')}
+                                <br />
+                                <strong>{t('security.ip_logging')}</strong>
                             </p>
                         </div>
 
                         <div className="alert-footer">
                             <div className="scanning-bar"></div>
-                            <span className="status-text">COUNTER_INTEL_SYSTEM_ENGAGED</span>
+                            <span className="status-text">{t('security.status_text')}</span>
                         </div>
                     </motion.div>
 

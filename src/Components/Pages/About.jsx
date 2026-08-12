@@ -16,7 +16,8 @@ import {
   Globe,
   Terminal,
   MessageSquare,
-  Gamepad2
+  Gamepad2,
+  ClipboardList
 } from 'lucide-react';
 
 export default function About() {
@@ -121,10 +122,32 @@ export default function About() {
           <div className="card-body">
             <p>{t('about.ourMissionContent')}</p>
             <div className="features-grid">
-              {[1, 2, 3, 4, 5].map((num) => (
+              {[1, 2, 3, 4].map((num) => (
                 <motion.div key={num} className="feature-item" variants={itemVariants}>
                   <Zap size={18} className="feature-icon" />
                   <span>{t(`about.mission${num}`)}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+          <div className="card-scanner"></div>
+          <div className="corner tl"></div><div className="corner tr"></div>
+          <div className="corner bl"></div><div className="corner br"></div>
+        </motion.section>
+
+        {/* Wymagania */}
+        <motion.section className="about-card highlight" variants={sectionVariants}>
+          <div className="card-header">
+            <ClipboardList className="card-icon" />
+            <h2 className="card-title">{t('about.requirementsTitle')}</h2>
+          </div>
+          <div className="card-body">
+            <p>{t('about.requirementsIntro')}</p>
+            <div className="features-grid">
+              {[1, 2, 3].map((num) => (
+                <motion.div key={num} className="feature-item" variants={itemVariants}>
+                  <Shield size={18} className="feature-icon" />
+                  <span>{t(`about.requirement${num}`)}</span>
                 </motion.div>
               ))}
             </div>
@@ -183,6 +206,16 @@ export default function About() {
           <div className="card-body join-layout">
             <div className="join-info">
               <p>{t('about.howToJoinContent')}</p>
+              
+              <div className="join-steps-list">
+                {[1, 2, 3, 4].map((num) => (
+                  <motion.div key={num} className="step-item" variants={itemVariants}>
+                    <div className="step-number">{num}</div>
+                    <span>{t(`about.step${num}`)}</span>
+                  </motion.div>
+                ))}
+              </div>
+
               <motion.button
                 className="join-btn"
                 whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0, 255, 102, 0.4)" }}
@@ -192,6 +225,20 @@ export default function About() {
                 <div className="btn-glow"></div>
                 <span>{t('about.joinDiscord')}</span>
               </motion.button>
+
+              {/* Community + Klan: alternatywa dla osób, które nie chcą dołączać do klanu */}
+              <div className="community-block">
+                <h3 className="community-title">{t('about.communityTitle')}</h3>
+                <p className="community-content">{t('about.communityContent')}</p>
+                <div className="community-steps-list">
+                  {[1, 2, 3].map((num) => (
+                    <motion.div key={num} className="community-step" variants={itemVariants}>
+                      <div className="community-step-num">{num}</div>
+                      <span>{t(`about.communityStep${num}`)}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className="contact-info">

@@ -1,7 +1,7 @@
 :root {
     --loading-bg: #000000;
-    --loading-accent: #a855f7; /* Purple */
-    --loading-secondary: #38bdf8; /* Blue */
+    --loading-accent: var(--ZPK-red);
+    --loading-secondary: var(--ZPK-gold);
     --loading-text: #ffffff;
 }
 
@@ -35,7 +35,8 @@
 .logo-wrapper {
     width: 200px;
     height: 200px;
-    margin-bottom: 60px; /* Space before title */
+    margin-bottom: 60px;
+    /* Space before title */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -45,14 +46,15 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.4));
+    filter: drop-shadow(0 0 20px var(--ZPK-red-glow));
 }
 
 .loading-title-new {
     font-size: 2.5rem;
     color: var(--loading-text);
     letter-spacing: 12px;
-    margin-bottom: 60px; /* More space between title and progress bar as requested */
+    margin-bottom: 60px;
+    /* More space between title and progress bar as requested */
     font-weight: 500;
     text-align: center;
     text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
@@ -78,20 +80,24 @@
     height: 100%;
     width: 0;
     /* Cosmic Gradient Animation */
-    background: linear-gradient(90deg, 
-        #a855f7 0%, 
-        #38bdf8 50%, 
-        #a855f7 100%
-    );
+    background: linear-gradient(90deg,
+            var(--ZPK-red) 0%,
+            var(--ZPK-white) 50%,
+            var(--ZPK-red) 100%);
     background-size: 200% 100%;
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
+    box-shadow: 0 0 15px var(--ZPK-red-glow);
     transition: width 0.1s linear;
     animation: cosmicShift 3s linear infinite;
 }
 
 @keyframes cosmicShift {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 200% 50%;
+    }
 }
 
 .loading-status-text-new {
@@ -106,8 +112,11 @@
 /* Background Nebula Effect (Subtle) */
 .loading-bg {
     position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 70%);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: radial-gradient(circle at 50% 50%, var(--ZPK-red-glow) 0%, transparent 70%);
     z-index: 1;
 }
 
@@ -117,6 +126,7 @@
         letter-spacing: 6px;
         margin-bottom: 40px;
     }
+
     .logo-wrapper {
         width: 150px;
         height: 150px;

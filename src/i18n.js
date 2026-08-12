@@ -16,15 +16,15 @@ const resources = {
     }
 };
 
-// 1. Sprawdź localStorage po zapisany język przy starcie aplikacji
-const savedLanguage = localStorage.getItem('i18nextLng') || 'pl'; // Domyślnie 'pl', jeśli nic nie ma
+// Strona jest polska — język zablokowany na PL (koniec międzynarodowości)
+const savedLanguage = 'pl';
 
 i18n
     .use(initReactI18next)
     .init({
         resources,
-        lng: savedLanguage, // 2. Użyj język zamiast na sztywno 'pl'
-        fallbackLng: 'en',
+        lng: savedLanguage,
+        fallbackLng: 'pl',
         interpolation: {
             escapeValue: false
         }

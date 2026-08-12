@@ -42,7 +42,7 @@ const History = () => {
         {
             year: "2023_Q3",
             title: t('history.event1.title', 'INITIATION_PROTOCOL'),
-            content: t('history.event1.content', 'The first division was formed under the codename Nightfall Squadron. The goal: Unity and tactical dominance.'),
+            content: t('history.event1.content', 'The first division was formed under the codename Zjednoczona Polska Korona. The goal: Unity and tactical dominance.'),
             icon: <Flag size={20} />
         },
         {
@@ -82,7 +82,7 @@ const History = () => {
                     <DecodedText text={t('history.title', 'FACTION HISTORY')} delay={0.2} />
                 </h1>
                 <p className="history-subtitle">
-                    {t('history.subtitle', 'Official chronological records of Nightfall Squadron operations.')}
+                    {t('history.subtitle', 'Official chronological records of Zjednoczona Polska Korona operations.')}
                 </p>
                 <div className="hero-divider">
                     <span></span><Cpu size={20} /><span></span>

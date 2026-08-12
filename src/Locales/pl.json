@@ -1,7 +1,13 @@
 {
+  "security": {
+    "violation_title": "NARUSZENIE_PROT_BEZP",
+    "unauthorized_access": "Nieautoryzowany dostęp do kodu źródłowego jednostki ograniczony przez protokoły Zjednoczona Polska Korona.",
+    "ip_logging": "LOGOWANIE_IP: AKTYWNE",
+    "status_text": "SYSTEM_KONTRWYWIADU_AKTYWNY"
+  },
   "nav": {
     "home": "Strona Główna",
-    "about": "Czym jest Nightfall Squadron?",
+    "about": "Czym jest Zjednoczona Polska Korona",
     "regulations": "Regulamin",
     "qa": "Q&A",
     "staff": "Kadra",
@@ -10,8 +16,8 @@
     "changelog": "Changelog"
   },
   "hero": {
-    "title": "Nightfall Squadron",
-    "welcome": "Witaj na oficjalnej stronie Nightfall Squadron. Poznaj naszą historię, misje i więcej.",
+    "title": "Zjednoczona Polska Korona",
+    "welcome": "Witaj na oficjalnej stronie Zjednoczonego Królestwa Polskiego. Poznaj naszą historię, misje i więcej.",
     "discord_button": "Dołącz na Discorda",
     "youtube_button": "YouTube",
     "tiktok_button": "TikTok"
@@ -20,7 +26,7 @@
     "line1": "// OPERACJE TRENINGOWE: AKTYWNE",
     "line2": "// REKRUTACJA JEDNOSTEK: OTWARTA",
     "line3": "// STATUS SERWERA: OPTYMALNY",
-    "line4": "// RAPORT: Nightfall Squadron ROZMIESZCZONY",
+    "line4": "// RAPORT: Zjednoczona Polska Korona ROZMIESZCZONY",
     "line5": "// SZYFROWANIE: MIL-SPEC_V2"
   },
   "langDropdown": {
@@ -48,7 +54,7 @@
     "inGameRank": "Ranga w Grze",
     "joinDate": "Dołączył",
     "achievements": "Osiągnięcia",
-    "description": " to ważny członek naszej organizacji Nightfall Squadron.",
+    "description": " to ważny członek naszej frakcji Zjednoczonego Królestwa Polskiego.",
     "close": "Zamknij"
   },
   "history": {
@@ -73,18 +79,82 @@
   },
   "kos": {
     "title": "BAZA DANYCH KOS",
-    "subtitle": "Oficjalna lista osób i podmiotów stanowiących zagrożenie dla Nightfall Squadron.",
+    "subtitle": "Oficjalna lista osób i podmiotów stanowiących zagrożenie dla Zjednoczonej Polskiej Korony.",
     "search": "SZUKAJ PO NAZWIE...",
     "reasonLabel": "POWÓD",
-    "lastSeenLabel": "OSTATNIO WIDZIANY",
-    "statusLabel": "STATUS",
-    "viewIntel": "ZOBACZ AKTA",
+    "viewDossier": "ZOBACZ AKTA",
+    "seeMore": "ZOBACZ WIĘCEJ",
+    "seeLess": "ZWIŃ",
+    "showAll": "POKAŻ WSZYSTKIE CELE",
+    "showLess": "POKAŻ MNIEJ",
     "noResults": "BRAK PASUJĄCYCH ZAGROŻEŃ W ARCHIWACH",
     "personalSection": "OSOBY",
-    "factionSection": "FRAKCJE",
-    "reason1": "Kradzież danych wywiadowczych i sabotaż serwera.",
-    "reason2": "Skoordynowane rajdy i szerzenie propagandy.",
-    "reason3": "Korzystanie z nieautoryzowanego oprogramowania zewnętrznego."
+    "factionSection": "KLANY",
+    "stats": {
+      "total": "AKTYWNE_ZAGROŻENIA",
+      "evidence": "ZAREJESTROWANE_DOWODY",
+      "monitored": "MONITOROWANE_KLANY"
+    },
+    "filters": {
+      "all": "WSZYSTKO",
+      "personal": "OSOBY",
+      "faction": "FRAKCJE",
+      "factions": "FRAKCJE"
+    },
+    "reasons": {
+      "reasonMissing": "Powód nieokreślony.",
+      "reasonExploit": "Korzystanie z nieautoryzowanego oprogramowania, exploitów i skryptów.",
+      "reasonSpy": "Podejrzenie szpiegostwa: przekazywanie informacji frakcji wrogim grupom.",
+      "reasonScam": "Oszukiwanie członków frakcji podczas handlu i wymiany waluty w grze.",
+      "reasonRaid": "Niesprowokowane rajdy na tereny frakcji, posterunki i konwoje zaopatrzeniowe.",
+      "reasonGrief": "Powtarzający się griefing: niszczenie mienia frakcji i nękanie członków.",
+      "reasonImpersonation": "Podszywanie się pod członków kadry ZPK w celu oszukania nowych rekrutów.",
+      "reasonHate": "Mowa nienawiści i dyskryminacja wobec innych graczy."
+    },
+    "evidence": {
+      "badge": "DOWODY ({{count}})",
+      "title": "DOWODY",
+      "images": "ZRZUTY EKRANU",
+      "recordings": "NAGRANIA WIDEO",
+      "youtube": "YouTube",
+      "medal": "Medal.tv",
+      "discord": "Wiadomość na Discordzie",
+      "other": "Inny link"
+    },
+    "intel": {
+      "robloxProfile": "PROFIL ROBLOX",
+      "factionLeaders": "LIDERZY",
+      "allies": "SOJUSZNICY",
+      "firepower": "POTENCJAŁ BOJOWY",
+      "close": "ZAMKNIJ AKTA"
+    },
+    "manage": {
+      "open": "ZARZĄDZAJ LOKALNIE",
+      "title": "BAZA LOKALNA",
+      "subtitle": "Cele zapisywane są w tej przeglądarce (localStorage). Dodawaj lub usuwaj je tutaj.",
+      "nameLabel": "NAZWA",
+      "namePlaceholder": "Nazwa / nick celu",
+      "reasonLabel": "POWÓD",
+      "reasonPreset": "GOTOWY",
+      "reasonCustom": "WŁASNY",
+      "customReasonPlaceholder": "Wpisz własny powód...",
+      "robloxLinkLabel": "LINK DO PROFILU ROBLOX",
+      "evidenceLabel": "DOWODY (jedno na linię)",
+      "evidenceHint": "image|/kos/plik.png lub https://...\nyoutube|https://www.youtube.com/watch?v=...|Tytuł\nmedal|https://medal.tv/clips/...|Tytuł\ndiscord|https://discord.com/channels/...|Tytuł wiadomości\nother|https://...|Tytuł",
+      "addBtn": "DODAJ CEL",
+      "listTitle": "ZAPISANE CELE",
+      "empty": "Brak zapisanych celów.",
+      "remove": "USUŃ",
+      "resetBtn": "PRZYWRÓĆ DOMYŚLNE Z KODU",
+      "resetConfirm": "Zresetować lokalną bazę KOS do domyślnych celów z kodu? Wszystkie dodane lokalnie cele zostaną usunięte.",
+      "adminOnly": "TYLKO ADMIN",
+      "adminOnlyWarning": "Tylko administratorzy Discorda mogą dodawać i usuwać cele KOS.",
+      "uploadBtn": "WYŚLIJ ZDJĘCIE",
+      "uploading": "WYSYŁANIE...",
+      "uploadError": "Nie udało się wysłać zdjęcia. Spróbuj ponownie lub wklej link ręcznie.",
+      "cloudOnline": "SYNCHRONIZACJA Z CHMURĄ: AKTYWNA — zmiany widzą wszyscy gracze",
+      "cloudOffline": "TRYB LOKALNY — zmiany widoczne tylko w tej przeglądarce"
+    }
   },
   "login": {
     "prompt": "ZALOGUJ SIĘ, ABY KONTYNUOWAĆ",
@@ -92,13 +162,13 @@
     "with_discord": "ZALOGUJ PRZEZ DISCORD",
     "requirements_title": "WYMAGANIA DOSTĘPU",
     "req1": "Ważne konto Discord",
-    "req2": "Przynależność do oficjalnego serwera NFS",
+    "req2": "Przynależność do oficjalnego serwera ZPK",
     "req3": "Zweryfikowany status operacyjny",
     "notice": "Logowanie przez Discord jest wymagane do weryfikacji statusu członka oraz zabezpieczenia sesji.",
     "tos": "Warunki Korzystania",
     "privacy": "Polityka Prywatności",
     "success_title": "DOSTĘP PRZYZNANY",
-    "success_body": "Weryfikacja zakończona sukcesem. Witaj w systemie Nightfall Squadron.",
+    "success_body": "Weryfikacja zakończona sukcesem. Witaj w systemie Zjednoczona Polska Korona.",
     "error_no_server": "DOSTĘP ZABLOKOWANY: Nie należysz do oficjalnego serwera Discord frakcji.",
     "error_api": "BŁĄD SYSTEMU: Nie udało się zweryfikować Twojego konta.",
     "redirecting": "Przekierowywanie do bazy danych..."
@@ -129,29 +199,28 @@
       "kiepski": "WIP"
     },
     "roles": {
-      "factionCommand": "Faction Command",
-      "factionCoLeader": "Faction Co Leader",
-      "technicalSpecialist": "Specjalista Techniczny",
-      "trialCoLeader": "Trial Co Leader",
+      "factionCommand": "Właściciel",
+      "factionCoLeader": "Współwłaściciel",
+      "technicalSpecialist": "Technik Specjalista",
+      "trialCoLeader": "Próbny Wśpółwłaściciel",
       "elder": "Elder",
-      "trialElder": "Trial Elder",
-      "intelligence": "Wywiad",
-      "headAdministrator": "Główny Administrator",
-      "seniorAdministrator": "Starszy Administrator",
+      "trialElder": "Próbny Elder",
+      "headAdministrator": "Head Administrator",
+      "seniorAdministrator": "Senior Administrator",
       "administrator": "Administrator",
-      "trialAdministrator": "Trial Administrator",
-      "seniorModerator": "Starszy Moderator",
+      "trialAdministrator": "Próbny Administrator",
+      "seniorModerator": "Senior Moderator",
       "moderator": "Moderator",
-      "trialModerator": "Trial Moderator"
+      "trialModerator": "Próbny Moderator"
     }
   },
   "qa": {
     "title": "PYTANIA I ODPOWIEDZI",
-    "subtitle": "Znajdź odpowiedzi na najczęściej zadawane pytania dotyczące Nightfall Squadron",
+    "subtitle": "Znajdź odpowiedzi na najczęściej zadawane pytania dotyczące Zjednoczona Polska Korona",
     "noItems": "Brak pytań do wyświetlenia",
     "faqs": [
       {
-        "question": "Jak mogę dołączyć do Nightfall Squadron?",
+        "question": "Jak mogę dołączyć do Zjednoczona Polska Korona?",
         "answer": "Aby dołączyć do naszej frakcji, musisz wejść na nasz serwer Roblox i poprosić o zaproszenie. Zwróć się do dowolnego członka administracji z wymaganą dokumentacją."
       },
       {
@@ -185,40 +254,50 @@
     ]
   },
   "about": {
-    "title": "CZYM JEST NFS?",
-    "subtitle": "Poznaj naszą historię, misję i jak dołączyć do naszej społeczności",
+    "title": "CZYM JEST ZPK?",
+    "subtitle": "Poznaj naszą misję i jak dołączyć do naszej społeczności",
     "whoAreWe": "Kim jesteśmy?",
-    "whoAreWeContent": "Nightfall Squadron to dynamiczna i profesjonalna organizacja militarna działająca na serwerze Roblox. Jesteśmy zaangażowani w tworzenie przyjaznego, zdyscyplinowanego i zainteresowanego wspólnotą graczy.",
-    "whoAreWeContent2": "Nasze członkowie pochodzą z różnych części świata, ale łączy nas wspólna pasja do gier i zainteresowanie wojskowością. Tworzymy środowisko, gdzie każdy może się rozwijać i osiągać swoje cele.",
+    "whoAreWeContent": "Zjednoczona Polska Korona to nowo pierwszy polski klan w grze Wanted. Jesteśmy zaangażowani w tworzeniu przyjaznego, silnego oraz zdyscyplinowanego społeczeństwa.",
+    "whoAreWeContent2": "",
     "ourMission": "Nasza misja",
-    "ourMissionContent": "Misją Nightfall Squadron jest budowanie silnej, zorganizowanej i szanującej się nawzajem społeczności graczy. Dążymy do:",
-    "mission1": "Zapewniania pozytywnego doświadczenia na serwerze",
-    "mission2": "Wspierania nowych członków w ich rozwoju",
-    "mission3": "Organizowania zdarzeń i operacji dla całej frakcji",
-    "mission4": "Utrzymywania wysokich standardów profesjonalizmu i etyki",
-    "mission5": "Tworzenia przyjaznego i bezpiecznego środowiska dla graczy",
+    "ourMissionContent": "Misją Zjednoczonej Polskiej Korony jest zbudowanie silnej, zorganizowanej i szanującej się nawzajem społeczności klanu. Dążymy do:",
+    "mission1": "Totalnej dominacji nad serwerami Wanted",
+    "mission2": "Zbrojenie członków (Jeśli nie mają wystarczająco dużo kasy na lepszą broń)",
+    "mission3": "Wspólnego grindu (Na publicznym/prywatnym serwerze)",
+    "mission4": "Walka z wrogimi klanami",
+    "mission5": "",
+    "requirementsTitle": "WYMAGANIA",
+    "requirementsIntro": "Wymagania są takie:",
+    "requirement1": "Posiadać samochód o wartości 120k do 750k.",
+    "requirement2": "Mieć przynajmniej 200-800k kasy na koncie.",
+    "requirement3": "Mieć 16 lat.",
     "values": "Nasze wartości",
-    "valuesIntro": "Działania Nightfall Squadron opierają się na następujących fundamentalnych wartościach:",
-    "value1Title": "Szacunek",
-    "value1Content": " - Szanujemy każdego członka naszej społeczności niezależnie od jego pozycji.",
-    "value2Title": "Dyscyplina",
-    "value2Content": " - Wierzymy, że dyscyplina jest kluczem do sukcesu i harmonii w grupie.",
-    "value3Title": "Wspólnota",
-    "value3Content": " - Pracujemy razem dla wspólnego dobra i wspieramy się nawzajem.",
-    "value4Title": "Przejrzystość",
-    "value4Content": " - Komunikujemy się otwarcie i uczciwą z naszymi członkami.",
-    "value5Title": "Zaangażowanie",
-    "value5Content": " - Każdy członek jest zaangażowany w działania Nightfall Squadron.",
+    "valuesIntro": "Działania Zjednoczonej Polskiej Korony opierają się na następujących fundamentalnych wartościach:",
+    "value1Title": "SZACUNEK",
+    "value1Content": "\n-- Szanujemy każdego członka naszej społeczności niezależnie od jego pozycji.",
+    "value2Title": "DYSCYPLINA",
+    "value2Content": "\n-- Wierzymy, że dyscyplina jest kluczem do sukcesu i harmonii w społeczności.",
+    "value3Title": "WSPÓLNOTA",
+    "value3Content": "\n-- Pracujemy razem dla wspólnego dobra i wspieramy się nawzajem.",
+    "value4Title": "DETERMINACJA",
+    "value4Content": "\n-- Nie poddajemy się po porażkach. Każda przegrana to dla nas lekcja, która przybliża nas do zwycięstwa.",
+    "value5Title": "ZAANGAŻOWANIE",
+    "value5Content": "\n-- Każdy członek jest zaangażowany w działania Zjednoczonej Polskiej Korony",
     "structure": "Struktura organizacyjna",
-    "structureContent": "Nightfall Squadron ma dobrze zdefiniowaną strukturę z różnymi rolami i stanowiskami. Od Faction Command na szczycie po Trial Moderators, każda rola jest ważna i wspiera ogólne funkcjonowanie organizacji.",
+    "structureContent": "Zjednoczona Polska Korona ma dobrze zdefiniowaną strukturę z różnymi rolami i stanowiskami. Od Faction Command na szczycie po Trial Moderators, każda rola jest ważna i wspiera ogólne funkcjonowanie organizacji.",
     "structureContent2": "Aby dowiedzieć się więcej o naszych rolach i członkach kadry, odwiedź stronę 'Kadra'.",
     "howToJoin": "Jak dołączyć do nas?",
-    "howToJoinContent": "Jeśli jesteś zainteresowany dołączeniem do Nightfall Squadron, tutaj są podstawowe kroki:",
-    "step1": "Wejdź na nasz serwer Roblox i zapoznaj się z naszymi regulaminami",
-    "step2": "Dołącz do naszego serwera Discord aby być w kontakcie z społecznością",
-    "step3": "Zwróć się do członka administracji z prośbą o zaproszenie do frakcji",
-    "step4": "Przejdź przez proces weryfikacji i poznaj pozostałych członków",
-    "step5": "Zacznij nową przygodę z Nightfall Squadron!",
+    "howToJoinContent": "Żeby do nas dołączyć musisz spełnić wszystkie 3 wymagania i tutaj 3 kroki do dołączenia:",
+    "step1": "Dołącz do serwera discord",
+    "step2": "Następnie, zweryfikujesz się.",
+    "step3": "I ostatni punkt robisz ticketa o nazwie: Rekrutacja.",
+    "step4": "I zostajesz oficjalnym członkiem Zjednoczonej Polskiej Korony! :D",
+    "step5": "",
+    "communityTitle": "ZOSTAŃ COMMUNITY MEMBEREM",
+    "communityContent": "Nasz serwer działa w modelu community + klan. Nie chcesz dołączać do klanu? Bez problemu - możesz być tylko community memberem. Musisz jednak przejść 3 weryfikacje:",
+    "communityStep1": "Weryfikacja przez Bloxlinka (połączenie konta Discord z Roblox).",
+    "communityStep2": "Czekanie 3 dni na odblokowanie kanałów polowych.",
+    "communityStep3": "Czekanie 7 dni na odblokowanie większości kanałów (oprócz kanałów klanu i kadry).",
     "joinDiscord": "Dołącz na Discorda",
     "contact": "Kontakt",
     "contactContent": "Jeśli masz pytania lub chcesz się skontaktować z administracją, możesz to zrobić poprzez:",
@@ -227,54 +306,39 @@
     "contactWebsite": "Ta strona: Skorzystaj z opcji kontaktu (jeśli dostępna)"
   },
   "common": {
-    "orgName": "Nightfall Squadron",
+    "orgName": "Zjednoczona Polska Korona",
     "comingSoon": "WKRÓTCE",
     "na": "N/D",
     "noDescription": "Brak opisu"
   },
   "regulations": {
-    "serverTitle": "Regulamin serwera Nightfall Squadron",
-    "title": "Regulamin serwera Nightfall Squadron",
+    "serverTitle": "Regulamin serwera Zjednoczona Polska Korona",
+    "title": "Regulamin serwera Zjednoczona Polska Korona",
     "warning": "Każdy, kto złamie zasady, poniesie konsekwencje, takie jak wyciszenie na określoną liczbę godzin, ban lub wyrzucenie z serwera. Jeśli ujawnisz dane osobowe innej osoby, możesz spodziewać się trwałego bana i dodania do 𝙺𝙾𝚂.",
     "highlight": "Niektóre zasady będą podkreślone czego nie złamać jakiegoś regulaminu i wyładować w kos liście.",
     "generalRulesTitle": "Sekcja 1: Ogólne zasady",
     "voiceChatRulesTitle": "Sekcja 2: Ogólne zasady dotyczące czatu głosowego",
-    "inGameRulesTitle": "Sekcja 3: Regulamin In-Game",
+    "inGameRulesTitle": "",
     "rules": {
       "general": [
         "Szanuj innych: Zachowuj się z szacunkiem wobec wszystkich członków serwera, niezależnie od ich wieku, płci, pochodzenia lub poglądów.",
-        "Nie wyzywaj wyższych rang, ponieważ będziesz miał z tego konsekwencje. < -- Dotyczy to zarówno jak administratorów i jak członków.",
-        "Nie wyzywaj całej administracji i innych oraz siebie nawzajem < -- Dotyczy to zarówno jak administratorów i jak członków.",
-        "Nie zgłaszaj członków frakcji bez powodu (w Robloxie).",
-        "Nie spamuj: nie wysyłaj nadmiernej liczby wiadomości, nie udostępniaj niepotrzebnych linków ani nie używaj wielkich liter bez potrzeby.",
-        "Nie udostępniaj danych osobowych: Nie udostępniaj informacji, które mogłyby zidentyfikować Ciebie lub innych użytkowników, takich jak numer telefonu, adres e-mail lub dane bankowe. oraz adresy IP.",
-        "Nie udostępniaj treści NSFW: Nie udostępniaj treści o charakterze seksualnym, zawierających przemoc, obraźliwych oraz brutalności wysokiego stopnia.",
-        "Nie reklamuj: Nie reklamuj swoich produktów, usług ani innych stron internetowych oraz serwerów discord bez zgody administratorów. < -- Administratorzy muszą się zapytać właściciela i potem wysyłać zapro.",
-        "Nie udostępniaj treści chronionych prawem autorskim: Nie udostępniaj treści, które naruszają prawa autorskie innych osób.",
-        "Nie podszywaj się pod innych: Nie podszywaj się pod innych użytkowników ani administratorów.",
-        "Można krytykować cały naród Ukraiński (ale nie Ukrainek) i banderę."
+        "Kultura wobec administracji i graczy: Zakaz wyzywania wyższych rang, administracji oraz siebie nawzajem. Zasada ta dotyczy w równym stopniu zarówno członków, jak i moderatorów/adminów.",
+        "Nie spamuj: Nie wysyłaj nadmiernej liczby wiadomości, nie flooduj, nie udostępniaj niepotrzebnych linków i nie nadużywaj CAPS LOCKA.",
+        "Ochrona prywatności: Bezwzględny zakaz udostępniania informacji, które mogłyby zidentyfikować Ciebie lub innych użytkowników (numery telefonów, adresy e-mail, dane bankowe, adresy IP itp.).",
+        "Zakaz treści NSFW / Gore: Nie udostępniaj treści o charakterze seksualnym, zawierających przemoc, wulgarnych oraz cechujących się wysokim stopniem brutalności.",
+        "Zakaz reklamy: Nie reklamuj swoich produktów, usług, innych stron internetowych czy serwerów Discord bez zgody. Administracja przed wrzuceniem jakiegokolwiek zaproszenia musi najpierw uzyskać zgodę Właściciela.",
+        "Prawa autorskie: Nie udostępniaj treści, które naruszają prawa autorskie innych osób.",
+        "Zakaz podszywania się: Nie podszywaj się pod innych użytkowników ani członków administracji."
       ],
       "voice": [
-        "Szanuj innych: Zachowuj się z szacunkiem wobec wszystkich członków serwera, niezależnie od ich wieku, płci, pochodzenia lub poglądów.",
-        "Nie używaj obraźliwego języka: unikaj wulgaryzmów, obraźliwych słów, mowy nienawiści i dyskryminujących wypowiedzi.",
-        "Nie krzycz: Mów spokojnie i wyraźnie, aby każdy mógł cię dobrze usłyszeć.",
-        "Nie spamuj dźwiękami: Nie odtwarzaj ciągle muzyki, dźwięków ani innych nagrań bez zgody innych.",
-        "Nie przerywaj rozmowy: jeśli ktoś mówi, poczekaj na swoją kolej, aby zabrać głos.",
-        "Nie używaj mikrofonu bez potrzeby: jeśli nie chcesz brać udziału w rozmowie, wyłącz mikrofon.",
-        "Nie odtwarzaj treści NSFW: Nie odtwarzaj treści o charakterze seksualnym, zawierających przemoc lub obraźliwych.",
-        "Nie przerywaj komuś jak ktoś nie skończył gadać.",
-        "Nie nagrywaj rozmów bez zgody: Nie nagrywaj rozmów bez zgody wszystkich uczestników.",
-        "Nie nagrywaj rozmowy bez zgody drugiej osoby."
-      ],
-      "inGame": [
-        "Brak flamowania: Nie prowadź kłótni ani nie atakuj innych graczy w grze.",
-        "Nie obchodzisz reguł: Przestrzegaj zasad serwera w grze i wykonuj rozkazy wyższych rang.",
-        "Teamwork: Pracuj razem z członkami zespołu dla wspólnych celów.",
-        "Nie cheatujesz: Używanie exploitów, skryptów lub jakichkolwiek form cheatingu jest surowo zabronione.",
-        "Brak griefingu: Nie niszcz budynków ani nie przeszkadzaj innym graczom.",
-        "Szanuj rangę: Posłuchaj rozkazów członków z wyższą rangą.",
-        "Bezpieczna gra: Nie wchodzić w niebezpieczne strefy bez zgody administracji.",
-        "Aktywność: Bądź aktywny i zaangażowany w działalność serwera."
+        "Szacunek na VC: Zachowuj się z szacunkiem wobec współrozmówców.",
+        "Kultura wypowiedzi: Unikaj nadmiernych wulgaryzmów, mowy nienawiści i dyskryminujących wypowiedzi. (Odpowiedni slang bitewny z Wanted! dozwolony, ale bez toksyczności!).",
+        "Nie krzycz: Mów spokojnie i wyraźnie do mikrofonu, szanuj uszy innych graczy.",
+        "Zakaz soundboardów / spamu dźwiękami: Nie odtwarzaj ciągle muzyki, binderów ani innych uciążliwych nagrań bez wyraźnej zgody reszty osób na kanale.",
+        "Nie przerywaj: Jeśli ktoś mówi (zwłaszcza podczas planowania akcji w grze), poczekaj na swoją kolejkę. Nie wchodź nikomu w słowo.",
+        "Szanuj przestrzeń: Jeśli nie bierzesz udziału w rozmowie lub masz w tle hałas, wycisz swój mikrofon (mutuj się).",
+        "Zakaz puszczania NSFW: Zakaz odtwarzania na VC dźwięków o charakterze seksualnym, brutalnym lub skrajnie obraźliwym.",
+        "Zakaz nagrywania: Bezwzględny zakaz nagrywania rozmów na kanale głosowym bez wyraźnej zgody wszystkich uczestników."
       ]
     },
     "footer": {
@@ -324,7 +388,7 @@
   },
   "changelog": {
     "title": "CHANGELOG",
-    "subtitle": "Zobacz historię zmian i aktualizacji Nightfall Squadron",
+    "subtitle": "Zobacz historię zmian i aktualizacji Zjednoczona Polska Korona",
     "footer": {
       "thankYou": "Dziękujemy za obserwowanie naszego rozwoju!",
       "suggest": "Masz jakieś sugestie? Dołącz do naszego Discorda!"
@@ -338,6 +402,62 @@
       "release": "STABILNA"
     },
     "dev": [
+      {
+        "version": "0.0.12-DEV",
+        "date": "3 sie 2026",
+        "changes": [
+          {
+            "type": "improvement",
+            "title": "Rebranding UI — Tactical HUD",
+            "description": "Pełna przebudowa wyglądu wszystkich podstron (Hero, About, QA, Regulamin, Kadra, War Logs, Security, Navbar, LoadingScreen) w klimacie taktycznego HUD: scanlines, neonowe obramowania, glass morphism, efekt glitch i elementy sci-fi. Wymieniono też tło hero i dodano nowe logo frakcji."
+          },
+          {
+            "type": "feature",
+            "title": "Baza KOS v2",
+            "description": "Przebudowa bazy KOS: rozwijane powody (ZOBACZ WIĘCEJ), system dowodów (zrzuty ekranu, YouTube, Medal.tv, linki do wiadomości Discord i inne). Usunięto status, ostatnio widziany, poziom zagrożenia, notatki terenowe i incydenty."
+          },
+          {
+            "type": "feature",
+            "title": "Panel zarządzania KOS (tylko dla adminów)",
+            "description": "Przycisk ZARZĄDZAJ LOKALNIE: dodawanie i usuwanie celów bez edycji kodu, zapis w przeglądarce (localStorage), własne powody (custom reasons) oraz reset do domyślnych celów z kodu. Funkcja jest WYŁĄCZONA dla zwykłych użytkowników - blokada TYLKO ADMIN."
+          },
+          {
+            "type": "feature",
+            "title": "Weryfikacja administratorów Discord",
+            "description": "Dodawanie i usuwanie celów KOS tylko dla administratorów serwera - sprawdzanie ról przez bota Discord (funkcja Netlify verify-admin). Ochrona przed trollami, weryfikacja po stronie serwera."
+          },
+          {
+            "type": "feature",
+            "title": "Upload zdjęć dowodów",
+            "description": "Wysyłanie zdjęć dowodów bezpośrednio z panelu zarządzania - automatyczny hosting przez Catbox (funkcja Netlify upload-evidence), bez konieczności zakładania konta."
+          },
+          {
+            "type": "feature",
+            "title": "Nowe typy dowodów",
+            "description": "Dodano nowe typy linków dowodów: wiadomość na Discordzie oraz dowolny inny link - obok istniejących YouTube i Medal.tv, z kolorowymi wyróżnikami."
+          },
+          {
+            "type": "improvement",
+            "title": "Strona w 100% po polsku",
+            "description": "Wyłączono selektor języków i zablokowano stronę na języku polskim - koniec międzynarodowości."
+          },
+          {
+            "type": "feature",
+            "title": "Integracja z Netlify (GitHub → Netlify)",
+            "description": "Dodano funkcje serwerowe Netlify (verify-admin, upload-evidence) w pełni kompatybilne z wdrożeniem GitHub → Netlify, wraz ze zmiennymi środowiskowymi dla bota Discord."
+          },
+          {
+            "type": "bugfix",
+            "title": "Naprawa zdjęć dowodów",
+            "description": "Poprawiono ścieżki obrazów (przeniesione do public/kos/), naprawiono wyświetlanie zdjęcia Kerainff oraz priorytet celów z kodu nad nieaktualnymi danymi w localStorage."
+          },
+          {
+            "type": "bugfix",
+            "title": "Poprawki techniczne",
+            "description": "Naprawiono błąd sprawdzania ról administratora (operator przecinkowy), naprawiono testy (kompatybilność react-router v7 z Jest), dodano brakujące ikony logo i branding ZPK w manifest.json."
+          }
+        ]
+      },
       {
         "version": "0.0.11.9",
         "date": "30 sty 2026",
@@ -366,7 +486,7 @@
           {
             "type": "feature",
             "title": "Historia Frakcji",
-            "description": "Dodano nową stronę z interaktywną linią czasu przedstawiającą historię operacyjną Nightfall Squadron."
+            "description": "Dodano nową stronę z interaktywną linią czasu przedstawiającą historię operacyjną Zjednoczona Polska Korona."
           },
           {
             "type": "feature",
@@ -396,8 +516,8 @@
         "changes": [
           {
             "type": "feature",
-            "title": "Rebranding: Nightfall Squadron",
-            "description": "Oficjalna zmiana nazwy z '303rd Division' na 'Nightfall Squadron' w całym projekcie, w tym w systemie tłumaczeń, nagłówkach i powiadomieniach systemowych."
+            "title": "Rebranding: Zjednoczona Polska Korona",
+            "description": "Oficjalna zmiana nazwy z '303rd Division' na 'Zjednoczona Polska Korona' w całym projekcie, w tym w systemie tłumaczeń, nagłówkach i powiadomieniach systemowych."
           },
           {
             "type": "feature",
@@ -843,7 +963,7 @@
           {
             "type": "feature",
             "title": "Uruchomienie produkcji",
-            "description": "Oficjalne publiczne uruchomienie strony Nightfall Squadron"
+            "description": "Oficjalne publiczne uruchomienie strony Zjednoczona Polska Korona"
           },
           {
             "type": "feature",
@@ -858,5 +978,11 @@
         ]
       }
     ]
+  },
+  "notFound": {
+    "title": "ZAGUBIONY W PRZESTRZENI",
+    "subtitle": "Szukany sektor nie istnieje lub został przesunięty do innego układu współrzędnych.",
+    "status": "STATUS: SYGNAŁ NIEODNALEZIONY",
+    "backHome": "WRÓĆ DO BAZY"
   }
 }

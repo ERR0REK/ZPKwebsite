@@ -13,12 +13,12 @@ const DiscordCallback = () => {
     const [error, setError] = useState(null);
     const [status, setStatus] = useState('verifying'); // verifying, success, error
 
-    const REQUIRED_GUILD_ID = "1463132353814593752"; // Updated to match user's server ID
+    const REQUIRED_GUILD_ID = "1445399610414858340"; // Main Faction Server
+    const REQUIRED_DEV_GUILD_ID = "1368589684858683453"; // Dev Server ID (Placeholder - Update if needed)
 
     useEffect(() => {
         const handleAuth = async () => {
             // Because of HashRouter, the URL looks like #/auth/callback#access_token=...
-            // We need to split and get the last part
             const fragments = window.location.hash.split('#');
             const authHash = fragments[fragments.length - 1];
             const params = new URLSearchParams(authHash);
@@ -46,27 +46,48 @@ const DiscordCallback = () => {
                 if (!response.ok) throw new Error(t('login.error_api'));
 
                 const guilds = await response.json();
-                const isInGuild = guilds.some(g => g.id === REQUIRED_GUILD_ID);
+                const isInMainGuild = guilds.some(g => g.id === REQUIRED_GUILD_ID);
+                const isInDevGuild = guilds.some(g => g.id === REQUIRED_DEV_GUILD_ID);
 
-                if (isInGuild) {
-                    // Store session with user ID
-                    localStorage.setItem('NFS_auth_session', JSON.stringify({
+                if (isInMainGuild && isInDevGuild) {
+                    // Check admin role (via Netlify Function + Discord bot)
+                    let is_admin = false;
+                    try {
+                        const adminRes = await fetch('/api/verify-admin', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ access_token: accessToken })
+                        });
+                        const adminData = await adminRes.json();
+                        is_admin = !!(adminData && adminData.ok && adminData.is_admin);
+                    } catch (e) {
+                        // If the function is not deployed yet, default to non-admin
+                        is_admin = false;
+                    }
+
+                    // Store session with user ID and admin flag
+                    localStorage.setItem('ZPK_auth_session', JSON.stringify({
                         access_token: accessToken,
                         user_id: userData.id,
+                        is_admin,
                         timestamp: Date.now()
                     }));
 
                     setStatus('success');
 
-                    // Clear the Discord fragment and redirect without a hard reload
+                    // Retrieve the redirect target or default to home
+                    const redirectTarget = sessionStorage.getItem('ZPK_redirect_target') || "/";
+                    sessionStorage.removeItem('ZPK_redirect_target');
+
+                    // Clear the Discord fragment and redirect
                     setTimeout(() => {
-                        window.history.replaceState(null, null, window.location.origin + window.location.pathname + "#/");
-                        navigate("/");
+                        window.history.replaceState(null, null, window.location.origin + window.location.pathname + "#" + redirectTarget);
+                        navigate(redirectTarget);
                     }, 1500);
                 } else {
                     setStatus('error');
                     setError(t('login.error_no_server'));
-                    localStorage.removeItem('NFS_auth_session');
+                    localStorage.removeItem('ZPK_auth_session');
                 }
             } catch (err) {
                 console.error(err);

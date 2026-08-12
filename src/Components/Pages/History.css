@@ -9,8 +9,10 @@
     overflow-x: hidden;
 }
 
-.history-overlay, .history-scanlines {
-    display: none; /* Using global SpaceBackground */
+.history-overlay,
+.history-scanlines {
+    display: none;
+    /* Using global SpaceBackground */
 }
 
 .history-hero {
@@ -26,37 +28,40 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    color: var(--nfs-blue);
+    color: var(--ZPK-gold);
     margin-bottom: 20px;
 }
 
 .hero-tag {
-    font-family: 'Share Tech Mono', monospace;
+    font-family: "Share Tech Mono", monospace;
     font-size: 0.8rem;
     letter-spacing: 4px;
-    background: rgba(56, 189, 248, 0.1);
+    background: rgba(251, 191, 36, 0.1);
     padding: 4px 15px;
-    border-left: 2px solid var(--nfs-blue);
-    color: var(--starlight-white);
+    border-left: 2px solid var(--ZPK-gold);
+    color: var(--ZPK-white);
 }
 
 .history-title {
     font-size: clamp(2.5rem, 8vw, 4.5rem);
     margin-bottom: 20px;
     font-family: var(--font-header);
-    background: linear-gradient(90deg, var(--starlight-white), var(--nfs-blue));
+    background: linear-gradient(90deg, var(--ZPK-white), var(--ZPK-red));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 30px rgba(56, 189, 248, 0.2);
+    text-shadow: 0 0 30px var(--ZPK-red-glow);
     letter-spacing: 8px;
 }
 
 .history-subtitle {
-    color: var(--text-dim);
+    color: var(--text-main);
     max-width: 600px;
     margin: 0 auto 30px;
     font-size: 1.1rem;
+    opacity: 0.85;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+    line-height: 1.7;
 }
 
 .hero-divider {
@@ -69,7 +74,7 @@
 .hero-divider span {
     height: 1px;
     width: 120px;
-    background: linear-gradient(90deg, transparent, var(--nfs-blue), transparent);
+    background: linear-gradient(90deg, transparent, var(--ZPK-red), transparent);
 }
 
 /* Timeline Container */
@@ -83,11 +88,12 @@
 
 .timeline-line {
     position: absolute;
-    left: 40px; /* Moved to the left for dossier style */
+    left: 40px;
+    /* Moved to the left for dossier style */
     top: 0;
     bottom: 0;
     width: 1px;
-    background: linear-gradient(to bottom, transparent, var(--nfs-blue), transparent);
+    background: linear-gradient(to bottom, transparent, var(--ZPK-red), transparent);
 }
 
 .timeline-item {
@@ -114,32 +120,40 @@
 .badge-outer {
     width: 44px;
     height: 44px;
-    background: rgba(15, 15, 25, 0.8);
-    border: 1px solid var(--nfs-blue);
+    background: rgba(10, 5, 10, 0.8);
+    border: 1px solid var(--ZPK-gold);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--nfs-blue);
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+    color: var(--ZPK-gold);
+    box-shadow: 0 0 20px var(--ZPK-gold-glow);
+    transition: all 0.3s ease;
+}
+
+.badge-outer:hover {
+    box-shadow: 0 0 30px var(--ZPK-gold-glow);
+    transform: scale(1.1);
 }
 
 /* Timeline Card */
 .timeline-card {
-    background: rgba(15, 15, 25, 0.4);
+    background: rgba(10, 5, 10, 0.4);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(56, 189, 248, 0.2);
+    border: 1px solid var(--ZPK-red-glow);
     padding: 40px;
     width: 100%;
     max-width: 900px;
     position: relative;
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    clip-path: none; /* Removed the complex clip-path for cleaner tactical look */
+    clip-path: none;
+    /* Removed the complex clip-path for cleaner tactical look */
 }
 
 .timeline-card:hover {
-    border-color: var(--nfs-purple);
-    background: rgba(168, 85, 247, 0.08);
-    box-shadow: 0 15px 40px rgba(168, 85, 247, 0.2);
+    border-color: var(--ZPK-red);
+    background: rgba(239, 68, 68, 0.08);
+    box-shadow: 0 15px 40px var(--ZPK-red-glow);
     transform: translateX(10px);
 }
 
@@ -150,23 +164,27 @@
 }
 
 .card-year {
-    color: var(--nfs-blue);
-    font-family: 'Share Tech Mono', monospace;
+    color: var(--ZPK-gold);
+    font-family: "Share Tech Mono", monospace;
     font-size: 1rem;
     margin-bottom: 8px;
     letter-spacing: 3px;
+    opacity: 0.9;
+    text-shadow: 0 0 10px var(--ZPK-gold-glow);
 }
 
 .card-title {
     font-size: 1.8rem;
     font-family: var(--font-header);
-    color: var(--starlight-white);
+    color: var(--ZPK-white);
     letter-spacing: 2px;
 }
 
 .card-body p {
-    color: var(--text-dim);
-    line-height: 1.6;
+    color: var(--text-main);
+    opacity: 0.85;
+    line-height: 1.7;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 /* HUD Elements */
@@ -176,7 +194,7 @@
     left: 0;
     width: 100%;
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--nfs-purple), transparent);
+    background: linear-gradient(90deg, transparent, var(--ZPK-red), transparent);
     opacity: 0;
     transition: opacity 0.3s;
 }
@@ -190,7 +208,7 @@
     position: absolute;
     width: 15px;
     height: 15px;
-    border: 1px solid var(--nfs-blue);
+    border: 1px solid var(--ZPK-gold);
     opacity: 0.3;
 }
 
@@ -232,7 +250,7 @@
 .footer-line {
     width: 60px;
     height: 2px;
-    background: var(--nfs-purple);
+    background: var(--ZPK-red);
     margin: 0 auto 15px;
 }
 
@@ -241,6 +259,7 @@
     font-size: 0.7rem;
     color: var(--text-dim);
     letter-spacing: 2px;
+    opacity: 0.7;
 }
 
 @keyframes scanVertical {

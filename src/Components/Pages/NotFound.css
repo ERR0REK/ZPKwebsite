@@ -1,0 +1,182 @@
+/* src/Components/Pages/NotFound.css */
+
+.nf-page {
+    min-height: 100vh;
+    background: var(--bg-color);
+    color: #e8edf5;
+    position: relative;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.nf-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background:
+        radial-gradient(ellipse at 50% 0%, var(--ZPK-red-glow) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 100%, var(--ZPK-gold-glow) 0%, transparent 60%);
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.15;
+}
+
+.nf-scanlines {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 2px,
+        rgba(239, 68, 68, 0.03) 2px,
+        rgba(239, 68, 68, 0.03) 4px
+    );
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.nf-container {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 140px 20px 60px;
+    gap: 18px;
+}
+
+.nf-decoration {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    opacity: 0.7;
+    margin-bottom: 10px;
+}
+
+.nf-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    color: var(--ZPK-red);
+    text-transform: uppercase;
+}
+
+.nf-hero-icon {
+    color: var(--ZPK-red);
+    opacity: 0.8;
+}
+
+.nf-code {
+    font-family: "Orbitron", sans-serif;
+    font-size: clamp(6rem, 20vw, 12rem);
+    font-weight: 900;
+    line-height: 1;
+    color: #fff;
+    letter-spacing: 8px;
+    text-shadow:
+        0 0 40px var(--ZPK-red-glow),
+        0 0 80px rgba(239, 68, 68, 0.25),
+        0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.nf-title {
+    font-family: "Orbitron", sans-serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    color: #fff;
+    margin: 0;
+    text-shadow: 0 0 20px var(--ZPK-red-glow);
+}
+
+.nf-subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1rem;
+    color: var(--ZPK-text-dim, #b0bccf);
+    max-width: 500px;
+    line-height: 1.7;
+    opacity: 0.9;
+}
+
+.nf-status-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid var(--ZPK-red);
+    color: var(--ZPK-red);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    margin-top: 10px;
+}
+
+.nf-home-btn {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid var(--ZPK-red);
+    color: #fff;
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    transition: all 0.3s ease;
+}
+
+.nf-btn-glow {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: radial-gradient(circle at center, var(--ZPK-red) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.nf-home-btn:hover .nf-btn-glow {
+    opacity: 0.15;
+}
+
+.nf-coords {
+    display: flex;
+    gap: 25px;
+    margin-top: 25px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: var(--ZPK-text-dim, #b0bccf);
+    opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .nf-container {
+        padding: 120px 15px 40px;
+    }
+
+    .nf-coords {
+        flex-direction: column;
+        gap: 8px;
+    }
+}

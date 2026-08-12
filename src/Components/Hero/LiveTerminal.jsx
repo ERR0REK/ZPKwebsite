@@ -6,7 +6,7 @@ const LOG_MESSAGES = [
   "INITIALIZING_QUANTUM_CORE...",
   "SECURE_CONNECTION_ESTABLISHED",
   "SCANNING_SECTOR_7G...",
-  "NFS_PROTOCOL_v4_ACTIVE",
+  "ZPK_PROTOCOL_v4_ACTIVE",
   "ENCRYPTING_DATA_STREAMS...",
   "UPLINK_STABLE_88Mbps",
   "THREAT_LEVEL: LOW",
@@ -28,7 +28,7 @@ const LiveTerminal = () => {
     const interval = setInterval(() => {
       const randomMsg = LOG_MESSAGES[Math.floor(Math.random() * LOG_MESSAGES.length)];
       const timestamp = new Date().toLocaleTimeString('en-GB', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      
+
       setLogs(prev => [...prev.slice(-14), `[${timestamp}] ${randomMsg}`]);
     }, 2500);
 
@@ -54,7 +54,7 @@ const LiveTerminal = () => {
         ))}
       </div>
       <div className="terminal-footer">
-        RUNNING NFS_OS v4.0.1
+        RUNNING ZPK_OS v4.0.1
       </div>
     </div>
   );

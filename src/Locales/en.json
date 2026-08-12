@@ -1,4 +1,10 @@
 {
+  "security": {
+    "violation_title": "SECURITY_VIOLATION",
+    "unauthorized_access": "Unauthorized access to unit source-code restricted by Zjednoczona Polska Korona protocols.",
+    "ip_logging": "IP_LOGGING: ACTIVE",
+    "status_text": "COUNTER_INTEL_SYSTEM_ENGAGED"
+  },
   "nav": {
     "home": "Home",
     "about": "What's Nightfall Squadron?",
@@ -73,18 +79,82 @@
   },
   "kos": {
     "title": "KOS DATABASE",
-    "subtitle": "Official watchlist of individuals and entities posing a threat to Nightfall Squadron.",
+    "subtitle": "Official watchlist of individuals and entities posing a threat to Zjednoczona Polska Korona.",
     "search": "SEARCH BY NAME...",
     "reasonLabel": "REASON",
-    "lastSeenLabel": "LAST SEEN",
-    "statusLabel": "STATUS",
-    "viewIntel": "VIEW INTEL",
+    "viewDossier": "VIEW DOSSIER",
+    "seeMore": "SEE MORE",
+    "seeLess": "SEE LESS",
+    "showAll": "SHOW ALL TARGETS",
+    "showLess": "SHOW LESS",
     "noResults": "NO MATCHING THREATS FOUND IN ARCHIVE",
     "personalSection": "PERSONAL TARGETS",
     "factionSection": "FACTION TARGETS",
-    "reason1": "Intelligence theft and server sabotage.",
-    "reason2": "Coordinated raids and propaganda spreading.",
-    "reason3": "Use of unauthorized third-party software."
+    "stats": {
+      "total": "ACTIVE_THREATS",
+      "evidence": "RECORDED_EVIDENCE",
+      "monitored": "MONITORED_FACTIONS"
+    },
+    "filters": {
+      "all": "ALL",
+      "personal": "PERSONAL",
+      "faction": "FACTIONS",
+      "factions": "FACTIONS"
+    },
+    "reasons": {
+      "reasonMissing": "Reason not specified.",
+      "reasonExploit": "Use of unauthorized third-party software, exploit tools and scripts.",
+      "reasonSpy": "Suspected espionage: leaking faction intel to hostile groups.",
+      "reasonScam": "Scamming faction members during in-game trades and currency exchanges.",
+      "reasonRaid": "Unprovoked raids on faction territory, outposts and supply convoys.",
+      "reasonGrief": "Repeated griefing: destroying faction property and harassing members.",
+      "reasonImpersonation": "Impersonating ZPK staff members in order to deceive new recruits.",
+      "reasonHate": "Hate speech and discrimination against other players."
+    },
+    "evidence": {
+      "badge": "EVIDENCE ({{count}})",
+      "title": "EVIDENCE",
+      "images": "SCREENSHOTS",
+      "recordings": "VIDEO RECORDINGS",
+      "youtube": "YouTube",
+      "medal": "Medal.tv",
+      "discord": "Discord message",
+      "other": "Other link"
+    },
+    "intel": {
+      "robloxProfile": "ROBLOX PROFILE",
+      "factionLeaders": "LEADERS",
+      "allies": "ALLIES",
+      "firepower": "FIREPOWER",
+      "close": "CLOSE INTEL"
+    },
+    "manage": {
+      "open": "MANAGE LOCALLY",
+      "title": "LOCAL DATABASE",
+      "subtitle": "Targets are stored in this browser (localStorage). Add or remove them here.",
+      "nameLabel": "NAME",
+      "namePlaceholder": "Target name / nickname",
+      "reasonLabel": "REASON",
+      "reasonPreset": "PRESET",
+      "reasonCustom": "CUSTOM",
+      "customReasonPlaceholder": "Type your own reason...",
+      "robloxLinkLabel": "ROBLOX PROFILE LINK",
+      "evidenceLabel": "EVIDENCE (one per line)",
+      "evidenceHint": "image|/kos/plik.png or https://...\nyoutube|https://www.youtube.com/watch?v=...|Title\nmedal|https://medal.tv/clips/...|Title\ndiscord|https://discord.com/channels/...|Message title\nother|https://...|Title",
+      "addBtn": "ADD TARGET",
+      "listTitle": "STORED TARGETS",
+      "empty": "No stored targets yet.",
+      "remove": "REMOVE",
+      "resetBtn": "RESET TO CODE DEFAULTS",
+      "resetConfirm": "Reset the local KOS database to the code defaults? All locally added targets will be removed.",
+      "adminOnly": "ADMIN ONLY",
+      "adminOnlyWarning": "Only Discord administrators can add or remove KOS targets.",
+      "uploadBtn": "UPLOAD IMAGE",
+      "uploading": "UPLOADING...",
+      "uploadError": "Upload failed. Try again or paste the image link manually.",
+      "cloudOnline": "CLOUD SYNC: ACTIVE — changes visible to all players",
+      "cloudOffline": "LOCAL MODE — changes visible only in this browser"
+    }
   },
   "login": {
     "prompt": "LOGIN_TO_CONTINUE",
@@ -92,7 +162,7 @@
     "with_discord": "LOGIN_WITH_DISCORD",
     "requirements_title": "ENTRY_REQUIREMENTS",
     "req1": "Valid Discord Account",
-    "req2": "Membership in official NFS Server",
+    "req2": "Membership in official ZPK Server",
     "req3": "Verified Identity Status",
     "notice": "Discord login is required to verify your operative status and clear your session.",
     "tos": "Terms of Service",
@@ -185,40 +255,50 @@
     ]
   },
   "about": {
-    "title": "WHAT IS NFS?",
+    "title": "WHAT IS ZPK?",
     "subtitle": "Learn about our history, mission, and how to join our community",
     "whoAreWe": "Who are we?",
-    "whoAreWeContent": "Nightfall Squadron is a dynamic and professional military organization operating on the Roblox server. We are committed to creating a friendly, disciplined, and engaged community of players.",
-    "whoAreWeContent2": "Our members come from different parts of the world, but we are united by a common passion for gaming and an interest in military matters. We create an environment where everyone can develop and achieve their goals.",
+    "whoAreWeContent": "Zjednoczona Polska Korona (ZPK) is the first Polish clan in the game Wanted. We are committed to creating a friendly, strong, and disciplined community.",
+    "whoAreWeContent2": "",
     "ourMission": "Our Mission",
-    "ourMissionContent": "The mission of Nightfall Squadron is to build a strong, organized, and mutually respectful community of players. We strive to:",
-    "mission1": "Provide a positive experience on the server",
-    "mission2": "Support new members in their development",
-    "mission3": "Organize events and operations for the entire faction",
-    "mission4": "Maintain high standards of professionalism and ethics",
-    "mission5": "Create a friendly and safe environment for players",
+    "ourMissionContent": "The mission of Zjednoczona Polska Korona is to build a strong, organized, and mutually respectful clan community. We strive to:",
+    "mission1": "Total domination over Wanted servers",
+    "mission2": "Arming members (if they don't have enough money for better weapons)",
+    "mission3": "Group grinding (on public/private servers)",
+    "mission4": "Fighting enemy clans",
+    "mission5": "",
+    "requirementsTitle": "REQUIREMENTS",
+    "requirementsIntro": "The requirements are:",
+    "requirement1": "Own a car worth 120k to 750k.",
+    "requirement2": "Have at least 200-800k cash in your account.",
+    "requirement3": "Be at least 16 years old.",
     "values": "Our Values",
-    "valuesIntro": "Nightfall Squadron activities are based on the following fundamental values:",
-    "value1Title": "Respect",
-    "value1Content": " - We respect every member of our community regardless of their position.",
-    "value2Title": "Discipline",
-    "value2Content": " - We believe that discipline is the key to success and harmony in a group.",
-    "value3Title": "Community",
-    "value3Content": " - We work together for the common good and support each other.",
-    "value4Title": "Transparency",
-    "value4Content": " - We communicate openly and honestly with our members.",
-    "value5Title": "Engagement",
-    "value5Content": " - Every member is engaged in the activities of Nightfall Squadron.",
+    "valuesIntro": "Zjednoczona Polska Korona operations are based on the following fundamental values:",
+    "value1Title": "RESPECT",
+    "value1Content": "\n-- We respect every member of our community regardless of their position.",
+    "value2Title": "DISCIPLINE",
+    "value2Content": "\n-- We believe that discipline is the key to success and harmony in the community.",
+    "value3Title": "COMMUNITY",
+    "value3Content": "\n-- We work together for the common good and support each other.",
+    "value4Title": "DETERMINATION",
+    "value4Content": "\n-- We never give up after defeats. Every loss is a lesson that brings us closer to victory.",
+    "value5Title": "COMMITMENT",
+    "value5Content": "\n-- Every member is committed to the actions of Zjednoczona Polska Korona",
     "structure": "Organizational Structure",
-    "structureContent": "Nightfall Squadron has a well-defined structure with various roles and positions. From Faction Command at the top to Trial Moderators, every role is important and supports the overall functioning of the organization.",
+    "structureContent": "Zjednoczona Polska Korona has a well-defined structure with various roles and positions. From Faction Command at the top to Trial Moderators, every role is important and supports the overall functioning of the organization.",
     "structureContent2": "To learn more about our roles and staff members, visit the 'Staff' page.",
     "howToJoin": "How to Join Us?",
-    "howToJoinContent": "If you are interested in joining Nightfall Squadron, here are the basic steps:",
-    "step1": "Enter our Roblox server and familiarize yourself with our regulations",
-    "step2": "Join our Discord server to stay in touch with the community",
-    "step3": "Contact an administration member to request an invite to the faction",
-    "step4": "Go through the verification process and meet the other members",
-    "step5": "Start a new adventure with Nightfall Squadron!",
+    "howToJoinContent": "To join us, you need to meet all 3 requirements. Here are the 3 steps to join:",
+    "step1": "Join the Discord server",
+    "step2": "Next, get verified.",
+    "step3": "Create a ticket named: Recruitment.",
+    "step4": "You become an official member of Zjednoczona Polska Korona! :D",
+    "step5": "",
+    "communityTitle": "BECOME A COMMUNITY MEMBER",
+    "communityContent": "Our server works in a community + clan model. Don't want to join the clan? No problem - you can be just a community member. However, you must pass 3 verifications:",
+    "communityStep1": "Verification via Bloxlink (linking your Discord account with Roblox).",
+    "communityStep2": "Wait 3 days to unlock field channels.",
+    "communityStep3": "Wait 7 days to unlock most channels (except clan and staff channels).",
     "joinDiscord": "Join Discord",
     "contact": "Contact",
     "contactContent": "If you have questions or want to contact the administration, you can do so via:",
@@ -239,42 +319,27 @@
     "highlight": "Some rules will be highlighted to avoid breaking any regulations and ending up on the kos-list.",
     "generalRulesTitle": "Section 1: General Rules",
     "voiceChatRulesTitle": "Section 2: General rules in voice chat",
-    "inGameRulesTitle": "Section 3: In-Game Regulations",
+    "inGameRulesTitle": "",
     "rules": {
       "general": [
-        "Respect others: Behave respectfully toward all members of server, regardless of their age, gender, background or views.",
-        "Do not insult higher ranks, because there will be consequences. <-- This applies to both administrators and members.",
-        "Do not insult whole administration and others as well as each other. <-- This applies to both administrators and members.",
-        "Do not report faction members without a reason (in Roblox).",
-        "Do not use offensive language: Avoid vulgarities, offensive words, hate speech and discriminatory statements.",
-        "Don't spam: Don't send excessive messages, share unnecessary links or use capital letters unnecessarily.",
-        "Don't share personal information: Don't share information that could identify you or other users, such as phone number, email address or bank details.",
-        "Don't share NSFW content: Do not share sexual, violent or offensive content.",
-        "Don't advertise: Don't advertise your products, services or other websites without permission from administrators.",
-        "Don't share copyrighted content: Don't share content that infringes on the copyrights of others.",
-        "Don't impersonate others: Do not impersonate other users or administrators."
+        "Respect others: Behave respectfully toward all members of the server, regardless of their age, gender, origin or views.",
+        "Culture toward administration and players: Insulting higher ranks, administration and each other is prohibited. This rule applies equally to both members and moderators/admins.",
+        "Don't spam: Don't send excessive messages, don't flood, don't share unnecessary links and don't abuse CAPS LOCK.",
+        "Privacy protection: Absolute prohibition on sharing information that could identify you or other users (phone numbers, email addresses, bank details, IP addresses, etc.).",
+        "NSFW / Gore content ban: Don't share sexual content, violent content, vulgar content or content with a high degree of brutality.",
+        "Advertising ban: Don't advertise your products, services, other websites or Discord servers without permission. Administration must first obtain the Owner's consent before posting any invites.",
+        "Copyright: Don't share content that infringes on the copyrights of others.",
+        "Impersonation ban: Don't impersonate other users or administration members."
       ],
       "voice": [
-        "Respect others: Be respectful to all members of server, regardless of their age, gender, background, or views.",
-        "Do not use offensive language: Avoid profanity, offensive words, hate speech, and discriminatory statements.",
-        "Do not shout: Speak calmly and clearly so that everyone can hear you well.",
-        "Do not spam with sounds: Do not continuously play music, sounds, or other recordings without the consent of others.",
-        "Do not interrupt conversations: If someone is speaking, wait for your turn to speak.",
-        "Don't use microphone unnecessarily: If you don't want to participate in the conversation, turn off your microphone.",
-        "Don't play NSFW content: Don't play sexual, violent, or offensive content.",
-        "Don't interrupt someone before they have finished speaking.",
-        "Do not record conversations without consent: Do not record conversations without the consent of all participants.",
-        "Do not record a conversation without another person's consent."
-      ],
-      "inGame": [
-        "No flaming: Do not engage in quarrels or attack other players in-game.",
-        "No rule bypassing: Follow the rules of the server in-game and follow orders from higher ranks.",
-        "Teamwork: Work together with team members for common goals.",
-        "No cheating: Using exploits, scripts, or any form of cheating is strictly forbidden.",
-        "No griefing: Do not destroy buildings or interfere with other players.",
-        "Respect rank: Listen to orders from members with higher rank.",
-        "Safe play: Do not enter dangerous areas without permission from administration.",
-        "Activity: Be active and engaged in server activities."
+        "Respect on VC: Behave respectfully toward your fellow speakers.",
+        "Culture of expression: Avoid excessive profanity, hate speech and discriminatory statements. (Appropriate battle slang from Wanted! is allowed, but no toxicity!).",
+        "Don't shout: Speak calmly and clearly into the microphone, respect other players' ears.",
+        "Soundboard / sound spam ban: Don't constantly play music, binders or other annoying recordings without explicit consent from others in the channel.",
+        "Don't interrupt: If someone is speaking (especially during in-game action planning), wait for your turn. Don't cut anyone off.",
+        "Respect the space: If you're not participating in the conversation or there's noise in the background, mute your microphone.",
+        "NSFW playback ban: Playing sexually, violently or extremely offensive sounds on VC is prohibited.",
+        "Recording ban: Absolutely no recording of voice channel conversations without explicit consent from all participants."
       ]
     },
     "footer": {
@@ -338,6 +403,62 @@
       "release": "RELEASE"
     },
     "dev": [
+      {
+        "version": "0.0.12-DEV",
+        "date": "Aug 3, 2026",
+        "changes": [
+          {
+            "type": "improvement",
+            "title": "UI Rebranding — Tactical HUD",
+            "description": "Complete visual overhaul of all subpages (Hero, About, QA, Regulations, Staff, War Logs, Security, Navbar, LoadingScreen) in a tactical HUD style: scanlines, neon borders, glass morphism, glitch effects and sci-fi elements. Replaced the hero background and added the new faction logo."
+          },
+          {
+            "type": "feature",
+            "title": "KOS Database v2",
+            "description": "KOS database overhaul: expandable reasons (SEE MORE), evidence system (screenshots, YouTube, Medal.tv, Discord message links and other links). Removed status, last seen, threat level, field notes and recorded incidents."
+          },
+          {
+            "type": "feature",
+            "title": "KOS Management Panel (Admins Only)",
+            "description": "New MANAGE LOCALLY button: add and remove targets without editing code, browser persistence (localStorage), custom reasons and reset to code defaults. The feature is DISABLED for regular users - ADMIN ONLY lock."
+          },
+          {
+            "type": "feature",
+            "title": "Discord Admin Verification",
+            "description": "Adding and removing KOS targets is now restricted to server administrators - role check via Discord bot (Netlify verify-admin function). Anti-troll protection, verified server-side."
+          },
+          {
+            "type": "feature",
+            "title": "Evidence Image Upload",
+            "description": "Upload evidence screenshots directly from the management panel - automatic hosting via Catbox (Netlify upload-evidence function), no account required."
+          },
+          {
+            "type": "feature",
+            "title": "New Evidence Link Types",
+            "description": "Added new evidence link types: Discord message and any other link - alongside existing YouTube and Medal.tv, with colored badges."
+          },
+          {
+            "type": "improvement",
+            "title": "Website 100% in Polish",
+            "description": "Disabled the language selector and locked the site to Polish - end of internationalization."
+          },
+          {
+            "type": "feature",
+            "title": "Netlify Integration (GitHub → Netlify)",
+            "description": "Added server-side Netlify functions (verify-admin, upload-evidence) fully compatible with GitHub → Netlify deployment, along with Discord bot environment variables."
+          },
+          {
+            "type": "bugfix",
+            "title": "Evidence Image Fix",
+            "description": "Fixed image paths (moved to public/kos/), fixed Kerainff screenshot display and code-defined targets now take priority over stale localStorage data."
+          },
+          {
+            "type": "bugfix",
+            "title": "Technical Fixes",
+            "description": "Fixed admin role check bug (comma operator), fixed tests (react-router v7 compatibility with Jest), added missing logo icons and ZPK branding in manifest.json."
+          }
+        ]
+      },
       {
         "version": "0.0.11.8",
         "date": "Jan 25, 2026",
@@ -842,5 +963,11 @@
         ]
       }
     ]
+  },
+  "notFound": {
+    "title": "LOST IN SPACE",
+    "subtitle": "The requested sector does not exist or has been moved to a different coordinate system.",
+    "status": "STATUS: SIGNAL NOT FOUND",
+    "backHome": "BACK TO BASE"
   }
 }

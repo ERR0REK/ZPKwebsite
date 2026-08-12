@@ -1,16 +1,12 @@
-/* src/Components/Staff/StaffMemberModal.jsx */
-
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   ExternalLink,
-  Shield,
   User,
   Activity,
   Database,
-  Terminal
 } from 'lucide-react';
 
 const StaffMemberModal = ({ member, onClose }) => {
@@ -25,7 +21,7 @@ const StaffMemberModal = ({ member, onClose }) => {
   };
 
   const handleBackdropClick = (e) => {
-    if (e.target.className.includes('staff-modal-overlay')) {
+    if (e.target.classList && e.target.classList.contains('staff-modal-overlay')) {
       handleClose();
     }
   };
@@ -47,7 +43,6 @@ const StaffMemberModal = ({ member, onClose }) => {
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >
-            {/* HUD Elements */}
             <div className="m-tl"></div><div className="m-tr"></div>
             <div className="m-bl"></div><div className="m-br"></div>
             <div className="modal-scanner-line"></div>
@@ -73,16 +68,6 @@ const StaffMemberModal = ({ member, onClose }) => {
             </div>
 
             <div className="staff-modal-body">
-              <div className="staff-modal-description">
-                <div className="bio-label">
-                  <Terminal size={14} />
-                  <span>INTEL_SUMMARY</span>
-                </div>
-                <p>
-                  {t(`staff.descriptions.${member.name.toLowerCase()}`, t('common.noDescription', 'No description available in the database.'))}
-                </p>
-              </div>
-
               <div className="staff-modal-details">
                 <div className="staff-modal-detail-item">
                   <span className="staff-modal-label">
@@ -104,12 +89,7 @@ const StaffMemberModal = ({ member, onClose }) => {
                   </span>
                 </div>
 
-                <div className="staff-modal-detail-item">
-                  <span className="staff-modal-label">
-                    <Shield size={16} /> {t('staffModal.inGameRank', 'FACTION_RANK')}
-                  </span>
-                  <span className="staff-modal-value">{member.inGameRank || t('common.na', 'N/D')}</span>
-                </div>
+
 
                 <div className="staff-modal-detail-item">
                   <span className="staff-modal-label">

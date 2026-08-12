@@ -46,7 +46,7 @@ const LoginPage = () => {
 
                     <div className="login-header">
                         <img src={logo} alt="Logo" className="login-logo" />
-                        <h1 className="login-title">Nightfall Squadron</h1>
+                        <h1 className="login-title">Zjednoczona Polska Korona</h1>
                         <div className="security-status">
                             <Lock size={14} />
                             <span>SECURE_GATEWAY_v4.2</span>
@@ -79,7 +79,7 @@ const LoginPage = () => {
                                 </li>
                                 <li>
                                     <CheckCircle2 size={14} className="req-icon" />
-                                    <span>{t('login.req2', 'Membership in official NFS Server')}</span>
+                                    <span>{t('login.req2', 'Membership in official ZPK Server')}</span>
                                 </li>
                                 <li>
                                     <CheckCircle2 size={14} className="req-icon" />

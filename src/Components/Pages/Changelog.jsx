@@ -65,7 +65,7 @@ export default function Changelog() {
           {t('changelog.title', 'CHANGELOG')}
         </h1>
         <p className="changelog-subtitle">
-          {t('changelog.subtitle', 'See the history of changes and updates to Nightfall Squadron')}
+          {t('changelog.subtitle', 'See the history of changes and updates to Zjednoczona Polska Korona')}
         </p>
       </section>
 
