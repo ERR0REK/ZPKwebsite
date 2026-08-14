@@ -68,6 +68,7 @@ const ablyLog = {
 
 export function RealtimeProvider({ children }) {
     const [status, setStatus] = useState('off'); // off | connecting | online | error
+    const [lastError, setLastError] = useState(null); // powód braku połączenia (diagnostyka)
     const [toasts, setToasts] = useState([]);
     const clientRef = useRef(null);
     const pendingRef = useRef(new Map()); // kanał -> Set(handlerów oczekujących na połączenie)
@@ -107,6 +108,7 @@ export function RealtimeProvider({ children }) {
         if (!AblySDK || !AblySDK.Realtime) {
             // SDK się nie załadował — strona działa normalnie, bez realtime.
             setStatus('off');
+            setLastError('SDK_MISSING');
             return;
         }
 
@@ -130,6 +132,7 @@ export function RealtimeProvider({ children }) {
 
             const onConnected = () => {
                 setStatus('online');
+                setLastError(null);
                 // dołącz oczekujące handlery
                 pendingRef.current.forEach((handlers, name) => {
                     const channel = c.channels.get(name);
@@ -138,7 +141,12 @@ export function RealtimeProvider({ children }) {
                 pendingRef.current = new Map();
             };
             const onOffline = () => setStatus('off');
-            const onFailed = () => {
+            const onFailed = (stateChange) => {
+                const reason =
+                    (stateChange && stateChange.reason && stateChange.reason.message) ||
+                    (stateChange && stateChange.reason && stateChange.reason.code) ||
+                    'CONNECTION_FAILED';
+                setLastError(String(reason).slice(0, 80));
                 if (allowKeyFallback) {
                     allowKeyFallback = false; // próbuj tylko raz
                     connect({ key: SUB_KEY });
@@ -164,7 +172,10 @@ export function RealtimeProvider({ children }) {
         if (isLocalhost()) {
             // Dev bez wdrożonej funkcji token — klucz subscribe z .env.local
             if (SUB_KEY) connect({ key: SUB_KEY });
-            else setStatus('off');
+            else {
+                setStatus('off');
+                setLastError('NO_SUB_KEY_LOCAL');
+            }
         } else {
             // Produkcja — token auth, klucz nigdy nie trafia do przeglądarki
             connect({ authUrl: TOKEN_AUTH_URL, authMethod: 'GET' });
@@ -229,11 +240,13 @@ export function RealtimeProvider({ children }) {
         () => ({
             status,
             isOnline: status === 'online',
+            isConnecting: status === 'connecting',
+            lastError,
             subscribe,
             pushToast,
             dismissToast
         }),
-        [status, subscribe, pushToast, dismissToast]
+        [status, lastError, subscribe, pushToast, dismissToast]
     );
 
     return (

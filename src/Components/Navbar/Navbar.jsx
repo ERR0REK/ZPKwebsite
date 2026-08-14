@@ -65,7 +65,12 @@ const Navbar = () => {
         localStorage.removeItem('ZPK_auth_session');
         sessionStorage.removeItem('ZPK_redirect_target');
         setSession(null);
-        window.location.href = "#/";
+        // PELNY reload na czysty URL — inaczej (np. będąc już na #/),
+        // sam link hash niczego nie zmienia i aplikacja zostaje w starym,
+        // częściowo wylogowanym stanie (np. zamrożony ekran ładowania).
+        // Reload resetuje cały stan (App, AuthGuard, realtime) i wraca
+        // na stronę główną jako gość.
+        window.location.replace(window.location.origin + window.location.pathname + "#/");
     };
 
     // Formatowanie pozostałego czasu: HH:MM:SS
@@ -119,7 +124,11 @@ const Navbar = () => {
                         {/* Globalny status realtime — LIVE / STANDBY */}
                         <li className="nav-realtime" title={realtime && realtime.isOnline
                             ? t('nav.realtimeOnline', 'REALTIME: ONLINE')
-                            : t('nav.realtimeOffline', 'REALTIME: OFFLINE')}>
+                            : realtime && realtime.isConnecting
+                                ? t('nav.realtimeConnecting', 'REALTIME: CONNECTING...')
+                                : (realtime && realtime.lastError
+                                    ? t('nav.realtimeOfflineReason', 'REALTIME: OFFLINE') + ' — ' + realtime.lastError
+                                    : t('nav.realtimeOffline', 'REALTIME: OFFLINE'))}>
                             {realtime && realtime.isOnline ? (
                                 <Wifi size={13} className="rt-icon rt-online" />
                             ) : (

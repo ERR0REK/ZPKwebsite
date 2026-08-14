@@ -20,6 +20,10 @@
     "realtimeOffline": "REALTIME: OFFLINE",
     "realtimeLive": "LIVE",
     "realtimeStandby": "STANDBY",
+    "realtimeOnline": "REALTIME: ONLINE",
+    "realtimeOffline": "REALTIME: OFFLINE",
+    "realtimeConnecting": "REALTIME: CONNECTING...",
+    "realtimeOfflineReason": "REALTIME: OFFLINE",
     "bell": {
       "label": "ANNOUNCEMENTS",
       "title": "FACTION ANNOUNCEMENTS",
