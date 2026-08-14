@@ -108,7 +108,10 @@ const DevGuard = ({ children }) => {
     try {
       const raw = localStorage.getItem('ZPK_auth_session');
       const session = raw ? JSON.parse(raw) : null;
-      setAllowed(session && session.user_id && session.is_dev_member === true);
+      // WAŻNE: !!() — bez tego, gdy brak sesji, session jest null i wyrażenie
+      // zwraca NULL (nie false!). A DevGuard traktuje null jako "ładuję" →
+      // wieczny RouteFallback spinner dla wylogowanych na stronie dev.
+      setAllowed(!!(session && session.user_id && session.is_dev_member === true));
     } catch (e) {
       setAllowed(false);
     }
