@@ -5,8 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import {
     MessageSquare,
-    Youtube,
-    Video,
     Terminal,
     Activity,
     ShieldCheck,
@@ -69,9 +67,7 @@ const Hero = () => {
     }, [mouseX, mouseY]);
 
     const links = {
-        discord: '',
-        youtube: 'https://www.youtube.com/channel/UCMmoYakrPiV0LwdPAunqJpQ', 
-        tiktok: '', 
+        discord: 'https://discord.gg/A3wE5mGryB',
     };
 
     const handleLinkDispatch = (platform) => {
@@ -196,24 +192,6 @@ const Hero = () => {
                         >
                             <MessageSquare size={18} />
                             <span>{t('hero.discord_button')}</span>
-                        </motion.button>
-                        <motion.button 
-                            className='btn btn-youtube' 
-                            onClick={() => handleLinkDispatch('youtube')}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Youtube size={18} />
-                            <span>{t('hero.youtube_button')}</span>
-                        </motion.button>
-                        <motion.button 
-                            className='btn btn-tiktok' 
-                            onClick={() => handleLinkDispatch('tiktok')}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Video size={18} />
-                            <span>{t('hero.tiktok_button')}</span>
                         </motion.button>
                     </motion.div>
                 </motion.div>

@@ -89,7 +89,20 @@ export function RealtimeProvider({ children }) {
         }
         let client;
         try {
-            client = new AblySDK.Realtime({ key: SUB_KEY, echoMessages: false });
+            client = new AblySDK.Realtime({
+                key: SUB_KEY,
+                echoMessages: false,
+                // Wyciszamy kosmetyczne "Connection closed" z SDK — to normalne
+                // zamknięcie (np. przy StrictMode double-mount w dev), nie błąd.
+                // Prawdziwe problemy (błędy sieci, auth) nadal się logują.
+                log: {
+                    level: 4,
+                    handler: (msg) => {
+                        if (msg && msg.indexOf('Connection closed') !== -1) return;
+                        console.log('[Ably]', msg);
+                    }
+                }
+            });
         } catch (err) {
             console.warn('[Realtime] init failed:', err);
             setStatus('error');

@@ -27,10 +27,14 @@ import {
     Upload,
     Loader2,
     Lock,
-    Wifi
+    Wifi,
+    Copy,
+    Check,
+    ArrowUpDown
 } from 'lucide-react';
 import DecodedText from '../Shared/DecodedText';
 import kosTargets from '../../data/kosTargets.json';
+import { useRealtime } from '../../Realtime/RealtimeProvider';
 import './KOS.css';
 
 const INITIAL_PERSONAL = 4;
@@ -118,10 +122,48 @@ const parseEvidenceLines = (text) =>
         })
         .filter(Boolean);
 
+// Przycisk kopiowania nazwy celu — 1 klik = nick w schowku.
+// Z fallbackiem dla przeglądarek bez navigator.clipboard (http).
+const CopyNameButton = ({ name }) => {
+    const { t } = useTranslation();
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async (e) => {
+        e.stopPropagation();
+        try {
+            await navigator.clipboard.writeText(name);
+        } catch (err) {
+            // Fallback (np. przeglądarka bez uprawnień clipboard API)
+            const ta = document.createElement('textarea');
+            ta.value = name;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+        }
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+    };
+
+    return (
+        <button
+            className={`copy-name-btn ${copied ? 'copied' : ''}`}
+            onClick={handleCopy}
+            title={copied ? t('kos.copied') : t('kos.copyName')}
+        >
+            {copied ? <Check size={14} /> : <Copy size={14} />}
+            <span>{copied ? t('kos.copied') : t('kos.copyName')}</span>
+        </button>
+    );
+};
+
 const KOS = () => {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all'); // all, personal, faction
+    const [sortMode, setSortMode] = useState('default'); // default, name-asc, name-desc
     const [selectedTarget, setSelectedTarget] = useState(null); // { type, ...target }
     const [expandedReasons, setExpandedReasons] = useState({}); // cardKey -> bool
     const [showAll, setShowAll] = useState({ personal: false, faction: false });
@@ -144,7 +186,47 @@ const KOS = () => {
     });
 
     const session = readSession();
-    const isAdmin = session.is_admin === true;
+
+    // Weryfikacja admina NA ŻYWO — KOS sprawdza rolę przez /api/verify-admin
+    // przy każdym wejściu na stronę, zamiast ufać tylko flagi zapisanej przy
+    // logowaniu. Dzięki temu nadanie roli na Discordzie działa od razu, bez
+    // wylogowywania. Fallback: flaga is_admin z sesji (gdy funkcja nie działa).
+    const [isAdmin, setIsAdmin] = useState(session.is_admin === true);
+    const [adminChecking, setAdminChecking] = useState(false);
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            const s = readSession();
+            if (!s || !s.access_token) {
+                setIsAdmin(false);
+                return;
+            }
+            setAdminChecking(true);
+            try {
+                const res = await fetch('/api/verify-admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ access_token: s.access_token })
+                });
+                const data = await res.json();
+                if (cancelled) return;
+                if (data && data.ok) {
+                    setIsAdmin(data.is_admin === true);
+                    // Zaktualizuj flagę w sesji, żeby była spójna
+                    const fresh = readSession();
+                    if (fresh && fresh.user_id === s.user_id) {
+                        fresh.is_admin = data.is_admin === true;
+                        localStorage.setItem('ZPK_auth_session', JSON.stringify(fresh));
+                    }
+                }
+            } catch (err) {
+                // Fallback: zostaje flaga z sesji
+            } finally {
+                if (!cancelled) setAdminChecking(false);
+            }
+        })();
+        return () => { cancelled = true; };
+    }, []);
 
     // ==================================================================
     // 📌 CELE PODSTAWOWE (FALLBACK) — EDYTUJ JE W src/data/kosTargets.json
@@ -251,6 +333,38 @@ const KOS = () => {
             cancelled = true;
         };
     }, []);
+
+    // ============================================================
+    // 🔴 LIVE KOS (Ably) — subskrypcja kanału zpk-kos-updates
+    // Gdy admin doda/usunie cel przez /api/kos-store, funkcja serwera
+    // publikuje event — tutaj natychmiast odświeżamy listę z chmury.
+    // Fallback: jeśli realtime nie działa, lista i tak się odświeży
+    // przy następnym wejściu / odświeżeniu strony.
+    // ============================================================
+    const realtime = useRealtime();
+    useEffect(() => {
+        if (!realtime || !realtime.subscribe) return;
+        let cancelled = false;
+        const refreshFromCloud = async () => {
+            try {
+                const res = await fetch('/api/kos-store');
+                const data = await res.json();
+                if (cancelled || !res.ok || !data || data.ok !== true) return;
+                setPersonalTargets(mergeTargets(Array.isArray(data.personal) ? data.personal : [], []));
+                setFactionTargets(mergeTargets(Array.isArray(data.factions) ? data.factions : [], []));
+                setCloudReady(true);
+            } catch (err) {
+                // ignoruj — fallback na lokalne dane
+            }
+        };
+        const unsubscribe = realtime.subscribe('zpk-kos-updates', () => {
+            refreshFromCloud();
+        });
+        return () => {
+            cancelled = true;
+            unsubscribe();
+        };
+    }, [realtime]);
 
     const upsertTarget = (list, target) => [
         ...list.filter((x) => x.name !== target.name),
@@ -406,13 +520,27 @@ const KOS = () => {
             (activeFilter === 'all' || activeFilter === 'faction')
     );
 
+    // Sortowanie (nie modyfikuje źródłowych list — sortujemy kopię)
+    const applySort = (list) => {
+        const copy = [...list];
+        if (sortMode === 'name-asc') {
+            copy.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortMode === 'name-desc') {
+            copy.sort((a, b) => b.name.localeCompare(a.name));
+        }
+        return copy;
+    };
+
+    const sortedPersonal = applySort(filteredPersonal);
+    const sortedFactions = applySort(filteredFactions);
+
     const visiblePersonal = showAll.personal
-        ? filteredPersonal
-        : filteredPersonal.slice(0, INITIAL_PERSONAL);
+        ? sortedPersonal
+        : sortedPersonal.slice(0, INITIAL_PERSONAL);
 
     const visibleFactions = showAll.faction
-        ? filteredFactions
-        : filteredFactions.slice(0, INITIAL_FACTION);
+        ? sortedFactions
+        : sortedFactions.slice(0, INITIAL_FACTION);
 
     const totalThreats = personalTargets.length + factionTargets.length;
     const totalEvidence = [...personalTargets, ...factionTargets].reduce(
@@ -567,15 +695,16 @@ const KOS = () => {
                 </div>
 
                 <div className="card-footer">
-                    {sectionType === 'personal' ? (
-                        <div className="card-footer-row">
-                            <button
-                                className="view-details-btn"
-                                onClick={() => setSelectedTarget({ type: 'personal', ...target })}
-                            >
-                                <Eye size={14} />
-                                <span>{t('kos.viewDossier')}</span>
-                            </button>
+                    <div className="card-footer-row">
+                        <button
+                            className="view-details-btn"
+                            onClick={() => setSelectedTarget({ type: sectionType, ...target })}
+                        >
+                            <Eye size={14} />
+                            <span>{t('kos.viewDossier')}</span>
+                        </button>
+                        <CopyNameButton name={target.name} />
+                        {sectionType === 'personal' && target.robloxLink && (
                             <a
                                 href={target.robloxLink}
                                 target="_blank"
@@ -585,16 +714,8 @@ const KOS = () => {
                             >
                                 <ExternalLink size={14} />
                             </a>
-                        </div>
-                    ) : (
-                        <button
-                            className="view-details-btn"
-                            onClick={() => setSelectedTarget({ type: 'faction', ...target })}
-                        >
-                            <Eye size={14} />
-                            <span>{t('kos.viewDossier')}</span>
-                        </button>
-                    )}
+                        )}
+                    </div>
                 </div>
 
                 {/* HUD Decorations */}
@@ -777,7 +898,26 @@ const KOS = () => {
                             ))}
                         </div>
 
-                        {isAdmin ? (
+                        <div className="sort-wrap">
+                            <ArrowUpDown size={13} className="sort-icon" />
+                            <select
+                                className="sort-select"
+                                value={sortMode}
+                                onChange={(e) => setSortMode(e.target.value)}
+                                aria-label={t('kos.sort.label')}
+                            >
+                                <option value="default">{t('kos.sort.default')}</option>
+                                <option value="name-asc">{t('kos.sort.nameAsc')}</option>
+                                <option value="name-desc">{t('kos.sort.nameDesc')}</option>
+                            </select>
+                        </div>
+
+                        {adminChecking ? (
+                            <button className="manage-btn manage-btn-checking" disabled title={t('kos.manage.checking')}>
+                                <Loader2 size={14} className="spin" />
+                                <span>{t('kos.manage.checking')}</span>
+                            </button>
+                        ) : isAdmin ? (
                             <button className="manage-btn" onClick={() => setManageOpen(true)}>
                                 <Database size={14} />
                                 <span>{t('kos.manage.open')}</span>

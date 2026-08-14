@@ -100,7 +100,7 @@ const WarLogModal = ({ log, onClose }) => {
                                     <div className="log-section">
                                         <h4 className="section-title">{t('warLogs.labels.members', 'CZŁONKOWIE')}</h4>
                                         <div className="members-grid">
-                                            {log.members.split(',').map((member, index) => (
+                                            {(log.members ? String(log.members).split(',') : []).map((member, index) => (
                                                 <span key={index} className="member-tag">
                                                     {member.trim()}
                                                 </span>

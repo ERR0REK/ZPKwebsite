@@ -220,7 +220,7 @@ export default function About() {
                 className="join-btn"
                 whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0, 255, 102, 0.4)" }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => window.open('https://discord.gg/your-link', '_blank')}
+                onClick={() => window.open('https://discord.gg/A3wE5mGryB', '_blank')}
               >
                 <div className="btn-glow"></div>
                 <span>{t('about.joinDiscord')}</span>

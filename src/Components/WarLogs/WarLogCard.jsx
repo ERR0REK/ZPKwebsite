@@ -32,7 +32,7 @@ const WarLogCard = ({ log, onClick, delay }) => {
             <div className="card-content">
                 <div className="card-header">
                     <span className="card-date">{log.date}</span>
-                    <span className="card-map">{log.map}</span>
+                    {log.map && <span className="card-map">{log.map}</span>}
                 </div>
 
                 <h3 className="card-title">

@@ -1,52 +1,88 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import Navbar from "../Navbar/Navbar";
 import WarLogCard from "./WarLogCard";
 import WarLogModal from "./WarLogModal";
 import DecodedText from "../Shared/DecodedText";
+import { useRealtime } from "../../Realtime/RealtimeProvider";
 import "./WarLogs.css";
 import { AnimatePresence, motion } from "framer-motion";
+import { Search, ShieldQuestion } from "lucide-react";
+
+import warLogsData from "../../data/warLogs.json";
+
+const RESULT_FILTERS = ["ALL", "WIN", "LOSS", "EASY_WIN", "DRAW"];
 
 const WarLogs = () => {
   const { t } = useTranslation();
+  const realtime = useRealtime();
   const [selectedLog, setSelectedLog] = useState(null);
+  const [logs, setLogs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [resultFilter, setResultFilter] = useState("ALL");
 
-  // Real Data with Translation Keys
-  const logs = [
-    //{
-      //id: 1,
-      //opponent: t("warLogs.war1.opponent"),
-      //date: "2026-01-18",
-      //result: "EASY_WIN",
-      //duration: t("warLogs.war1.duration"),
-      //mvp: "@Hejhej01928, @Polskaexe_v3",
-      //reason: t("warLogs.war1.reason"),
-      //members: t("warLogs.war1.members"),
-      //victoryImg: "https://via.placeholder.com/1200x600?text=Victory+Celebration+Nightfall",
-      //enemyKD: [
-        //{ name: "@Rushwinter", kills: 1, deaths: 10 },
-        //{ name: "@imsocool_leon", kills: 2, deaths: 3 },
-        //{ name: "@lucularo", kills: 0, deaths: 4 },
-        //{ name: "@umgqqqqqqqaa", kills: 14, deaths: 16 },
-        //{ name: "@Birkpro12", kills: 3, deaths: 20 },
-       // { name: "@renopro203", kills: 7, deaths: 5 },
-      //],
-      //memberKD: [
-       // { name: "@Hejhej01928", kills: 54, deaths: 20 },
-        //{ name: "@Polskaexe_v3", kills: 11, deaths: 5 },
-        //{ name: "@Pioter_M200", kills: 0, deaths: 1 },
-        //{ name: "@Tygosaures10", kills: 6, deaths: 0 },
-        //{ name: "@SAMISALAMI7", kills: 17, deaths: 10 },
-      //]
-    //}
-  ];
+  // Źródło prawdy: warLogs.json (edytowane w repo).
+  // Sortujemy od najnowszych — jeśli ktoś doda nową wojnę na początku pliku,
+  // pojawi się ona pierwsza.
+  useEffect(() => {
+    const initial = Array.isArray(warLogsData.logs) ? warLogsData.logs : [];
+    setLogs([...initial].sort((a, b) => String(b.date || "").localeCompare(String(a.date || ""))));
+  }, []);
+
+  // Live War Logs — gdy ktoś opublikuje nową wojnę na kanale zpk-war-status,
+  // odświeżamy listę (fallback: dane z pliku) i pokazujemy toast.
+  useEffect(() => {
+    if (!realtime || !realtime.subscribe) return;
+    const unsubscribe = realtime.subscribe("zpk-war-status", (msg) => {
+      const d = msg.data || {};
+      if (d.action === "added") {
+        if (typeof realtime.pushToast === "function") {
+          realtime.pushToast({
+            type: "war",
+            title: d.title || t("warLogs.realtime.newWar", "NOWY RAPORT WOJENNY"),
+            message: d.message || (d.name ? t("warLogs.realtime.warWithName", "Wojna z {{name}}", { name: d.name }) : ""),
+            severity: d.severity || "info"
+          });
+        }
+        // Odśwież dane z pliku — realtime jest sygnałem, że coś się zmieniło
+        const updated = Array.isArray(warLogsData.logs) ? warLogsData.logs : [];
+        setLogs([...updated].sort((a, b) => String(b.date || "").localeCompare(String(a.date || ""))));
+      }
+    });
+    return unsubscribe;
+  }, [realtime, t]);
+
+  const sortedLogs = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    return [...logs]
+      .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
+      .filter((log) => {
+        // Filtr wyniku
+        if (resultFilter !== "ALL" && (log.result || "").toUpperCase() !== resultFilter) {
+          return false;
+        }
+        // Wyszukiwarka (przeciwnik, powód, członkowie, MVP)
+        if (!q) return true;
+        const haystack = [
+          log.opponent,
+          log.reason,
+          log.duration,
+          log.mvp,
+          log.members
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(q);
+      });
+  }, [logs, searchTerm, resultFilter]);
 
   return (
     <div className="warlogs-page">
       <Navbar />
       <div className="warlogs-bg"></div>
 
-      <motion.div 
+      <motion.div
         className="warlogs-container"
         variants={{
           hidden: { opacity: 0 },
@@ -73,11 +109,35 @@ const WarLogs = () => {
           </div>
         </header>
 
-        {logs.length > 0 ? (
+        {/* Wyszukiwarka + filtr wyniku */}
+        <div className="warlogs-toolbar">
+          <div className="warlogs-search">
+            <Search size={15} className="warlogs-search-icon" />
+            <input
+              type="text"
+              placeholder={t("warLogs.searchPlaceholder", "SZUKAJ... (przeciwnik, powód, członkowie)")}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="warlogs-result-filters">
+            {RESULT_FILTERS.map((r) => (
+              <button
+                key={r}
+                className={`warlogs-filter-btn ${resultFilter === r ? "active" : ""}`}
+                onClick={() => setResultFilter(r)}
+              >
+                {r === "ALL" ? t("warLogs.tabs.all", "WSZYSTKIE") : t(`warLogs.results.${r}`, r)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {sortedLogs.length > 0 ? (
           <div className="warlogs-grid">
-            {logs.map((log, index) => (
+            {sortedLogs.map((log, index) => (
               <WarLogCard
-                key={log.id}
+                key={log.id || index}
                 log={log}
                 onClick={() => setSelectedLog(log)}
                 delay={index * 0.1}
@@ -93,16 +153,22 @@ const WarLogs = () => {
           >
             <div className="empty-icon-container">
               <div className="radar-sweep"></div>
-              <div className="empty-icon">❄️</div>
+              <div className="empty-icon"><ShieldQuestion size={34} /></div>
             </div>
             <h2 className="empty-title">
-              {t("common.comingSoon", "COMING SOON")}
+              {logs.length > 0
+                ? t("warLogs.noResults", "BRAK WYNIKÓW")
+                : t("common.comingSoon", "COMING SOON")}
             </h2>
-            <p className="empty-subtitle">:: NO ACTIVE CONFLICTS DETECTED ::</p>
+            <p className="empty-subtitle">
+              {logs.length > 0
+                ? ":: NO REPORTS MATCH THE FILTERS ::"
+                : ":: NO ACTIVE CONFLICTS DETECTED ::"}
+            </p>
             <p className="empty-desc">
-              The database is currently synchronizing with command headquarters.
-              <br />
-              Please check back later for mission reports.
+              {logs.length > 0
+                ? "Change the search query or result filter to see more mission reports."
+                : "The database is currently synchronizing with command headquarters. Please check back later for mission reports."}
             </p>
           </motion.div>
         )}

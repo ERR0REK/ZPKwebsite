@@ -189,6 +189,57 @@
     box-shadow: none;
 }
 
+.manage-btn-checking {
+    opacity: 0.6;
+    cursor: wait;
+    border-color: var(--ZPK-gold);
+    color: var(--ZPK-gold);
+    background: rgba(251, 191, 36, 0.05);
+}
+
+.manage-btn-checking:hover {
+    background: rgba(251, 191, 36, 0.05);
+    color: var(--ZPK-gold);
+    box-shadow: none;
+}
+
+/* Sortowanie */
+.sort-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 15, 25, 0.6);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0 12px;
+    height: 42px;
+}
+
+.sort-icon {
+    color: var(--ZPK-gold);
+    opacity: 0.8;
+    flex-shrink: 0;
+}
+
+.sort-select {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    padding: 8px 2px;
+    max-width: 170px;
+}
+
+.sort-select option {
+    background: #0a0a14;
+    color: #eee;
+}
+
 /* Local Management Modal */
 .manage-modal {
     background: #080a0e;
@@ -876,15 +927,54 @@
     overflow: hidden;
 }
 
-/* Card Footer Row (dossier + roblox link) */
+/* Card Footer Row (dossier + kopiuj + roblox link) */
 .card-footer-row {
     display: flex;
     gap: 10px;
     align-items: stretch;
+    flex-wrap: wrap;
 }
 
 .card-footer-row .view-details-btn {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 120px;
+}
+
+/* KOPIUJ NAZWĘ — złoty przycisk, 1 klik = nick w schowku */
+.copy-name-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 16px;
+    background: transparent;
+    border: 1px solid var(--ZPK-gold);
+    color: var(--ZPK-gold);
+    font-family: var(--font-header);
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.copy-name-btn:hover {
+    background: var(--ZPK-gold);
+    color: #000;
+    box-shadow: 0 0 15px var(--ZPK-gold-glow);
+}
+
+.copy-name-btn.copied {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: #22c55e;
+    color: #22c55e;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+}
+
+.copy-name-btn.copied:hover {
+    background: #22c55e;
+    color: #000;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
 }
 
 .roblox-link-btn {

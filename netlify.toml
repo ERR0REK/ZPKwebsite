@@ -3,3 +3,29 @@
 
 [functions]
   directory = "netlify/functions"
+
+# ============================================================
+# Nagłówki bezpieczeństwa — dla wszystkich stron (poza funkcjami)
+# ============================================================
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # CSP: tylko self + zaufane zewnętrzne (fonty Google, Ably, obrazy).
+    # 'unsafe-inline' dla style — framer-motion i style={} w React.
+    # connect-src: Discord API (auth), Ably (realtime), Catbox (upload z przeglądarki).
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://discord.com https://fonts.googleapis.com https://*.ably.io wss://*.ably.io https://catbox.moe https://catbox.moe/* https://*.catbox.moe; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+
+    # Wymuszaj HTTPS (HSTS) — tylko na produkcji
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+
+    # Blokuj renderowanie strony w iframe (anti-clickjacking)
+    X-Frame-Options = "DENY"
+
+    # Nie zgaduj MIME (anti-MIME-sniffing)
+    X-Content-Type-Options = "nosniff"
+
+    # Ogranicz dane wysyłane w Referer
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+    # Ogranicz API przeglądarki (bez kamery, mikrofonu, geolokalizacji)
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"

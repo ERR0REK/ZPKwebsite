@@ -1,0 +1,272 @@
+/* src/Components/Pages/Legal.css */
+
+.legal-page {
+  min-height: 100vh;
+  background: var(--bg-color);
+  color: var(--text-color, #e8edf5);
+  position: relative;
+  overflow-x: hidden;
+  padding-bottom: 80px;
+}
+
+.legal-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, var(--ZPK-red-glow) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, var(--ZPK-gold-glow) 0%, transparent 60%);
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.12;
+}
+
+.legal-scanlines {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 2px,
+    rgba(239, 68, 68, 0.03) 2px,
+    rgba(239, 68, 68, 0.03) 4px
+  );
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* --- Hero --- */
+.legal-hero {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 140px 20px 40px;
+}
+
+.legal-decoration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  color: var(--ZPK-red);
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 4px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.legal-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(1.6rem, 7vw, 3rem);
+  text-transform: uppercase;
+  color: #ffffff;
+  letter-spacing: 5px;
+  margin-bottom: 15px;
+  text-shadow:
+    0 0 30px var(--ZPK-red-glow),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.legal-subtitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  color: var(--text-dim);
+  opacity: 0.85;
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* --- Container --- */
+.legal-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.legal-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--text-dim);
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.legal-back:hover {
+  border-color: var(--ZPK-red);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+}
+
+.legal-updated {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--ZPK-gold);
+  letter-spacing: 1px;
+  padding: 10px 14px;
+  border: 1px dashed rgba(251, 191, 36, 0.3);
+  border-radius: 4px;
+  margin-bottom: 30px;
+  background: rgba(251, 191, 36, 0.03);
+}
+
+/* --- Sekcje --- */
+.legal-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.legal-section {
+  background: rgba(10, 13, 20, 0.85);
+  border: 1px solid rgba(239, 68, 68, 0.12);
+  border-radius: 4px;
+  padding: 24px 28px;
+  transition: all 0.3s ease;
+}
+
+.legal-section:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.legal-section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.legal-section-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--ZPK-red);
+  border: 1px solid var(--ZPK-red);
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
+.legal-section-icon {
+  margin-left: auto;
+  color: var(--ZPK-gold);
+  opacity: 0.6;
+}
+
+.legal-section h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0;
+}
+
+.legal-section-body p {
+  font-size: 0.98rem;
+  line-height: 1.75;
+  color: var(--text-dim);
+  margin: 0 0 12px;
+}
+
+.legal-section-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* Wyróżniona sekcja bezpieczeństwa (co NIE jest zbierane) */
+.legal-safe-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(239, 68, 68, 0.04));
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-left: 3px solid var(--ZPK-gold);
+  border-radius: 4px;
+  padding: 22px 26px;
+  margin-bottom: 24px;
+}
+
+.legal-safe-box svg {
+  color: var(--ZPK-gold);
+  flex-shrink: 0;
+  margin-top: 2px;
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
+}
+
+.legal-safe-box h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  color: var(--ZPK-gold);
+  margin: 0 0 8px;
+}
+
+.legal-safe-box p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+/* Stopka informacyjna */
+.legal-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 30px;
+  padding: 20px 24px;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 4px;
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.legal-notice svg {
+  color: var(--ZPK-red);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.legal-notice p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .legal-hero {
+    padding: 120px 15px 30px;
+  }
+
+  .legal-title {
+    letter-spacing: 3px;
+  }
+
+  .legal-section {
+    padding: 18px 20px;
+  }
+
+  .legal-section h2 {
+    font-size: 0.85rem;
+  }
+}

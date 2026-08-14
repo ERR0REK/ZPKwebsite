@@ -1,0 +1,37 @@
+/* src/Components/Shared/BackToTop.css */
+.back-to-top-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 990;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 15, 25, 0.85);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--ZPK-red-glow, rgba(239, 68, 68, 0.4));
+  color: var(--ZPK-red, #ef4444);
+  cursor: pointer;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.back-to-top-btn:hover {
+  background: var(--ZPK-red, #ef4444);
+  color: #fff;
+  box-shadow: 0 0 20px var(--ZPK-red-glow, rgba(239, 68, 68, 0.6));
+  transform: translateY(-3px);
+}
+
+@media (max-width: 768px) {
+  .back-to-top-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+  }
+}

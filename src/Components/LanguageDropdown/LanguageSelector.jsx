@@ -30,7 +30,7 @@ const LanguageSelector = ({ onSelect, forceShow = false }) => {
         i18n.changeLanguage('en');
         setShowModal(false);
         if (onSelect) onSelect('en');
-        window.open('https://discord.gg/ZPK', '_blank', 'noopener,noreferrer');
+        window.open('https://discord.gg/A3wE5mGryB', '_blank', 'noopener,noreferrer');
     };
 
     const currentLang = i18n.language;

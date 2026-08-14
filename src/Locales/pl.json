@@ -13,14 +13,35 @@
     "staff": "Kadra",
     "history": "Historia Frakcji",
     "kos": "KOS",
-    "changelog": "Changelog"
+    "changelog": "Changelog",
+    "sessionBadge": "ZALOGOWANO",
+    "logout": "WYLOGUJ",
+    "realtimeOnline": "REALTIME: ONLINE",
+    "realtimeOffline": "REALTIME: OFFLINE",
+    "realtimeLive": "LIVE",
+    "realtimeStandby": "STANDBY",
+    "bell": {
+      "label": "OGŁOSZENIA",
+      "title": "OGŁOSZENIA FRAKCJI",
+      "compose": "NOWE OGŁOSZENIE",
+      "titlePlaceholder": "TYTUŁ (opcjonalnie)",
+      "messagePlaceholder": "TREŚĆ OGŁOSZENIA...",
+      "send": "WYŚLIJ",
+      "severity": {
+        "info": "INFO",
+        "warning": "OSTRZEŻENIE",
+        "critical": "KRYTYCZNE"
+      },
+      "loading": "ŁADOWANIE...",
+      "empty": "BRAK OGŁOSZEŃ",
+      "sent": "OGŁOSZENIE WYSŁANE",
+      "anonymous": "OGŁOSZENIE"
+    }
   },
   "hero": {
     "title": "Zjednoczona Polska Korona",
     "welcome": "Witaj na oficjalnej stronie Zjednoczonego Królestwa Polskiego. Poznaj naszą historię, misje i więcej.",
-    "discord_button": "Dołącz na Discorda",
-    "youtube_button": "YouTube",
-    "tiktok_button": "TikTok"
+    "discord_button": "Dołącz na Discorda"
   },
   "ticker": {
     "line1": "// OPERACJE TRENINGOWE: AKTYWNE",
@@ -31,6 +52,17 @@
   },
   "langDropdown": {
     "helpTranslate": "Pomóż w tłumaczeniu"
+  },
+  "home": {
+    "feed": {
+      "title": "AKTYWNOŚĆ FRAKCJI",
+      "kosAdded": "CEL KOS DODANY",
+      "kosRemoved": "CEL KOS USUNIĘTY",
+      "factionAdded": "KLAN DODANY DO KOS",
+      "warReport": "RAPORT WOJENNY",
+      "announcement": "OGŁOSZENIE",
+      "empty": "BRAK AKTYWNOŚCI — SYSTEM W STANDBY"
+    }
   },
   "loadingScreen": {
     "status1": "Inicjalizacja systemów... ",
@@ -83,6 +115,14 @@
     "search": "SZUKAJ PO NAZWIE...",
     "reasonLabel": "POWÓD",
     "viewDossier": "ZOBACZ AKTA",
+    "copyName": "KOPIUJ NAZWĘ",
+    "copied": "SKOPIOWANO",
+    "sort": {
+      "label": "SORTUJ",
+      "default": "DOMYŚLNIE",
+      "nameAsc": "NAZWA A-Z",
+      "nameDesc": "NAZWA Z-A"
+    },
     "seeMore": "ZOBACZ WIĘCEJ",
     "seeLess": "ZWIŃ",
     "showAll": "POKAŻ WSZYSTKIE CELE",
@@ -149,6 +189,7 @@
       "resetConfirm": "Zresetować lokalną bazę KOS do domyślnych celów z kodu? Wszystkie dodane lokalnie cele zostaną usunięte.",
       "adminOnly": "TYLKO ADMIN",
       "adminOnlyWarning": "Tylko administratorzy Discorda mogą dodawać i usuwać cele KOS.",
+      "checking": "SPRAWDZANIE...",
       "uploadBtn": "WYŚLIJ ZDJĘCIE",
       "uploading": "WYSYŁANIE...",
       "uploadError": "Nie udało się wysłać zdjęcia. Spróbuj ponownie lub wklej link ręcznie.",
@@ -170,6 +211,8 @@
     "success_title": "DOSTĘP PRZYZNANY",
     "success_body": "Weryfikacja zakończona sukcesem. Witaj w systemie Zjednoczona Polska Korona.",
     "error_no_server": "DOSTĘP ZABLOKOWANY: Nie należysz do oficjalnego serwera Discord frakcji.",
+    "error_no_dev_server": "DOSTĘP ZABLOKOWANY: Ta wersja deweloperska jest dostępna tylko dla członków serwera deweloperskiego frakcji na Discordzie.",
+    "dev_warning": "WERSJA DEWELOPERSKA — dostęp tylko dla członków serwera deweloperskiego frakcji.",
     "error_api": "BŁĄD SYSTEMU: Nie udało się zweryfikować Twojego konta.",
     "redirecting": "Przekierowywanie do bazy danych..."
   },
@@ -218,14 +261,18 @@
     "title": "PYTANIA I ODPOWIEDZI",
     "subtitle": "Znajdź odpowiedzi na najczęściej zadawane pytania dotyczące Zjednoczona Polska Korona",
     "noItems": "Brak pytań do wyświetlenia",
+    "searchPlaceholder": "SZUKAJ W BAZIE...",
+    "expandAll": "ROZWIŃ WSZYSTKIE",
+    "collapseAll": "ZWIŃ WSZYSTKIE",
+    "noResults": "BRAK WYNIKÓW DLA TEGO ZAPYTANIA",
     "faqs": [
       {
-        "question": "Jak mogę dołączyć do Zjednoczona Polska Korona?",
-        "answer": "Aby dołączyć do naszej frakcji, musisz wejść na nasz serwer Roblox i poprosić o zaproszenie. Zwróć się do dowolnego członka administracji z wymaganą dokumentacją."
+        "question": "Jak mogę dołączyć do Zjednoczonej Polskiej Korony?",
+        "answer": "Aby dołączyć do naszego klanu, musisz wejść na nasz serwer Discord (https://discord.gg/A3wE5mGryB) i następnie zrobisz ticketa o nazwie \"Rekrutacja\", odpowiadasz na 6 pytań i czekasz na odpowiedź administratora lub wyższej rangi, która cię przyjmie."
       },
       {
         "question": "Jakie wymagania muszę spełnić?",
-        "answer": "Wymagania mogą się różnić w zależności od roli, którą chcesz pełnić. Zasadniczo musisz być aktywny, szanować regulamin i posiadać mikrofon do komunikacji na serwerze."
+        "answer": "Wymagania mogą się różnić w zależności od roli, którą chcesz pełnić. Zasadniczo musisz być aktywny, szanować regulamin i posiadać mikrofon do komunikacji na serwerze. Jeśli nie masz mikrofonu, możesz korzystać z bota TTS (Text to Speak)."
       },
       {
         "question": "Jak zgłaszam problem lub złamanie regulaminu?",
@@ -233,19 +280,19 @@
       },
       {
         "question": "Czy mogę odwołać się od bana?",
-        "answer": "Tak, możesz odwołać się od bana poprzez wysłanie formalnej wiadomości do administracji. Przygotuj uzasadnienie, dlaczego uważasz, że decyzja była niesprawiedliwa."
+        "answer": "Tak, możesz odwołać się od bana poprzez stronę odwoławczą, która znajduje się w ogłoszeniu."
       },
       {
         "question": "Jaki język jest używany na serwerze?",
-        "answer": "Głównie używamy języka polskiego i angielskiego. Wszyscy członkowie powinni być w stanie posługiwać się co najmniej jednym z tych języków na zadowalającym poziomie."
+        "answer": "Głównie używamy wyłącznie języka polskiego, ponieważ jest to tylko polskie community wraz z klanem — nie międzynarodówka itd."
       },
       {
         "question": "Czy jest wymagany wiek minimalny?",
-        "answer": "Chociaż nie mamy ściśle określonego minimalnego wymogu wiekowego, zalecamy, aby członkowie mieli co najmniej 13 lat i wykazywali dojrzałość."
+        "answer": "Chociaż nie mamy ściśle określonego minimalnego wymogu wiekowego, zalecamy, aby członkowie mieli co najmniej 16 lat i wykazywali dojrzałość — ale tylko do klanu. Jeśli chcesz być częścią community, musisz mieć 13 lat, chyba że jesteś ogarnięty jak na swój wiek, to możesz iść do klanu."
       },
       {
         "question": "Jak się awansuje na wyższą rangę?",
-        "answer": "Awansowanie zależy od aktywności, zaangażowania i zademonstrowania umiejętności. Administracja będzie obserwować twoje postępy i rozpatry awans w odpowiednim czasie."
+        "answer": "Awansowanie zależy od aktywności, zaangażowania i zademonstrowania umiejętności. Administracja będzie obserwować twoje postępy i rozpatrzy awans w odpowiednim czasie."
       },
       {
         "question": "Czy mogę być moderatorem lub administratorem?",
@@ -287,11 +334,11 @@
     "structureContent": "Zjednoczona Polska Korona ma dobrze zdefiniowaną strukturę z różnymi rolami i stanowiskami. Od Faction Command na szczycie po Trial Moderators, każda rola jest ważna i wspiera ogólne funkcjonowanie organizacji.",
     "structureContent2": "Aby dowiedzieć się więcej o naszych rolach i członkach kadry, odwiedź stronę 'Kadra'.",
     "howToJoin": "Jak dołączyć do nas?",
-    "howToJoinContent": "Żeby do nas dołączyć musisz spełnić wszystkie 3 wymagania i tutaj 3 kroki do dołączenia:",
-    "step1": "Dołącz do serwera discord",
-    "step2": "Następnie, zweryfikujesz się.",
-    "step3": "I ostatni punkt robisz ticketa o nazwie: Rekrutacja.",
-    "step4": "I zostajesz oficjalnym członkiem Zjednoczonej Polskiej Korony! :D",
+    "howToJoinContent": "Żeby do nas dołączyć musisz spełnić 3 wymagania i tutaj 3 kroki do dołączenia:",
+    "step1": "Dołącz do serwera discord.",
+    "step2": "Następnie, zweryfikujesz się poprzez bloxlinka.",
+    "step3": "Następnie, wchodzisz do kanału \"pomoc\" i klikasz \"kontakt z zarządem\" i wybierasz kategorie \"Rekrutacja\" i odpowiadasz na 6 pytań.",
+    "step4": "Ostatni punkt, zostajesz oficjalnym członkiem klanu Zjednoczonej Polskiej Korony! :D",
     "step5": "",
     "communityTitle": "ZOSTAŃ COMMUNITY MEMBEREM",
     "communityContent": "Nasz serwer działa w modelu community + klan. Nie chcesz dołączać do klanu? Bez problemu - możesz być tylko community memberem. Musisz jednak przejść 3 weryfikacje:",
@@ -304,6 +351,103 @@
     "contactDiscord": "Discord: Nasz oficjalny serwer Discord",
     "contactRoblox": "Roblox: Bezpośredni komunikat do członka administracji",
     "contactWebsite": "Ta strona: Skorzystaj z opcji kontaktu (jeśli dostępna)"
+  },
+  "legal": {
+    "back": "WRÓĆ",
+    "updatedAt": "OSTATNIA AKTUALIZACJA",
+    "terms": {
+      "title": "WARUNKI KORZYSTANIA",
+      "subtitle": "Zasady korzystania z serwisu oraz przetwarzania danych",
+      "notice": "Jeśli masz pytania dotyczące tych warunków, skontaktuj się z administracją przez nasz serwer Discord.",
+      "sections": [
+        {
+          "title": "Akceptacja warunków",
+          "body": [
+            "Korzystając z tej strony internetowej Zjednoczonej Polskiej Korony (ZPK), akceptujesz niniejsze Warunki Korzystania. Jeśli nie zgadzasz się z nimi, nie korzystaj z serwisu.",
+            "Strona jest przeznaczona dla członków społeczności gry Wanted (Roblox) oraz osób zainteresowanych dołączeniem do frakcji."
+          ]
+        },
+        {
+          "title": "Logowanie przez Discorda",
+          "body": [
+            "Dostęp do wybranych sekcji (KOS, War Logs) wymaga zalogowania przez Discorda. Logowanie używa standardu OAuth2 — Twoje hasło do Discorda nigdy nie trafia do naszej strony ani naszych serwerów.",
+            "Podczas logowania uzyskujemy dostęp do: Twojego identyfikatora (user ID), nazwy użytkownika oraz listy serwerów, do których należysz (w celu weryfikacji członkostwa w serwerze ZPK)."
+          ]
+        },
+        {
+          "title": "Dozwolone użycie",
+          "body": [
+            "Zgadzasz się używać strony zgodnie z regulaminem serwera i prawem. Zabronione jest: próby włamania, skanowanie, ingerowanie w kod strony, podszywanie się pod innych użytkowników oraz nadużywanie funkcji administracyjnych.",
+            "Strona monitoruje próby nieautoryzowanego dostępu (warstwa bezpieczeństwa) i może logować adresy IP w celach ochronnych."
+          ]
+        },
+        {
+          "title": "Dane i własność intelektualna",
+          "body": [
+            "Zawartość strony (teksty, grafiki, logo) należy do Zjednoczonej Polskiej Korony. Kopiowanie treści bez zgody jest zabronione.",
+            "Dane wprowadzane przez administratorów (np. wpisy KOS, raporty wojenne) są własnością frakcji i mogą być edytowane lub usuwane w dowolnym momencie."
+          ]
+        },
+        {
+          "title": "Ograniczenie odpowiedzialności",
+          "body": [
+            "Strona jest dostarczana „tak jak jest”. Nie gwarantujemy ciągłości działania, braku błędów ani dostępności w każdej chwili.",
+            "ZPK nie ponosi odpowiedzialności za szkody wynikające z korzystania ze strony, w tym utratę danych sesji czy niedostępność usług."
+          ]
+        },
+        {
+          "title": "Zmiany warunków",
+          "body": [
+            "Zastrzegamy sobie prawo do zmiany niniejszych warunków w dowolnym momencie. Aktualna wersja jest zawsze dostępna na tej stronie.",
+            "Kontynuacja korzystania ze strony po zmianie warunków oznacza ich akceptację."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "POLITYKA PRYWATNOŚCI",
+      "subtitle": "Jakie dane zbieramy, dlaczego i jak możesz je usunąć",
+      "safeTitle": "CO NIGDY NIE JEST ZBIERANE",
+      "safeBody": "Ta strona NIE zbiera Twojego hasła, adresu e-mail ani danych płatniczych. Logowanie przez Discorda używa bezpiecznego standardu OAuth — Discord nigdy nie udostępnia nam Twojego hasła.",
+      "notice": "Masz prawo w każdej chwili wylogować się i poprosić o usunięcie swoich danych — napisz do administracji na Discordzie.",
+      "sections": [
+        {
+          "key": "collect",
+          "title": "Jakie dane zbieramy",
+          "body": [
+            "Logując się przez Discorda, otrzymujemy: Twój identyfikator (user ID), nazwę użytkownika oraz informację, czy należysz do serwera ZPK.",
+            "Sesja logowania (token OAuth) jest przechowywana wyłącznie w Twojej przeglądarce (localStorage) i wygasa automatycznie po 12 godzinach.",
+            "Serwer hostingowy (Netlify) oraz warstwa bezpieczeństwa strony mogą rejestrować adres IP i podstawowe informacje o ruchu w celach ochronnych i diagnostycznych.",
+            "Jeśli jesteś administratorem, sprawdzamy Twoje role na serwerze Discord w celu weryfikacji uprawnień (tylko fakt posiadania roli administracyjnej — nie zapisujemy pełnej listy ról)."
+          ]
+        },
+        {
+          "key": "purpose",
+          "title": "Po co to robimy",
+          "body": [
+            "Dane są używane wyłącznie do: weryfikacji członkostwa, przyznawania dostępu do sekcji KOS i War Logs, rozpoznawania administratorów oraz ochrony strony przed nadużyciami.",
+            "Nie sprzedajemy, nie udostępniamy ani nie udostępniamy Twoich danych podmiotom trzecim. Jedyne zewnętrzne usługi to Discord (autoryzacja), Netlify (hosting) i Ably (powiadomienia na żywo — bez danych osobowych)."
+          ]
+        },
+        {
+          "key": "storage",
+          "title": "Gdzie są przechowywane",
+          "body": [
+            "Token sesji: w Twojej przeglądarce (localStorage). Usunięcie go = wylogowanie.",
+            "Dane administratorów (uprawnienia): weryfikowane na bieżąco przez API Discorda — nie trzymamy kopii.",
+            "Logi bezpieczeństwa: u dostawcy hostingu (Netlify) przez krótki okres, w celach technicznych."
+          ]
+        },
+        {
+          "key": "delete",
+          "title": "Jak usunąć swoje dane",
+          "body": [
+            "Wyloguj się przyciskiem w menu (wymazuje sesję z przeglądarki) lub wyczyść localStorage w ustawieniach przeglądarki.",
+            "Aby poprosić o usunięcie wszelkich danych, które mogliśmy zapisać, napisz do administracji na serwerze Discord ZPK — odpowiemy w ciągu 14 dni."
+          ]
+        }
+      ]
+    }
   },
   "common": {
     "orgName": "Zjednoczona Polska Korona",
@@ -350,6 +494,12 @@
     "title": "WOJENNE LOGI",
     "readMore": "DOSTĘP DO DANYCH",
     "modalTitle": "RAPORT Z MISJI",
+    "searchPlaceholder": "SZUKAJ... (przeciwnik, powód, członkowie)",
+    "noResults": "BRAK WYNIKÓW",
+    "realtime": {
+      "newWar": "NOWY RAPORT WOJENNY",
+      "warWithName": "Wojna z {{name}}"
+    },
     "briefing": "SZCZEGÓŁY ODPRAWY",
     "labels": {
       "warWith": "Wojna z {{opponent}}",
@@ -366,6 +516,7 @@
       "DRAW": "Remis"
     },
     "tabs": {
+      "all": "WSZYSTKIE",
       "info": "INFO",
       "enemyKD": "KD WROGÓW",
       "memberKD": "KD CZŁONKÓW"
@@ -402,6 +553,118 @@
       "release": "STABILNA"
     },
     "dev": [
+      {
+        "version": "0.0.14-DEV",
+        "date": "14 sie 2026",
+        "changes": [
+          {
+            "type": "improvement",
+            "title": "Szybszy start i płynna nawigacja",
+            "description": "Lazy-loading wszystkich podstron (code-splitting — mniejszy bundle startowy), automatyczny scroll na górę po zmianie strony oraz płynne animacje przejść między podstronami."
+          },
+          {
+            "type": "feature",
+            "title": "Badge użytkownika: avatar + licznik sesji",
+            "description": "W navbarze avatar z Discorda, licznik czasu do wygaśnięcia sesji (12h) aktualizowany na żywo oraz globalny status połączenia realtime (LIVE/STANDBY)."
+          },
+          {
+            "type": "feature",
+            "title": "KOS: KOPIUJ NAZWĘ i sortowanie",
+            "description": "Przycisk kopiujący nick celu do schowka jednym kliknięciem oraz sortowanie listy (A-Z / Z-A) obok filtrów OSOBY/FRAKCJE."
+          },
+          {
+            "type": "feature",
+            "title": "KOS na żywo dla adminów",
+            "description": "Weryfikacja roli admina przy każdym wejściu na stronę (nadanie roli na Discordzie działa bez wylogowania) oraz natychmiastowe odświeżanie listy przez Ably."
+          },
+          {
+            "type": "feature",
+            "title": "Dzwonek ogłoszeń",
+            "description": "Historia ogłoszeń frakcji (z Netlify Blobs) dla wszystkich odwiedzających oraz formularz nadawania ogłoszeń bezpośrednio ze strony dla administratorów (INFO/OSTRZEŻENIE/KRYTYCZNE)."
+          },
+          {
+            "type": "feature",
+            "title": "WarLogs: wyszukiwarka i filtry",
+            "description": "Wyszukiwanie po przeciwniku, powodzie, członkach i MVP oraz filtr wyniku wojny (wygrana/przegrana/remis)."
+          },
+          {
+            "type": "improvement",
+            "title": "Przycisk WRÓĆ NA GÓRĘ",
+            "description": "Pływający przycisk pojawiający się po przewinięciu strony, płynnie wracający na górę."
+          },
+          {
+            "type": "security",
+            "title": "Pakiet zabezpieczeń",
+            "description": "CORS z allowlistą domen, rate limiting na wszystkich funkcjach, limit rozmiaru body, audit log działań adminów oraz nagłówki bezpieczeństwa (CSP, HSTS, X-Frame). Błędy serwera zwracają generyczny kod bez wycieku stack trace."
+          },
+          {
+            "type": "bugfix",
+            "title": "Naprawa logowania przez Discorda",
+            "description": "Naprawa błędu NO_TOKEN_RECEIVED po poprawnym zalogowaniu, pełne odświeżenie strony z czystym URL oraz poprawki odświeżania sesji."
+          },
+          {
+            "type": "feature",
+            "title": "Bramka wersji deweloperskiej",
+            "description": "Wersja dev dostępna tylko dla członków serwera deweloperskiego (DevGuard) — baner DEV BUILD dla uprawnionych, blokada dla reszty."
+          },
+          {
+            "type": "feature",
+            "title": "Warunki Korzystania i Polityka Prywatności",
+            "description": "Nowe strony /terms i /privacy z jasnym opisem, jakie dane zbieramy (i czego nie zbieramy), z linkami na ekranie logowania."
+          },
+          {
+            "type": "improvement",
+            "title": "Q&A: nowe narzędzia",
+            "description": "Wyszukiwarka pytań, rozwijanie/zwijanie wszystkich oraz kopiowanie odpowiedzi jednym kliknięciem."
+          },
+          {
+            "type": "bugfix",
+            "title": "Drobne poprawki",
+            "description": "Prawdziwy link Discord (discord.gg/A3wE5mGryB) w całej stronie, nowa treść kroków rekrutacji w About, usunięcie przycisków YouTube/TikTok oraz filtr kosmetycznych logów Ably w trybie dev."
+          }
+        ]
+      },
+      {
+        "version": "0.0.13-DEV",
+        "date": "12 sie 2026",
+        "changes": [
+          {
+            "type": "feature",
+            "title": "Baza KOS z panelami administracyjnymi",
+            "description": "Pełna strona KOS: cele osobiste i frakcyjne, akta (dossier), system dowodów (zrzuty ekranu, YouTube, Medal.tv, Discord, inne linki) oraz panel zarządzania tylko dla adminów."
+          },
+          {
+            "type": "feature",
+            "title": "Weryfikacja ról przez Discorda",
+            "description": "Funkcja Netlify verify-admin: dodawanie i usuwanie celów tylko dla posiadaczy ról administracyjnych — sprawdzanie ról przez bota Discord."
+          },
+          {
+            "type": "feature",
+            "title": "Wspólna chmura celów (Netlify Blobs)",
+            "description": "kos-store: baza celów KOS wspólna dla wszystkich graczy (koniec z per-przeglądarka), z automatycznym fallbackiem na dane lokalne."
+          },
+          {
+            "type": "feature",
+            "title": "Realtime przez Ably",
+            "description": "Integracja WebSocketów (klucz subscribe-only w przeglądarce, publikacja po stronie serwera): ogłoszenia, aktywność frakcji i zmiany KOS na żywo."
+          },
+          {
+            "type": "feature",
+            "title": "Ogłoszenia na żywo",
+            "description": "Funkcja announce.js: administratorzy nadają ogłoszenia, które jako toasty trafiają do wszystkich odwiedzających — z historią w Netlify Blobs."
+          },
+          {
+            "type": "feature",
+            "title": "Upload dowodów",
+            "description": "Funkcja upload-evidence: wysyłanie zdjęć dowodów przez Catbox bezpośrednio z panelu zarządzania KOS."
+          },
+          {
+            "type": "improvement",
+            "title": "Nowe logo i branding ZPK",
+            "description": "Logo frakcji (logo192/logo512), odchudzone tło hero oraz aktualizacja manifest.json."
+          }
+        ]
+      },
       {
         "version": "0.0.12-DEV",
         "date": "3 sie 2026",

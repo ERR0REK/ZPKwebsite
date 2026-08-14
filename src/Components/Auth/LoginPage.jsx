@@ -13,7 +13,7 @@ import {
 import logo from '../../Assets/logo.png';
 import './LoginPage.css';
 
-const LoginPage = () => {
+const LoginPage = ({ devMode }) => {
     const { t } = useTranslation();
 
     // Discord Configuration (Placeholder - User needs to fill this in)
@@ -54,6 +54,12 @@ const LoginPage = () => {
                     </div>
 
                     <div className="login-body">
+                        {devMode && (
+                            <div className="dev-login-warning">
+                                <ShieldAlert size={16} />
+                                <span>{t('login.dev_warning', 'WERSJA DEWELOPERSKA — dostęp tylko dla członków serwera deweloperskiego frakcji.')}</span>
+                            </div>
+                        )}
                         <h2 className="login-prompt">
                             {t('login.prompt', 'LOGIN_TO_CONTINUE')}
                         </h2>
@@ -96,9 +102,9 @@ const LoginPage = () => {
 
                     <div className="login-footer">
                         <div className="footer-links">
-                            <span className="footer-link-static">{t('login.tos', 'Terms of Service')}</span>
+                            <a href="#/terms" className="footer-link-static">{t('login.tos', 'Terms of Service')}</a>
                             <span className="dot"></span>
-                            <span className="footer-link-static">{t('login.privacy', 'Privacy Policy')}</span>
+                            <a href="#/privacy" className="footer-link-static">{t('login.privacy', 'Privacy Policy')}</a>
                         </div>
                         <div className="system-load">
                             <Cpu size={12} />

@@ -11,18 +11,15 @@
 
 const DEFAULT_GUILD_ID = "1445399610414858340";
 
-function corsHeaders() {
-  return {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  };
-}
+// CORS i JSON delegujemy do security.js (allowlista domen zamiast "*").
+const { corsHeaders } = require("./security");
 
-function json(statusCode, payload, extraHeaders = {}) {
+// event jest opcjonalny — bez niego (np. serwer-to-serwer) zwracamy "*",
+// a z eventem CORS idzie przez allowlistę domen z security.js.
+function json(statusCode, payload, extraHeaders = {}, event) {
   return {
     statusCode,
-    headers: { "Content-Type": "application/json", ...corsHeaders(), ...extraHeaders },
+    headers: { "Content-Type": "application/json", ...corsHeaders(event), ...extraHeaders },
     body: JSON.stringify(payload),
   };
 }
@@ -66,7 +63,18 @@ async function verifyAdmin(accessToken) {
   const userRoles = Array.isArray(member.roles) ? member.roles : [];
   const isAdmin = userRoles.some((r) => adminRoleIds.includes(r));
 
-  return { ok: true, is_member: true, is_admin: isAdmin, roles: userRoles };
+  // Zwracamy też info o adminie (id + username) — potrzebne do audit logu
+  // w funkcjach (kos-store, announce, upload-evidence).
+  return {
+    ok: true,
+    is_member: true,
+    is_admin: isAdmin,
+    roles: userRoles,
+    user: {
+      id: me.id,
+      username: me.username || me.global_name || null,
+    },
+  };
 }
 
 // Uploaduje zdjęcie do Catbox.moe (anonimowo, bez konta).

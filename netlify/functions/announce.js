@@ -10,6 +10,7 @@
 const Ably = require("ably");
 const { getStore } = require("@netlify/blobs");
 const { verifyAdmin, json, corsHeaders } = require("./_lib/discord");
+const { rateLimit, bodyTooLarge, audit, handleError } = require("./_lib/security");
 
 const CHANNEL = "zpk-announcements";
 const STORE_NAME = "zpk-announce";
@@ -24,35 +25,45 @@ const lastAnnounceAt = new Map();
 
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers: corsHeaders(), body: "" };
+    return { statusCode: 204, headers: corsHeaders(event), body: "" };
   }
 
   try {
+    // Rate limit — 20 zapytań/min na IP (ogłoszenia są rzadkie)
+    const rl = rateLimit(event, 20);
+    if (!rl.allowed) {
+      return json(429, { ok: false, error: "RATE_LIMITED" }, { "Retry-After": String(rl.retryAfterSec) }, event);
+    }
+
+    if (bodyTooLarge(event)) {
+      return json(413, { ok: false, error: "BODY_TOO_LARGE" }, {}, event);
+    }
+
     const { access_token, title, message, severity } = JSON.parse(event.body || "{}");
 
     if (!access_token || !message || !message.trim()) {
-      return json(400, { ok: false, error: "MISSING_FIELDS" });
+      return json(400, { ok: false, error: "MISSING_FIELDS" }, {}, event);
     }
 
     // 1. Weryfikacja roli administracyjnej
     const admin = await verifyAdmin(access_token);
     if (!admin.ok) {
-      return json(403, { ok: false, error: admin.error || "ADMIN_CHECK_FAILED" });
+      return json(403, { ok: false, error: admin.error || "ADMIN_CHECK_FAILED" }, {}, event);
     }
     if (!admin.is_admin) {
-      return json(403, { ok: false, error: "FORBIDDEN_NOT_ADMIN" });
+      return json(403, { ok: false, error: "FORBIDDEN_NOT_ADMIN" }, {}, event);
     }
 
     // 2. Cooldown — nie spamuj kanału
     const now = Date.now();
     const lastAt = lastAnnounceAt.get(access_token) || 0;
     if (now - lastAt < COOLDOWN_MS) {
-      return json(429, { ok: false, error: "RATE_LIMITED" });
+      return json(429, { ok: false, error: "RATE_LIMITED" }, {}, event);
     }
     lastAnnounceAt.set(access_token, now);
 
     if (!process.env.ABLY_API_KEY) {
-      return json(500, { ok: false, error: "ABLY_NOT_CONFIGURED" });
+      return json(500, { ok: false, error: "ABLY_NOT_CONFIGURED" }, {}, event);
     }
 
     // 3. Walidacja severity (allowlist)
@@ -86,9 +97,10 @@ exports.handler = async (event) => {
     await channel.publish("announce", announcement);
     client.close();
 
-    return json(200, { ok: true, announcement });
+    await audit("announce", `${safeSeverity}: ${announcement.title}`, admin.user);
+
+    return json(200, { ok: true, announcement }, {}, event);
   } catch (err) {
-    console.error("announce error:", err);
-    return json(500, { ok: false, error: "SERVER_ERROR" });
+    return handleError(err, "announce", event);
   }
 };

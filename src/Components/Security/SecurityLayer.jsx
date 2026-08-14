@@ -15,8 +15,13 @@ const SecurityLayer = () => {
 
     useEffect(() => {
         const checkBypass = () => {
-            const session = JSON.parse(localStorage.getItem('ZPK_auth_session'));
-            return session && session.user_id === AUTHORIZED_ADMIN_ID;
+            try {
+                const session = JSON.parse(localStorage.getItem('ZPK_auth_session'));
+                return session && session.user_id === AUTHORIZED_ADMIN_ID;
+            } catch (e) {
+                // Zepsuta sesja (np. ręczna edycja localStorage) — nie dajemy bypassu
+                return false;
+            }
         };
 
         const handleContextMenu = (e) => {

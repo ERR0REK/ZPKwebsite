@@ -13,14 +13,35 @@
     "staff": "Staff",
     "history": "Faction History",
     "kos": "KOS",
-    "changelog": "Changelog"
+    "changelog": "Changelog",
+    "sessionBadge": "LOGGED IN",
+    "logout": "LOGOUT",
+    "realtimeOnline": "REALTIME: ONLINE",
+    "realtimeOffline": "REALTIME: OFFLINE",
+    "realtimeLive": "LIVE",
+    "realtimeStandby": "STANDBY",
+    "bell": {
+      "label": "ANNOUNCEMENTS",
+      "title": "FACTION ANNOUNCEMENTS",
+      "compose": "NEW ANNOUNCEMENT",
+      "titlePlaceholder": "TITLE (optional)",
+      "messagePlaceholder": "ANNOUNCEMENT MESSAGE...",
+      "send": "SEND",
+      "severity": {
+        "info": "INFO",
+        "warning": "WARNING",
+        "critical": "CRITICAL"
+      },
+      "loading": "LOADING...",
+      "empty": "NO ANNOUNCEMENTS",
+      "sent": "ANNOUNCEMENT SENT",
+      "anonymous": "ANNOUNCEMENT"
+    }
   },
   "hero": {
     "title": "Nightfall Squadron",
     "welcome": "Welcome to the official website of the Nightfall Squadron. Explore our history, missions, and more.",
-    "discord_button": "Join Discord",
-    "youtube_button": "YouTube",
-    "tiktok_button": "TikTok"
+    "discord_button": "Join Discord"
   },
   "ticker": {
     "line1": "// TRAINING OPERATIONS: ACTIVE",
@@ -31,6 +52,17 @@
   },
   "langDropdown": {
     "helpTranslate": "Help Translate"
+  },
+  "home": {
+    "feed": {
+      "title": "FACTION ACTIVITY",
+      "kosAdded": "KOS TARGET ADDED",
+      "kosRemoved": "KOS TARGET REMOVED",
+      "factionAdded": "CLAN ADDED TO KOS",
+      "warReport": "WAR REPORT",
+      "announcement": "ANNOUNCEMENT",
+      "empty": "NO ACTIVITY — SYSTEM ON STANDBY"
+    }
   },
   "loadingScreen": {
     "status1": "Initializing systems...",
@@ -83,6 +115,14 @@
     "search": "SEARCH BY NAME...",
     "reasonLabel": "REASON",
     "viewDossier": "VIEW DOSSIER",
+    "copyName": "COPY NAME",
+    "copied": "COPIED",
+    "sort": {
+      "label": "SORT",
+      "default": "DEFAULT",
+      "nameAsc": "NAME A-Z",
+      "nameDesc": "NAME Z-A"
+    },
     "seeMore": "SEE MORE",
     "seeLess": "SEE LESS",
     "showAll": "SHOW ALL TARGETS",
@@ -149,6 +189,7 @@
       "resetConfirm": "Reset the local KOS database to the code defaults? All locally added targets will be removed.",
       "adminOnly": "ADMIN ONLY",
       "adminOnlyWarning": "Only Discord administrators can add or remove KOS targets.",
+      "checking": "CHECKING...",
       "uploadBtn": "UPLOAD IMAGE",
       "uploading": "UPLOADING...",
       "uploadError": "Upload failed. Try again or paste the image link manually.",
@@ -170,6 +211,8 @@
     "success_title": "ACCESS GRANTED",
     "success_body": "Verification successful. Welcome to the Nightfall Squadron system.",
     "error_no_server": "ACCESS DENIED: You are not a member of the official faction server.",
+    "error_no_dev_server": "ACCESS DENIED: This development build is only available to members of the faction's development Discord server.",
+    "dev_warning": "DEVELOPMENT BUILD — access limited to members of the faction's development Discord server.",
     "error_api": "SYSTEM ERROR: Failed to verify your account.",
     "redirecting": "Redirecting to database..."
   },
@@ -219,14 +262,18 @@
     "title": "QUESTIONS & ANSWERS",
     "subtitle": "Find answers to frequently asked questions about Nightfall Squadron",
     "noItems": "No questions to display",
+    "searchPlaceholder": "SEARCH THE DATABASE...",
+    "expandAll": "EXPAND ALL",
+    "collapseAll": "COLLAPSE ALL",
+    "noResults": "NO RESULTS FOR THIS QUERY",
     "faqs": [
       {
-        "question": "How can I join Nightfall Squadron?",
-        "answer": "To join our faction, you need to enter our Roblox server and request an invite. Contact any administrator with the required documentation."
+        "question": "How can I join Zjednoczona Polska Korona?",
+        "answer": "To join our clan, you need to join our Discord server (https://discord.gg/A3wE5mGryB) and then create a ticket named \"Recruitment\", answer 6 questions, and wait for an administrator or a higher rank to accept you."
       },
       {
         "question": "What requirements do I need to meet?",
-        "answer": "Requirements may vary depending on the role you want to take. Generally, you need to be active, respect the rules, and have a microphone for server communication."
+        "answer": "Requirements may vary depending on the role you want to take. Generally, you need to be active, respect the rules, and have a microphone for server communication. If you don't have a microphone, you can use the TTS bot (Text to Speak)."
       },
       {
         "question": "How do I report a problem or regulation violation?",
@@ -234,15 +281,15 @@
       },
       {
         "question": "Can I appeal a ban?",
-        "answer": "Yes, you can appeal a ban by sending a formal message to the administration. Prepare an explanation of why you believe the decision was unfair."
+        "answer": "Yes, you can appeal a ban through the appeal page that is located in the announcement."
       },
       {
         "question": "What language is used on the server?",
-        "answer": "We primarily use Polish and English. All members should be able to communicate in at least one of these languages at a satisfactory level."
+        "answer": "We mainly use only Polish, because this is a Polish-only community together with the clan — not an international one, etc."
       },
       {
         "question": "Is there a minimum age requirement?",
-        "answer": "While we don't have a strictly defined minimum age requirement, we recommend that members be at least 13 years old and demonstrate maturity."
+        "answer": "While we don't have a strictly defined minimum age requirement, we recommend that members be at least 16 years old and demonstrate maturity — but only for the clan. If you want to be part of the community, you must be 13 years old, unless you are mature for your age, then you can join the clan."
       },
       {
         "question": "How do I get promoted to a higher rank?",
@@ -289,10 +336,10 @@
     "structureContent2": "To learn more about our roles and staff members, visit the 'Staff' page.",
     "howToJoin": "How to Join Us?",
     "howToJoinContent": "To join us, you need to meet all 3 requirements. Here are the 3 steps to join:",
-    "step1": "Join the Discord server",
-    "step2": "Next, get verified.",
-    "step3": "Create a ticket named: Recruitment.",
-    "step4": "You become an official member of Zjednoczona Polska Korona! :D",
+    "step1": "Join the Discord server.",
+    "step2": "Next, verify yourself via Bloxlink.",
+    "step3": "Next, go to the \"help\" channel and click \"contact management\", choose the \"Recruitment\" category and answer 6 questions.",
+    "step4": "Final step: you become an official member of the Zjednoczona Polska Korona clan! :D",
     "step5": "",
     "communityTitle": "BECOME A COMMUNITY MEMBER",
     "communityContent": "Our server works in a community + clan model. Don't want to join the clan? No problem - you can be just a community member. However, you must pass 3 verifications:",
@@ -305,6 +352,103 @@
     "contactDiscord": "Discord: Our official Discord server",
     "contactRoblox": "Roblox: Direct message to an administration member",
     "contactWebsite": "This website: Use the contact option (if available)"
+  },
+  "legal": {
+    "back": "BACK",
+    "updatedAt": "LAST UPDATED",
+    "terms": {
+      "title": "TERMS OF SERVICE",
+      "subtitle": "Rules for using the site and how data is processed",
+      "notice": "If you have questions about these terms, contact the administration through our Discord server.",
+      "sections": [
+        {
+          "title": "Acceptance of terms",
+          "body": [
+            "By using this Zjednoczona Polska Korona (ZPK) website, you accept these Terms of Service. If you do not agree, do not use the site.",
+            "The site is intended for members of the Wanted (Roblox) game community and people interested in joining the faction."
+          ]
+        },
+        {
+          "title": "Discord login",
+          "body": [
+            "Access to selected sections (KOS, War Logs) requires logging in through Discord. Login uses the OAuth2 standard — your Discord password never reaches our site or servers.",
+            "When logging in we receive: your user ID, username, and the list of servers you belong to (to verify ZPK server membership)."
+          ]
+        },
+        {
+          "title": "Permitted use",
+          "body": [
+            "You agree to use the site in accordance with the server rules and the law. Prohibited: hacking attempts, scanning, tampering with the code, impersonating other users, and abusing administrative features.",
+            "The site monitors unauthorized access attempts (security layer) and may log IP addresses for protective purposes."
+          ]
+        },
+        {
+          "title": "Data and intellectual property",
+          "body": [
+            "Site content (texts, graphics, logo) belongs to Zjednoczona Polska Korona. Copying content without permission is prohibited.",
+            "Data entered by administrators (e.g. KOS entries, war reports) is faction property and may be edited or removed at any time."
+          ]
+        },
+        {
+          "title": "Limitation of liability",
+          "body": [
+            "The site is provided \"as is\". We do not guarantee continuous operation, absence of errors, or availability at all times.",
+            "ZPK is not liable for damages resulting from the use of the site, including loss of session data or service unavailability."
+          ]
+        },
+        {
+          "title": "Changes to terms",
+          "body": [
+            "We reserve the right to change these terms at any time. The current version is always available on this page.",
+            "Continuing to use the site after changes means acceptance of the new terms."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "PRIVACY POLICY",
+      "subtitle": "What data we collect, why, and how you can delete it",
+      "safeTitle": "WHAT IS NEVER COLLECTED",
+      "safeBody": "This site does NOT collect your password, email address, or payment data. Discord login uses the secure OAuth standard — Discord never shares your password with us.",
+      "notice": "You have the right to log out at any time and request deletion of your data — message the administration on Discord.",
+      "sections": [
+        {
+          "key": "collect",
+          "title": "What data we collect",
+          "body": [
+            "When logging in through Discord we receive: your user ID, username, and whether you belong to the ZPK server.",
+            "The login session (OAuth token) is stored only in your browser (localStorage) and expires automatically after 12 hours.",
+            "The hosting server (Netlify) and the site's security layer may log IP addresses and basic traffic information for protective and diagnostic purposes.",
+            "If you are an administrator, we check your roles on the Discord server to verify permissions (only the fact that you hold an admin role — we do not store the full role list)."
+          ]
+        },
+        {
+          "key": "purpose",
+          "title": "Why we do this",
+          "body": [
+            "Data is used solely for: membership verification, granting access to KOS and War Logs sections, recognizing administrators, and protecting the site from abuse.",
+            "We do not sell, share, or expose your data to third parties. The only external services are Discord (authorization), Netlify (hosting) and Ably (live notifications — no personal data)."
+          ]
+        },
+        {
+          "key": "storage",
+          "title": "Where it is stored",
+          "body": [
+            "Session token: in your browser (localStorage). Removing it = logging out.",
+            "Administrator data (permissions): verified live through the Discord API — we keep no copy.",
+            "Security logs: with the hosting provider (Netlify) for a short period, for technical purposes."
+          ]
+        },
+        {
+          "key": "delete",
+          "title": "How to delete your data",
+          "body": [
+            "Log out with the menu button (clears the session from the browser) or clear localStorage in browser settings.",
+            "To request deletion of any data we might have stored, message the administration on the ZPK Discord server — we will respond within 14 days."
+          ]
+        }
+      ]
+    }
   },
   "common": {
     "orgName": "Nightfall Squadron",
@@ -351,6 +495,12 @@
     "title": "WAR LOGS",
     "readMore": "ACCESS DATA",
     "modalTitle": "MISSION REPORT",
+    "searchPlaceholder": "SEARCH... (opponent, reason, members)",
+    "noResults": "NO RESULTS",
+    "realtime": {
+      "newWar": "NEW WAR REPORT",
+      "warWithName": "War with {{name}}"
+    },
     "briefing": "BRIEFING DETAILS",
     "labels": {
       "warWith": "War with {{opponent}}",
@@ -367,6 +517,7 @@
       "DRAW": "Draw"
     },
     "tabs": {
+      "all": "ALL",
       "info": "INFO",
       "enemyKD": "ENEMY KD",
       "memberKD": "MEMBER KD"
@@ -403,6 +554,118 @@
       "release": "RELEASE"
     },
     "dev": [
+      {
+        "version": "0.0.14-DEV",
+        "date": "Aug 14, 2026",
+        "changes": [
+          {
+            "type": "improvement",
+            "title": "Faster startup and smooth navigation",
+            "description": "Lazy-loading of all subpages (code-splitting — smaller initial bundle), automatic scroll-to-top on page change, and smooth page transition animations."
+          },
+          {
+            "type": "feature",
+            "title": "User badge: avatar + session timer",
+            "description": "The navbar now shows the Discord avatar, a live countdown of session expiry (12h), and a global realtime status pill (LIVE/STANDBY)."
+          },
+          {
+            "type": "feature",
+            "title": "KOS: COPY NAME and sorting",
+            "description": "One-click copy of a target's nickname to the clipboard, plus list sorting (A-Z / Z-A) next to the PERSONAL/FACTION filters."
+          },
+          {
+            "type": "feature",
+            "title": "Live KOS for admins",
+            "description": "Admin role is verified on every page entry (a Discord role grant works without logging out) and the list refreshes instantly via Ably."
+          },
+          {
+            "type": "feature",
+            "title": "Announcement bell",
+            "description": "Faction announcement history (from Netlify Blobs) for every visitor, plus an in-site announcement form for administrators (INFO/WARNING/CRITICAL)."
+          },
+          {
+            "type": "feature",
+            "title": "WarLogs: search and filters",
+            "description": "Search by opponent, reason, members, and MVP, plus a war result filter (win/loss/draw)."
+          },
+          {
+            "type": "improvement",
+            "title": "BACK TO TOP button",
+            "description": "A floating button that appears after scrolling down and smoothly returns to the top of the page."
+          },
+          {
+            "type": "security",
+            "title": "Security package",
+            "description": "CORS origin allowlist, rate limiting on all functions, body size limits, an admin audit log, and security headers (CSP, HSTS, X-Frame). Server errors return a generic code with no stack trace leakage."
+          },
+          {
+            "type": "bugfix",
+            "title": "Discord login fix",
+            "description": "Fixed NO_TOKEN_RECEIVED after a successful login, added a full page refresh with a clean URL, and improved session refresh handling."
+          },
+          {
+            "type": "feature",
+            "title": "Dev build gate",
+            "description": "The dev site is now accessible only to development server members (DevGuard) — DEV BUILD banner for authorized users, block for everyone else."
+          },
+          {
+            "type": "feature",
+            "title": "Terms of Service and Privacy Policy",
+            "description": "New /terms and /privacy pages clearly describing what data we collect (and what we never collect), with links on the login screen."
+          },
+          {
+            "type": "improvement",
+            "title": "Q&A: new tools",
+            "description": "Question search, expand/collapse all, and one-click answer copying."
+          },
+          {
+            "type": "bugfix",
+            "title": "Minor fixes",
+            "description": "Real Discord link (discord.gg/A3wE5mGryB) across the whole site, new recruitment steps in About, removed YouTube/TikTok buttons, and filtered cosmetic Ably logs in dev mode."
+          }
+        ]
+      },
+      {
+        "version": "0.0.13-DEV",
+        "date": "Aug 12, 2026",
+        "changes": [
+          {
+            "type": "feature",
+            "title": "KOS database with admin panels",
+            "description": "Full KOS page: personal and faction targets, dossiers, an evidence system (screenshots, YouTube, Medal.tv, Discord, other links), and an admin-only management panel."
+          },
+          {
+            "type": "feature",
+            "title": "Discord role verification",
+            "description": "Netlify verify-admin function: adding and removing targets is restricted to admin role holders — roles are checked via the Discord bot."
+          },
+          {
+            "type": "feature",
+            "title": "Shared target cloud (Netlify Blobs)",
+            "description": "kos-store: a KOS target database shared across all players (no more per-browser storage), with automatic fallback to local data."
+          },
+          {
+            "type": "feature",
+            "title": "Realtime via Ably",
+            "description": "WebSocket integration (subscribe-only key in the browser, server-side publishing): announcements, faction activity, and KOS changes in real time."
+          },
+          {
+            "type": "feature",
+            "title": "Live announcements",
+            "description": "The announce.js function lets administrators publish announcements that reach every visitor as toasts — with history stored in Netlify Blobs."
+          },
+          {
+            "type": "feature",
+            "title": "Evidence upload",
+            "description": "The upload-evidence function sends evidence screenshots through Catbox directly from the KOS management panel."
+          },
+          {
+            "type": "improvement",
+            "title": "New ZPK logo and branding",
+            "description": "Faction logo (logo192/logo512), a lighter hero background, and a manifest.json update."
+          }
+        ]
+      },
       {
         "version": "0.0.12-DEV",
         "date": "Aug 3, 2026",

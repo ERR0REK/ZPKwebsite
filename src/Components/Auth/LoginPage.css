@@ -80,6 +80,22 @@
     letter-spacing: 2px;
 }
 
+.dev-login-warning {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #ff6b6b;
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    line-height: 1.5;
+}
+
 .login-body {
     text-align: center;
 }
@@ -196,6 +212,20 @@
 
 .footer-link:hover {
     color: var(--ZPK-red);
+}
+
+.footer-link-static {
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.footer-link-static:hover {
+    color: var(--ZPK-red);
+    border-bottom-color: var(--ZPK-red);
 }
 
 .dot {
