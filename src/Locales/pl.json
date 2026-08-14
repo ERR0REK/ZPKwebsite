@@ -554,6 +554,27 @@
     },
     "dev": [
       {
+        "version": "0.0.14 HOTFIX - DEV",
+        "date": "14 sie 2026",
+        "changes": [
+          {
+            "type": "security",
+            "title": "Token Auth dla realtime (Ably)",
+            "description": "Frontend nie trzyma już żadnego klucza Ably — łączy się przez krótkożyjące tokeny (TTL 1h, tylko odczyt kanałów) wydawane przez nową funkcję /api/ably-token-request. Klucz ROOT nigdy nie opuszcza backendu, a przechwycony token nie może publikować."
+          },
+          {
+            "type": "bugfix",
+            "title": "Usunięcie klucza Ably z bundla produkcyjnego",
+            "description": "Klucz subscribe-only trafiał do builda przez .env.local. Klucz dev przeniesiony do .env.development.local (ładowany tylko przy npm start) — bundel produkcyjny jest czysty, żaden klucz nie wycieka do kodu strony."
+          },
+          {
+            "type": "bugfix",
+            "title": "Poprawka działania realtime",
+            "description": "Usunięcie martwej zmiennej w warstwie realtime (warning ESLint) oraz stabilniejsze przełączanie między token auth a fallbackiem klucza na localhost."
+          }
+        ]
+      },
+      {
         "version": "0.0.14-DEV",
         "date": "14 sie 2026",
         "changes": [

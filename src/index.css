@@ -281,36 +281,7 @@ a {
   box-shadow: 0 0 15px var(--ZPK-gold-glow);
 }
 
-/* src/index.css */
-/* --- DEV BUILD Banner (tylko domena deweloperska) --- */
-.dev-banner {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(239, 68, 68, 0.9),
-    rgba(239, 68, 68, 0.9) 10px,
-    rgba(180, 30, 30, 0.9) 10px,
-    rgba(180, 30, 30, 0.9) 20px
-  );
-  color: #fff;
-  text-align: center;
-  padding: 6px 10px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
-}
-
-/* --- Route transitions (App.jsx AnimatedRoutes) --- */
-.route-anim-wrapper {
-  min-height: 100vh;
-}
+/* DEV BUILD banner → src/Components/Shared/DevBanner.css */
 
 /* --- Lazy-load fallback spinner --- */
 .route-fallback {

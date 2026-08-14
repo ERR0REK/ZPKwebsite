@@ -1,0 +1,136 @@
+/* src/Components/Shared/DevBanner.css */
+
+/* Navbar przesuwa się w dół o 30px gdy baner jest pełny/chowa się */
+body.dev-banner-active nav {
+  top: 30px;
+}
+
+/* Pełny baner (pokazuje się przez 5s po załadowaniu) */
+.dev-banner-full {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(239, 68, 68, 0.9),
+    rgba(239, 68, 68, 0.9) 10px,
+    rgba(180, 30, 30, 0.9) 10px,
+    rgba(180, 30, 30, 0.9) 20px
+  );
+  color: #fff;
+  text-align: center;
+  padding: 7px 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  animation: devBannerSlideIn 0.4s ease-out;
+}
+
+.dev-banner-full.collapsing {
+  animation: devBannerSlideOut 0.4s ease-in forwards;
+}
+
+@keyframes devBannerSlideIn {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes devBannerSlideOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+/* Mały badge "DEV" w prawym górnym rogu (po chowaniu się banera) */
+.dev-badge {
+  position: fixed;
+  top: 90px;
+  right: 12px;
+  z-index: 9999;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ZPK-red, #ef4444);
+  color: #fff;
+  font-family: var(--font-header, 'Orbitron', sans-serif);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+  animation: devBadgePulse 3s ease-in-out infinite;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.dev-badge.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dev-badge:hover {
+  width: auto;
+  padding: 0 12px;
+  font-size: 0.65rem;
+  background: rgba(239, 68, 68, 0.95);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+}
+
+.dev-badge:hover::after {
+  content: 'DEV BUILD — TYLKO DLA CZŁONKÓW SERWERA DEWELOPERSKIEGO';
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: max-content;
+  max-width: 250px;
+  padding: 6px 10px;
+  background: rgba(10, 10, 14, 0.95);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  white-space: normal;
+  text-align: left;
+  z-index: 10000;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes devBadgePulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.8);
+  }
+}
+
+@media (max-width: 768px) {
+  .dev-badge {
+    top: 70px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    font-size: 0.5rem;
+  }
+}

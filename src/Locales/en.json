@@ -555,6 +555,27 @@
     },
     "dev": [
       {
+        "version": "0.0.14 HOTFIX - DEV",
+        "date": "Aug 14, 2026",
+        "changes": [
+          {
+            "type": "security",
+            "title": "Token Auth for realtime (Ably)",
+            "description": "The frontend no longer holds any Ably key — it connects via short-lived tokens (TTL 1h, read-only channel access) issued by the new /api/ably-token-request function. The ROOT key never leaves the backend, and a captured token cannot publish."
+          },
+          {
+            "type": "bugfix",
+            "title": "Removed Ably key from the production bundle",
+            "description": "The subscribe-only key ended up in the build through .env.local. The dev key now lives in .env.development.local (loaded only on npm start) — the production bundle is clean and no key leaks into the site code."
+          },
+          {
+            "type": "bugfix",
+            "title": "Realtime connection fix",
+            "description": "Removed a dead variable in the realtime layer (ESLint warning) and made the switch between token auth and the localhost key fallback more stable."
+          }
+        ]
+      },
+      {
         "version": "0.0.14-DEV",
         "date": "Aug 14, 2026",
         "changes": [

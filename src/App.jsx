@@ -1,17 +1,16 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 import SecurityLayer from './Components/Security/SecurityLayer';
 import AuthGuard from './Components/Auth/AuthGuard';
 import DiscordCallback from './Components/Auth/DiscordCallback';
-import DevGuard from './Components/Auth/DevGuard';
 import ScrollToTop from './Components/Shared/ScrollToTop';
 import BackToTop from './Components/Shared/BackToTop';
 import LoadingScreen from '../src/Components/LoadingScreen/LoadingScreen';
 import SpaceBackground from './Components/Shared/SpaceBackground';
 import { RealtimeProvider } from './Realtime/RealtimeProvider';
 import { isDevSite } from './utils/siteEnv';
+import './Components/Shared/DevBanner.css';
 
 // ============================================================
 // LAZY-LOADING — każda strona ładuje się dopiero, gdy jest
@@ -19,13 +18,13 @@ import { isDevSite } from './utils/siteEnv';
 // szybszy: bundle główny nie zawiera wszystkich 11 podstron.
 // ============================================================
 const Home = lazy(() =>
-  import('../src/Components/Pages/Home').then((m) => ({ default: m.Home }))
+  import('./Components/Pages/Home').then((m) => ({ default: m.Home }))
 );
-const About = lazy(() => import('../src/Components/Pages/About'));
-const Regulations = lazy(() => import('../src/Components/Pages/Regulations'));
+const About = lazy(() => import('./Components/Pages/About'));
+const Regulations = lazy(() => import('./Components/Pages/Regulations'));
 const Qa = lazy(() => import('./Components/Pages/QA'));
-const Staff = lazy(() => import('../src/Components/Pages/Staff'));
-const Changelog = lazy(() => import('../src/Components/Pages/Changelog'));
+const Staff = lazy(() => import('./Components/Pages/Staff'));
+const Changelog = lazy(() => import('./Components/Pages/Changelog'));
 const WarLogs = lazy(() => import('./Components/WarLogs/WarLogs'));
 const History = lazy(() => import('./Components/Pages/History'));
 const KOS = lazy(() => import('./Components/Pages/KOS'));
@@ -33,87 +32,147 @@ const NotFound = lazy(() => import('./Components/Pages/NotFound'));
 const Terms = lazy(() => import('./Components/Pages/Legal'));
 const Privacy = lazy(() => import('./Components/Pages/Privacy'));
 
-// Baner DEV BUILD — widoczny tylko na domenie deweloperskiej
-const DevBanner = () => (
-  <div className="dev-banner">
-    <span>⚠ DEV BUILD — TYLKO DLA CZŁONKÓW SERWERA DEWELOPERSKIEGO ⚠</span>
-  </div>
-);
+// Baner DEV BUILD — auto-chowa się po 5s, zostaje mały badge "DEV".
+// Kliknięcie badge'a przywraca pełny baner na 3s.
+const DevBanner = () => {
+  const [phase, setPhase] = useState('full'); // full → collapsing → badge → full → ...
 
-// Lekki fallback podczas ładowania leniwej strony (zamiast pełnego
-// LoadingScreen — ten odpala się tylko raz przy starcie aplikacji).
+  // Toggle klasy na body — Navbar przesuwa się w dół gdy baner widoczny
+  useEffect(() => {
+    if (phase === 'full' || phase === 'collapsing') {
+      document.body.classList.add('dev-banner-active');
+    } else {
+      document.body.classList.remove('dev-banner-active');
+    }
+    return () => document.body.classList.remove('dev-banner-active');
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== 'full') return;
+    const t = setTimeout(() => setPhase('collapsing'), 5000);
+    return () => clearTimeout(t);
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== 'collapsing') return;
+    const t = setTimeout(() => setPhase('badge'), 400);
+    return () => clearTimeout(t);
+  }, [phase]);
+
+  const handleBadgeClick = () => {
+    setPhase('full');
+  };
+
+  return (
+    <>
+      {phase === 'full' && (
+        <div className="dev-banner-full">
+          <span>⚠ DEV BUILD — TYLKO DLA CZŁONKÓW SERWERA DEWELOPERSKIEGO ⚠</span>
+        </div>
+      )}
+      {phase === 'collapsing' && (
+        <div className="dev-banner-full collapsing">
+          <span>⚠ DEV BUILD — TYLKO DLA CZŁONKÓW SERWERA DEWELOPERSKIEGO ⚠</span>
+        </div>
+      )}
+      {phase === 'badge' && (
+        <div className="dev-badge visible" onClick={handleBadgeClick} title="DEV BUILD">
+          DEV
+        </div>
+      )}
+    </>
+  );
+};
+
+// Lekki fallback podczas ładowania leniwej strony.
 const RouteFallback = () => (
   <div className="route-fallback">
     <div className="route-fallback-spinner"></div>
   </div>
 );
 
-// Wszystkie trasy + animacja przejścia między stronami.
-// Klucz motion.div = ścieżka — AnimatePresence odgrywa fade na
-// wyjściu i wejściu, dając płynną zmianę podstrony.
-const AnimatedRoutes = () => {
-  const location = useLocation();
-  const devSite = isDevSite();
+// DevGuard — bramka strony dev (dostęp tylko z sesją is_dev_member).
+// Upraszcza logikę: sprawdza sesję z localStorage i renderuje LoginPage
+// lub children, bez zagnieżdżania Routes (React Router v7 compatibility).
+const DevGuard = ({ children }) => {
+  const [allowed, setAllowed] = useState(null); // null = ładowanie
 
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('ZPK_auth_session');
+      const session = raw ? JSON.parse(raw) : null;
+      setAllowed(session && session.user_id && session.is_dev_member === true);
+    } catch (e) {
+      setAllowed(false);
+    }
+  }, []);
+
+  if (allowed === null) return <RouteFallback />;
+
+  if (!allowed) {
+    // Przekieruj na LoginPage — komponent Auth z internal redirect
+    return <LoginPageRedirect />;
+  }
+
+  return children;
+};
+
+// Prosty redirect na LoginPage z zapamiętaniem celu
+const LoginPageRedirect = () => {
+  const LoginPage = React.lazy(() => import('./Components/Auth/LoginPage'));
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
-        transition={{ duration: 0.22, ease: 'easeOut' }}
-        className="route-anim-wrapper"
-      >
-        <ScrollToTop />
-        <Routes location={location}>
-          <Route path="/auth/callback" element={<DiscordCallback />} />
-
-          {devSite ? (
-            <Route
-              path="*"
-              element={
-                <DevGuard>
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/regulations" element={<Regulations />} />
-                    <Route path="/qa" element={<Qa />} />
-                    <Route path="/history" element={<History />} />
-                    <Route path="/changelog" element={<Changelog />} />
-                    <Route path="/staff" element={<Staff />} />
-                    <Route path="/terms" element={<Terms />} />
-                    <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/kos" element={<KOS />} />
-                    <Route path="/war-logs" element={<WarLogs />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </DevGuard>
-              }
-            />
-          ) : (
-            <>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/regulations" element={<Regulations />} />
-              <Route path="/qa" element={<Qa />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/changelog" element={<Changelog />} />
-              <Route path="/staff" element={<Staff />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-
-              <Route path="/kos" element={<AuthGuard><KOS /></AuthGuard>} />
-              <Route path="/war-logs" element={<AuthGuard><WarLogs /></AuthGuard>} />
-
-              <Route path="*" element={<NotFound />} />
-            </>
-          )}
-        </Routes>
-      </motion.div>
-    </AnimatePresence>
+    <Suspense fallback={<RouteFallback />}>
+      <LoginPage devMode />
+    </Suspense>
   );
 };
+
+// ============================================================
+// Trasy dla strony produkcyjnej (devSite = false)
+// Wszystkie trasy są PŁASKIE — zero zagnieżdżonych Routes.
+// KOS i WarLogs chronione AuthGuard, reszta publiczna.
+// ============================================================
+const ProdRoutes = () => (
+  <Routes>
+    <Route path="/auth/callback" element={<DiscordCallback />} />
+    <Route path="/" element={<Home />} />
+    <Route path="/about" element={<About />} />
+    <Route path="/regulations" element={<Regulations />} />
+    <Route path="/qa" element={<Qa />} />
+    <Route path="/history" element={<History />} />
+    <Route path="/changelog" element={<Changelog />} />
+    <Route path="/staff" element={<Staff />} />
+    <Route path="/terms" element={<Terms />} />
+    <Route path="/privacy" element={<Privacy />} />
+    <Route path="/kos" element={<AuthGuard><KOS /></AuthGuard>} />
+    <Route path="/war-logs" element={<AuthGuard><WarLogs /></AuthGuard>} />
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+);
+
+// ============================================================
+// Trasy dla strony deweloperskiej (devSite = true)
+// Cała strona za DevGuard — dostępny tylko z sesją dev.
+// ============================================================
+const DevRoutes = () => (
+  <DevGuard>
+    <Routes>
+      <Route path="/auth/callback" element={<DiscordCallback />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/regulations" element={<Regulations />} />
+      <Route path="/qa" element={<Qa />} />
+      <Route path="/history" element={<History />} />
+      <Route path="/changelog" element={<Changelog />} />
+      <Route path="/staff" element={<Staff />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/kos" element={<KOS />} />
+      <Route path="/war-logs" element={<WarLogs />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </DevGuard>
+);
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -129,11 +188,7 @@ function App() {
     return <LoadingScreen />;
   }
 
-  // DiscordCallback nie używa react-router (przekierowuje przez window.location),
-  // więc renderujemy go bezpośrednio — poprzedni <Route path="/*"> łapał WSZYSTKIE
-  // ścieżki i po zalogowaniu powodował ponowny mount callbacku bez tokena
-  // (błąd NO_TOKEN_RECEIVED). Po udanym logowaniu DiscordCallback robi pełne
-  // odświeżenie strony z czystym URL, więc App wraca do głównego routera.
+  // DiscordCallback nie używa react-router — renderujemy go bezpośrednio.
   if (window.location.hash.includes('access_token=')) {
     return <DiscordCallback />;
   }
@@ -146,8 +201,9 @@ function App() {
       <SecurityLayer />
       {devSite && <DevBanner />}
       <Router>
+        <ScrollToTop />
         <Suspense fallback={<RouteFallback />}>
-          <AnimatedRoutes />
+          {devSite ? <DevRoutes /> : <ProdRoutes />}
         </Suspense>
         <BackToTop />
       </Router>

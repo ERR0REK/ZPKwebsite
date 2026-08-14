@@ -1,12 +1,17 @@
 /* src/Realtime/RealtimeProvider.jsx
  * Warstwa real-time (Ably) — bez AI, czyste WebSockety.
  *
- * - Client łączy się z kluczem SUBSCRIBE-ONLY (REACT_APP_ABLY_SUBSCRIBE_KEY)
- *   → przeglądarka może tylko SŁUCHAĆ kanałów, nie publikować.
+ * 🔐 TOKEN AUTH (bezpieczny wzorzec Ably + Netlify):
+ *  - Frontend NIE dostaje żadnego klucza Ably do bundla.
+ *  - Łączy się przez authUrl → funkcja /api/ably-token-request
+ *    generuje krótkożyjący token (TTL 1h, tylko subscribe) z klucza ROOT,
+ *    który nigdy nie opuszcza backendu.
+ *  - Fallback: na localhost (dev bez wdrożonej funkcji) używamy klucza
+ *    subscribe-only z .env.local. Jeśli token auth padnie na produkcji,
+ *    a klucz subscribe jest dostępny — łączymy się nim.
  * - Publikacja (nadawanie ogłoszeń, zmiany KOS) idzie przez funkcje Netlify
  *   z kluczem ROOT (ABLY_API_KEY po stronie serwera).
- * - Gdy klucza brak lub WebSocket padnie → status 'off', strona działa
- *   dalej normalnie (zero crashy, zero pustek).
+ * - Gdy wszystko padnie → status 'off', strona działa normalnie (zero crashy).
  */
 
 import React, {
@@ -30,8 +35,12 @@ const RealtimeContext = createContext(null);
 
 export const useRealtime = () => useContext(RealtimeContext);
 
-// Klucz frontendu (subscribe-only) — czytany z .env.local (gitignored).
+// Klucz frontendu (subscribe-only) — tylko jako FALLBACK (localhost / awaria
+// token auth). Na produkcji klucz w ogóle nie powinien być w bundlu.
 const SUB_KEY = (process.env.REACT_APP_ABLY_SUBSCRIBE_KEY || '').trim();
+
+// Endpoint wydający krótkożyjące tokeny (Netlify function).
+const TOKEN_AUTH_URL = '/api/ably-token-request';
 
 // Nazwy kanałów — wspólne dla frontendu i funkcji Netlify.
 export const CHANNELS = {
@@ -41,6 +50,20 @@ export const CHANNELS = {
     presence: 'zpk-presence',
     war: 'zpk-war-status',
     discord: 'zpk-discord-stats'
+};
+
+// Localhost = dev bez wdrożonej funkcji token → używamy klucza subscribe.
+const isLocalhost = () =>
+    typeof window !== 'undefined' &&
+    ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+// Wspólny filtr logów SDK (kosmetyczne "Connection closed" — nie błąd).
+const ablyLog = {
+    level: 4,
+    handler: (msg) => {
+        if (msg && msg.indexOf('Connection closed') !== -1) return;
+        console.log('[Ably]', msg);
+    }
 };
 
 export function RealtimeProvider({ children }) {
@@ -78,62 +101,77 @@ export function RealtimeProvider({ children }) {
         return () => channel.unsubscribe(callback);
     }, []);
 
-    // Połączenie z Ably (klucz subscribe-only)
+    // Połączenie z Ably — TOKEN AUTH na produkcji, klucz na localhost.
     useEffect(() => {
         const AblySDK = getAblySDK();
-        if (!SUB_KEY || !AblySDK || !AblySDK.Realtime) {
-            // Brak klucza lub SDK się nie załadował — strona działa normalnie,
-            // po prostu bez realtime (fallback: status 'off', zero crashy).
+        if (!AblySDK || !AblySDK.Realtime) {
+            // SDK się nie załadował — strona działa normalnie, bez realtime.
             setStatus('off');
             return;
         }
-        let client;
-        try {
-            client = new AblySDK.Realtime({
-                key: SUB_KEY,
-                echoMessages: false,
-                // Wyciszamy kosmetyczne "Connection closed" z SDK — to normalne
-                // zamknięcie (np. przy StrictMode double-mount w dev), nie błąd.
-                // Prawdziwe problemy (błędy sieci, auth) nadal się logują.
-                log: {
-                    level: 4,
-                    handler: (msg) => {
-                        if (msg && msg.indexOf('Connection closed') !== -1) return;
-                        console.log('[Ably]', msg);
-                    }
+
+        let detach = () => {};
+
+        // Na produkcji: jeśli token auth padnie, próbujemy klucz subscribe.
+        let allowKeyFallback = !isLocalhost() && !!SUB_KEY;
+
+        const connect = (options) => {
+            detach();
+            let c;
+            try {
+                c = new AblySDK.Realtime({ echoMessages: false, log: ablyLog, ...options });
+            } catch (err) {
+                console.warn('[Realtime] init failed:', err);
+                setStatus('error');
+                return;
+            }
+            clientRef.current = c;
+            setStatus('connecting');
+
+            const onConnected = () => {
+                setStatus('online');
+                // dołącz oczekujące handlery
+                pendingRef.current.forEach((handlers, name) => {
+                    const channel = c.channels.get(name);
+                    handlers.forEach((cb) => channel.subscribe(cb));
+                });
+                pendingRef.current = new Map();
+            };
+            const onOffline = () => setStatus('off');
+            const onFailed = () => {
+                if (allowKeyFallback) {
+                    allowKeyFallback = false; // próbuj tylko raz
+                    connect({ key: SUB_KEY });
+                } else {
+                    setStatus('error');
                 }
-            });
-        } catch (err) {
-            console.warn('[Realtime] init failed:', err);
-            setStatus('error');
-            return;
-        }
-        clientRef.current = client;
-        setStatus('connecting');
+            };
 
-        const onConnected = () => {
-            setStatus('online');
-            // dołącz oczekujące handlery
-            pendingRef.current.forEach((handlers, name) => {
-                const channel = client.channels.get(name);
-                handlers.forEach((cb) => channel.subscribe(cb));
-            });
-            pendingRef.current = new Map();
+            c.connection.on('connected', onConnected);
+            c.connection.on('disconnected', onOffline);
+            c.connection.on('suspended', onOffline);
+            c.connection.on('failed', onFailed);
+
+            detach = () => {
+                c.connection.off('connected', onConnected);
+                c.connection.off('disconnected', onOffline);
+                c.connection.off('suspended', onOffline);
+                c.connection.off('failed', onFailed);
+                c.close();
+            };
         };
-        const onOffline = () => setStatus('off');
-        const onFailed = () => setStatus('error');
 
-        client.connection.on('connected', onConnected);
-        client.connection.on('disconnected', onOffline);
-        client.connection.on('suspended', onOffline);
-        client.connection.on('failed', onFailed);
+        if (isLocalhost()) {
+            // Dev bez wdrożonej funkcji token — klucz subscribe z .env.local
+            if (SUB_KEY) connect({ key: SUB_KEY });
+            else setStatus('off');
+        } else {
+            // Produkcja — token auth, klucz nigdy nie trafia do przeglądarki
+            connect({ authUrl: TOKEN_AUTH_URL, authMethod: 'GET' });
+        }
 
         return () => {
-            client.connection.off('connected', onConnected);
-            client.connection.off('disconnected', onOffline);
-            client.connection.off('suspended', onOffline);
-            client.connection.off('failed', onFailed);
-            client.close();
+            detach();
             clientRef.current = null;
             // Czyść oczekujące handlery — inaczej w dev (StrictMode double-mount)
             // mogą zostać zduplikowane po ponownym połączeniu.
@@ -143,7 +181,6 @@ export function RealtimeProvider({ children }) {
 
     // Automatyczne toasty z kanałów ogłoszeń i aktywności
     useEffect(() => {
-        if (!SUB_KEY) return;
         const offAnnounce = subscribe(CHANNELS.announcements, (msg) => {
             const d = msg.data || {};
             pushToast({
