@@ -91,11 +91,18 @@ const RouteFallback = () => (
   </div>
 );
 
+// LoginPage ładowany leniwie — na produkcji nie jest potrzebny (brak DevGuard).
+// WAŻNE: React.lazy MUSI być na poziomie modułu (nie wewnątrz komponentu),
+// bo wywołanie go wewnątrz render() tworzy nowy lazy component przy każdym
+  // renderze → nowy fetch → wieczny Suspense spinner (bug na dev-zpkwebsite).
+const LazyLoginPage = React.lazy(() => import('./Components/Auth/LoginPage'));
+
 // DevGuard — bramka strony dev (dostęp tylko z sesją is_dev_member).
 // Upraszcza logikę: sprawdza sesję z localStorage i renderuje LoginPage
 // lub children, bez zagnieżdżania Routes (React Router v7 compatibility).
 const DevGuard = ({ children }) => {
   const [allowed, setAllowed] = useState(null); // null = ładowanie
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     try {
@@ -107,24 +114,38 @@ const DevGuard = ({ children }) => {
     }
   }, []);
 
+  // Timeout-fallback: jeśli lazy load trwa dłużej niż 5s, pokaż komunikat
+  // zamiast wiecznego spinera (regexa Netlify / CSP / brak chunka).
+  useEffect(() => {
+    if (allowed === null || allowed === true) return;
+    const t = setTimeout(() => setLoadError(true), 5000);
+    return () => clearTimeout(t);
+  }, [allowed]);
+
   if (allowed === null) return <RouteFallback />;
 
   if (!allowed) {
-    // Przekieruj na LoginPage — komponent Auth z internal redirect
-    return <LoginPageRedirect />;
+    if (loadError) {
+      return (
+        <div className="route-fallback" style={{ flexDirection: 'column', gap: '20px' }}>
+          <div className="route-fallback-spinner"></div>
+          <p style={{ color: '#ef4444', fontFamily: 'Share Tech Mono', fontSize: '0.85rem', letterSpacing: '2px' }}>
+            DEV_ACCESS_REQUIRED
+          </p>
+          <p style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
+            Zaloguj się przez Discord z dostępem do serwera deweloperskiego.
+          </p>
+        </div>
+      );
+    }
+    return (
+      <Suspense fallback={<RouteFallback />}>
+        <LazyLoginPage devMode />
+      </Suspense>
+    );
   }
 
   return children;
-};
-
-// Prosty redirect na LoginPage z zapamiętaniem celu
-const LoginPageRedirect = () => {
-  const LoginPage = React.lazy(() => import('./Components/Auth/LoginPage'));
-  return (
-    <Suspense fallback={<RouteFallback />}>
-      <LoginPage devMode />
-    </Suspense>
-  );
 };
 
 // ============================================================
