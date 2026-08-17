@@ -172,8 +172,11 @@
     },
     "manage": {
       "open": "ZARZĄDZAJ LOKALNIE",
+      "openCloud": "ZARZĄDZAJ CHMURĄ",
       "title": "BAZA LOKALNA",
+      "titleCloud": "BAZA CHMUROWA",
       "subtitle": "Cele zapisywane są w tej przeglądarce (localStorage). Dodawaj lub usuwaj je tutaj.",
+      "subtitleCloud": "Cele zapisywane są we wspólnej bazie frakcji (Netlify Blobs). Dodawaj lub usuwaj je tutaj — zmiany widzą wszyscy gracze.",
       "nameLabel": "NAZWA",
       "namePlaceholder": "Nazwa / nick celu",
       "reasonLabel": "POWÓD",

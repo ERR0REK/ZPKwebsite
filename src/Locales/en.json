@@ -172,8 +172,11 @@
     },
     "manage": {
       "open": "MANAGE LOCALLY",
+      "openCloud": "MANAGE CLOUD",
       "title": "LOCAL DATABASE",
+      "titleCloud": "CLOUD DATABASE",
       "subtitle": "Targets are stored in this browser (localStorage). Add or remove them here.",
+      "subtitleCloud": "Targets are stored in the faction's shared database (Netlify Blobs). Add or remove them here — changes are visible to all players.",
       "nameLabel": "NAME",
       "namePlaceholder": "Target name / nickname",
       "reasonLabel": "REASON",

@@ -269,29 +269,36 @@ const KOS = () => {
     // (lokalne nadpisują statyczne o tej samej nazwie)
     const initialHidden = loadStored(STORAGE_HIDDEN);
     const [hiddenNames, setHiddenNames] = useState(() => initialHidden);
+    // Startujemy TYLKO z celów z kodu — dane z localStorage łączymy dopiero
+    // gdy wiadomo, że chmura nie działa. Dzięki temu po odświeżeniu nie ma
+    // flasha lokalnych celów, które zaraz znikną po wczytaniu danych z chmury.
     const [personalTargets, setPersonalTargets] = useState(() =>
-        mergeTargets(staticPersonalTargets, loadStored(STORAGE_PERSONAL), initialHidden)
+        mergeTargets(staticPersonalTargets, [])
     );
     const [factionTargets, setFactionTargets] = useState(() =>
-        mergeTargets(staticFactionTargets, loadStored(STORAGE_FACTION), initialHidden)
+        mergeTargets(staticFactionTargets, [])
     );
 
-    // Automatyczny zapis do localStorage po każdej zmianie
+    // Automatyczny zapis do localStorage po każdej zmianie.
+    // GATE: dopiero gdy wiadomo, czy chmura działa (cloudReady !== null) —
+    // inaczej nadpisalibyśmy lokalne dane zanim zdążymy je odczytać.
     useEffect(() => {
+        if (cloudReady === null) return;
         try {
             localStorage.setItem(STORAGE_PERSONAL, JSON.stringify(personalTargets));
         } catch (e) {
             /* ignore */
         }
-    }, [personalTargets]);
+    }, [personalTargets, cloudReady]);
 
     useEffect(() => {
+        if (cloudReady === null) return;
         try {
             localStorage.setItem(STORAGE_FACTION, JSON.stringify(factionTargets));
         } catch (e) {
             /* ignore */
         }
-    }, [factionTargets]);
+    }, [factionTargets, cloudReady]);
 
     useEffect(() => {
         try {
@@ -312,26 +319,42 @@ const KOS = () => {
     useEffect(() => {
         let cancelled = false;
         (async () => {
+            let ok = false;
             try {
                 const res = await fetch('/api/kos-store');
                 const data = await res.json();
-                if (cancelled || !res.ok || !data || data.ok !== true) {
-                    setCloudReady(false);
-                    return;
+                if (cancelled) return;
+                if (res.ok && data && data.ok === true) {
+                    const personal = Array.isArray(data.personal) ? data.personal : [];
+                    const factions = Array.isArray(data.factions) ? data.factions : [];
+                    // Chmura jest źródłem prawdy — localStorage pomijane
+                    setPersonalTargets(mergeTargets(personal, []));
+                    setFactionTargets(mergeTargets(factions, []));
+                    setCloudReady(true);
+                    ok = true;
                 }
-                const personal = Array.isArray(data.personal) ? data.personal : [];
-                const factions = Array.isArray(data.factions) ? data.factions : [];
-                // Chmura jest źródłem prawdy — localStorage pomijane
-                setPersonalTargets(mergeTargets(personal, []));
-                setFactionTargets(mergeTargets(factions, []));
-                setCloudReady(true);
             } catch (err) {
-                if (!cancelled) setCloudReady(false);
+                /* ignore */
+            }
+            if (!cancelled && !ok) {
+                // Chmura niedostępna — dopiero TERAZ łączymy dane z localStorage
+                // (lokalne cele nie były wcześniej pokazywane, więc nie ma flasha).
+                // Hidden czytamy świeżo — nie trzymamy go w deps (nowa tablica co render).
+                setCloudReady(false);
+                setPersonalTargets(
+                    mergeTargets(staticPersonalTargets, loadStored(STORAGE_PERSONAL), loadStored(STORAGE_HIDDEN))
+                );
+                setFactionTargets(
+                    mergeTargets(staticFactionTargets, loadStored(STORAGE_FACTION), loadStored(STORAGE_HIDDEN))
+                );
             }
         })();
         return () => {
             cancelled = true;
         };
+        // static*Targets i loadStored to stabilne wartości (import JSON / czysty odczyt) —
+        // efekt ma się wykonać tylko raz, przy wejściu na stronę.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // ============================================================
@@ -920,7 +943,7 @@ const KOS = () => {
                         ) : isAdmin ? (
                             <button className="manage-btn" onClick={() => setManageOpen(true)}>
                                 <Database size={14} />
-                                <span>{t('kos.manage.open')}</span>
+                                <span>{cloudReady === true ? t('kos.manage.openCloud') : t('kos.manage.open')}</span>
                             </button>
                         ) : (
                             <button
@@ -1074,8 +1097,8 @@ const KOS = () => {
                             <div className="intel-header">
                                 <Database className="intel-icon" size={32} />
                                 <div>
-                                    <h2 className="intel-title">{t('kos.manage.title')}</h2>
-                                    <p className="intel-subtitle">{t('kos.manage.subtitle')}</p>
+                                    <h2 className="intel-title">{cloudReady === true ? t('kos.manage.titleCloud') : t('kos.manage.title')}</h2>
+                                    <p className="intel-subtitle">{cloudReady === true ? t('kos.manage.subtitleCloud') : t('kos.manage.subtitle')}</p>
                                 </div>
                             </div>
 
@@ -1271,9 +1294,11 @@ const KOS = () => {
                                 )}
                             </div>
 
-                            <button type="button" className="manage-reset-btn" onClick={handleResetLocal}>
-                                {t('kos.manage.resetBtn')}
-                            </button>
+                            {cloudReady !== true && (
+                                <button type="button" className="manage-reset-btn" onClick={handleResetLocal}>
+                                    {t('kos.manage.resetBtn')}
+                                </button>
+                            )}
 
                             <button className="close-intel-btn" onClick={() => setManageOpen(false)}>
                                 {t('kos.intel.close')}
