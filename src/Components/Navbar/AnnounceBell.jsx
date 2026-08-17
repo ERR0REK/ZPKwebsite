@@ -10,9 +10,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Bell, Megaphone, X, Send, Loader2 } from 'lucide-react';
 import { useRealtime } from '../../Realtime/RealtimeProvider';
+import { useSession } from '../../Context/SessionContext';
 
 const SEVERITIES = ['info', 'warning', 'critical'];
 
+// Czyta ŚWIEŻĄ sesję (potrzebna przy wysyłce — token z localStorage).
 const readSession = () => {
   try {
     const raw = localStorage.getItem('ZPK_auth_session');
@@ -29,7 +31,8 @@ const AnnounceBell = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [session] = useState(() => readSession());
+  // Reaktywna sesja — po wygaśnięciu TTL przycisk admina znika od razu.
+  const { session } = useSession();
 
   // Formularz nadawania (tylko admini)
   const [composing, setComposing] = useState(false);

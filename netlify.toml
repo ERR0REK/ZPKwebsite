@@ -5,6 +5,19 @@
   directory = "netlify/functions"
 
 # ============================================================
+# Ważne! Frontend woła funkcje przez /api/* (np. /api/verify-admin),
+# ale Netlify udostępnia je domyślnie pod /.netlify/functions/*.
+# Bez tego redirectu każde /api/* zwraca 404 → KOS admin zablokowany,
+# realtime nie łączy się (STANDBY), ogłoszenia nie działają.
+# status = 200 → czysty rewrite (URL w przeglądarce zostaje /api/*,
+# a kod statusu z funkcji, np. 403/429, jest zachowany).
+# ============================================================
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# ============================================================
 # Nagłówki bezpieczeństwa — dla wszystkich stron (poza funkcjami)
 # ============================================================
 [[headers]]

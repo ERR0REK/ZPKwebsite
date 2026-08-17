@@ -1,60 +1,32 @@
-import React, { useState, useEffect } from 'react';
+/* src/Components/Auth/AuthGuard.jsx
+ *
+ * Ochrona stron wymagających logowania (KOS, WAR LOGS).
+ *
+ * Sesja pochodzi z SessionContext — tam jest już zwalidowana pod kątem
+ * TTL 12h (przeterminowana/niepoprawna = null). Dzięki temu:
+ *  - przeterminowana sesja NIGDY nie dostanie dostępu (nawet gdyby
+ *    użytkownik cały czas siedział na stronie /kos),
+ *  - po wygaśnięciu sesji podczas przeglądania chronionej strony
+ *    AuthGuard automatycznie przełącza się na LoginPage (reaktywność).
+ */
+
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import LoginPage from './LoginPage';
-
-import LoadingScreen from '../LoadingScreen/LoadingScreen';
-
-// Czas życia sesji — po tym czasie wymagamy ponownego logowania.
-const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 godzin
-
-const readSession = () => {
-  try {
-    const raw = localStorage.getItem('ZPK_auth_session');
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    return null;
-  }
-};
+import { useSession } from '../../Context/SessionContext';
 
 const AuthGuard = ({ children }) => {
     const location = useLocation();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isVerifying, setIsVerifying] = useState(true);
+    const { session } = useSession();
 
+    // Zapamiętaj cel powrotu po zalogowaniu (gdy brak sesji).
     useEffect(() => {
-        const session = readSession();
-
-        if (session && session.access_token) {
-            if (!session.user_id) {
-                // Old session format without ID - force re-login
-                localStorage.removeItem('ZPK_auth_session');
-                setIsVerifying(false);
-                return;
-            }
-
-            // Wygasanie sesji — jeśli token jest starszy niż TTL, wyloguj.
-            const sessionAge = Date.now() - (session.timestamp || 0);
-            if (sessionAge > SESSION_TTL_MS) {
-                localStorage.removeItem('ZPK_auth_session');
-                sessionStorage.setItem('ZPK_redirect_target', location.pathname + location.search);
-                setIsVerifying(false);
-                return;
-            }
-
-            setIsAuthenticated(true);
-            setIsVerifying(false);
-        } else {
-            // Save the current path to return to after login
+        if (!session) {
             sessionStorage.setItem('ZPK_redirect_target', location.pathname + location.search);
-            setIsVerifying(false);
         }
-    }, [location]);
+    }, [session, location]);
 
-    if (isVerifying) {
-        return <LoadingScreen />;
-    }
-
-    if (!isAuthenticated) {
+    if (!session) {
         return <LoginPage />;
     }
 

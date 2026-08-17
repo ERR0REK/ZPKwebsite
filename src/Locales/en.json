@@ -16,12 +16,10 @@
     "changelog": "Changelog",
     "sessionBadge": "LOGGED IN",
     "logout": "LOGOUT",
-    "realtimeOnline": "REALTIME: ONLINE",
     "realtimeOffline": "REALTIME: OFFLINE",
     "realtimeLive": "LIVE",
     "realtimeStandby": "STANDBY",
     "realtimeOnline": "REALTIME: ONLINE",
-    "realtimeOffline": "REALTIME: OFFLINE",
     "realtimeConnecting": "REALTIME: CONNECTING...",
     "realtimeOfflineReason": "REALTIME: OFFLINE",
     "bell": {
@@ -557,7 +555,58 @@
       "dev": "DEV",
       "release": "RELEASE"
     },
+    "devLocked": {
+      "title": "DEV_ACCESS_REQUIRED",
+      "desc": "This section contains confidential information about development builds. Access is restricted to members of the faction's development server.",
+      "login": "Log in via Discord"
+    },
     "dev": [
+      {
+        "version": "0.0.14 Hofix Part II - DEV",
+        "date": "Aug 17, 2026",
+        "changes": [
+          {
+            "type": "bugfix",
+            "title": "Global session expiry (12h)",
+            "description": "New global session context (SessionContext) — an expired session is detected and removed automatically (1s ticker), without waiting for a visit to KOS/WarLogs. The avatar badge, timer, and admin button disappear live, and AuthGuard and DevGuard now enforce the TTL on the dev site as well."
+          },
+          {
+            "type": "bugfix",
+            "title": "Fixed infinite loading screen on the dev site",
+            "description": "React.lazy was created inside a component (a new fetch on every render → infinite spinner), and DevGuard returned null instead of false when no session existed. Both are fixed — logged-out users now see the LoginPage instead of a stuck loading screen."
+          },
+          {
+            "type": "bugfix",
+            "title": "Redirect /api/* → Netlify functions",
+            "description": "The frontend called functions via /api/*, but Netlify only exposes them under /.netlify/functions/* — every endpoint (verify-admin, kos-store, announce, ably-token-request) returned 404. Added a redirect in netlify.toml; this unblocks the KOS admin panel, realtime (LIVE), and announcements."
+          },
+          {
+            "type": "bugfix",
+            "title": "Fixed freeze after logout",
+            "description": "Logout used location.href = '#/' — if you were already on the home page the hash didn't change and no reload happened. Now a full reload to a clean URL (location.replace); no more stuck loading screen after logout."
+          },
+          {
+            "type": "feature",
+            "title": "Extended admin system: multiple servers + auto-admin",
+            "description": "ZPK_ADMIN_ROLE_IDS now supports roles bound to specific servers (guildId:roleId) plus a new ZPK_GUILD_IDS variable. A server owner or anyone with the ADMINISTRATOR permission gets the admin panel automatically — no role IDs needed, even without a bot token."
+          },
+          {
+            "type": "security",
+            "title": "Changelog DEV versions protected",
+            "description": "The DEV Versions tab is only visible to members of the development server (is_dev_member). Others see a styled lock screen with a Discord login button; after logging in the tab unlocks immediately."
+          },
+          {
+            "type": "improvement",
+            "title": "Realtime status diagnostics",
+            "description": "The STANDBY pill now shows the reason for a failed connection in a tooltip (e.g. ABLY_NOT_CONFIGURED, token error) and a CONNECTING state while connecting — no more guessing what is wrong."
+          },
+          {
+            "type": "improvement",
+            "title": "Local dev via netlify-cli",
+            "description": "New npm run dev script launches CRA together with Netlify functions (netlify dev) — /api/* works locally just like in production, and KOS sees admin verification right away."
+          }
+        ]
+      },
       {
         "version": "0.0.14 HOTFIX - DEV",
         "date": "Aug 14, 2026",

@@ -6,11 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { LogOut, UserCircle, Wifi, WifiOff } from 'lucide-react';
 import logo from '../../Assets/logo.png';
 import { useRealtime } from '../../Realtime/RealtimeProvider';
+import { useSession } from '../../Context/SessionContext';
 import AnnounceBell from './AnnounceBell';
 import './Navbar.css';
-
-// Czas życia sesji — musi być spójne z AuthGuard (12h).
-const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 
 // Buduje URL avatara z Discorda (hash zapisany przy logowaniu).
 const getAvatarUrl = (session) => {
@@ -22,8 +20,10 @@ const getAvatarUrl = (session) => {
 const Navbar = () => {
     const { t } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [session, setSession] = useState(null);
-    const [timeLeft, setTimeLeft] = useState(null); // ms do wygaśnięcia sesji
+    // Sesja + licznik wygasania płyną z SessionContext — gdy TTL 12h
+    // dobiegnie końca, provider czyści sesję i badge automatycznie znika
+    // (użytkownik przestaje być zalogowany bez przeładowania strony).
+    const { session, timeLeft, logout } = useSession();
     const location = useLocation();
     const realtime = useRealtime();
 
@@ -32,45 +32,8 @@ const Navbar = () => {
         setIsMenuOpen(false);
     }, [location]);
 
-    // Czytaj sesję przy każdym renderze ścieżki (po zalogowaniu wraca z Discorda)
-    useEffect(() => {
-        try {
-            const raw = localStorage.getItem('ZPK_auth_session');
-            setSession(raw ? JSON.parse(raw) : null);
-        } catch (e) {
-            setSession(null);
-        }
-    }, [location]);
-
-    // Licznik wygasania sesji — aktualizacja co 1 s.
-    useEffect(() => {
-        if (!session || !session.user_id) {
-            setTimeLeft(null);
-            return;
-        }
-        const update = () => {
-            const age = Date.now() - (session.timestamp || 0);
-            setTimeLeft(Math.max(SESSION_TTL_MS - age, 0));
-        };
-        update();
-        const interval = setInterval(update, 1000);
-        return () => clearInterval(interval);
-    }, [session]);
-
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem('ZPK_auth_session');
-        sessionStorage.removeItem('ZPK_redirect_target');
-        setSession(null);
-        // PELNY reload na czysty URL — inaczej (np. będąc już na #/),
-        // sam link hash niczego nie zmienia i aplikacja zostaje w starym,
-        // częściowo wylogowanym stanie (np. zamrożony ekran ładowania).
-        // Reload resetuje cały stan (App, AuthGuard, realtime) i wraca
-        // na stronę główną jako gość.
-        window.location.replace(window.location.origin + window.location.pathname + "#/");
     };
 
     // Formatowanie pozostałego czasu: HH:MM:SS
@@ -163,7 +126,7 @@ const Navbar = () => {
                                         </span>
                                     )}
                                 </span>
-                                <button onClick={handleLogout} className="nav-logout-btn" aria-label={t('nav.logout', 'LOGOUT')}>
+                                <button onClick={logout} className="nav-logout-btn" aria-label={t('nav.logout', 'LOGOUT')}>
                                     <LogOut size={14} />
                                 </button>
                             </li>

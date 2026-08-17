@@ -1,7 +1,8 @@
 // netlify/functions/verify-admin.js
 // Sprawdza, czy zalogowany użytkownik Discord ma rolę administracyjną.
 // Wywołanie: POST /api/verify-admin  { "access_token": "..." }
-// Wymaga zmiennych środowiskowych: DISCORD_BOT_TOKEN, ZPK_GUILD_ID, ZPK_ADMIN_ROLE_IDS
+// Wymaga zmiennych środowiskowych: DISCORD_BOT_TOKEN, ZPK_GUILD_IDS, ZPK_ADMIN_ROLE_IDS
+// (szczegóły formatu — patrz netlify/functions/_lib/discord.js).
 
 const { verifyAdmin, json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, bodyTooLarge, handleError } = require("./_lib/security");

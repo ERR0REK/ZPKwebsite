@@ -3,6 +3,7 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 import SecurityLayer from './Components/Security/SecurityLayer';
 import AuthGuard from './Components/Auth/AuthGuard';
+import { SessionProvider, useSession } from './Context/SessionContext';
 import DiscordCallback from './Components/Auth/DiscordCallback';
 import ScrollToTop from './Components/Shared/ScrollToTop';
 import BackToTop from './Components/Shared/BackToTop';
@@ -101,31 +102,22 @@ const LazyLoginPage = React.lazy(() => import('./Components/Auth/LoginPage'));
 // Upraszcza logikę: sprawdza sesję z localStorage i renderuje LoginPage
 // lub children, bez zagnieżdżania Routes (React Router v7 compatibility).
 const DevGuard = ({ children }) => {
-  const [allowed, setAllowed] = useState(null); // null = ładowanie
+  // Sesja pochodzi z SessionProvider — jest tam już zwalidowana pod kątem
+  // TTL 12h (przeterminowana = null), więc na stronie dev wygasła sesja
+  // automatycznie wyświetli LoginPage, zamiast wpuszczać jak wcześniej.
+  const { session } = useSession();
   const [loadError, setLoadError] = useState(false);
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('ZPK_auth_session');
-      const session = raw ? JSON.parse(raw) : null;
-      // WAŻNE: !!() — bez tego, gdy brak sesji, session jest null i wyrażenie
-      // zwraca NULL (nie false!). A DevGuard traktuje null jako "ładuję" →
-      // wieczny RouteFallback spinner dla wylogowanych na stronie dev.
-      setAllowed(!!(session && session.user_id && session.is_dev_member === true));
-    } catch (e) {
-      setAllowed(false);
-    }
-  }, []);
+  // allowed jest synchronczne (nie null) — kontekst zwraca gotową wartość.
+  const allowed = !!(session && session.user_id && session.is_dev_member === true);
 
   // Timeout-fallback: jeśli lazy load trwa dłużej niż 5s, pokaż komunikat
   // zamiast wiecznego spinera (regexa Netlify / CSP / brak chunka).
   useEffect(() => {
-    if (allowed === null || allowed === true) return;
+    if (allowed) return;
     const t = setTimeout(() => setLoadError(true), 5000);
     return () => clearTimeout(t);
   }, [allowed]);
-
-  if (allowed === null) return <RouteFallback />;
 
   if (!allowed) {
     if (loadError) {
@@ -221,16 +213,18 @@ function App() {
 
   return (
     <RealtimeProvider>
-      <SpaceBackground />
-      <SecurityLayer />
-      {devSite && <DevBanner />}
-      <Router>
-        <ScrollToTop />
-        <Suspense fallback={<RouteFallback />}>
-          {devSite ? <DevRoutes /> : <ProdRoutes />}
-        </Suspense>
-        <BackToTop />
-      </Router>
+      <SessionProvider>
+        <SpaceBackground />
+        <SecurityLayer />
+        {devSite && <DevBanner />}
+        <Router>
+          <ScrollToTop />
+          <Suspense fallback={<RouteFallback />}>
+            {devSite ? <DevRoutes /> : <ProdRoutes />}
+          </Suspense>
+          <BackToTop />
+        </Router>
+      </SessionProvider>
     </RealtimeProvider>
   );
 }

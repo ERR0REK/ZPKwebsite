@@ -17,10 +17,8 @@
     "sessionBadge": "ZALOGOWANO",
     "logout": "WYLOGUJ",
     "realtimeOnline": "REALTIME: ONLINE",
-    "realtimeOffline": "REALTIME: OFFLINE",
     "realtimeLive": "LIVE",
     "realtimeStandby": "STANDBY",
-    "realtimeOnline": "REALTIME: ONLINE",
     "realtimeOffline": "REALTIME: OFFLINE",
     "realtimeConnecting": "REALTIME: ŁĄCZENIE...",
     "realtimeOfflineReason": "REALTIME: OFFLINE",
@@ -308,7 +306,7 @@
     "title": "CZYM JEST ZPK?",
     "subtitle": "Poznaj naszą misję i jak dołączyć do naszej społeczności",
     "whoAreWe": "Kim jesteśmy?",
-    "whoAreWeContent": "Zjednoczona Polska Korona to nowo pierwszy polski klan w grze Wanted. Jesteśmy zaangażowani w tworzeniu przyjaznego, silnego oraz zdyscyplinowanego społeczeństwa.",
+    "whoAreWeContent": "Zjednoczona Polska Korona to nowy pierwszy community + klan tylko dla Polaków w gierce Wanted. Jesteśmy zaangażowani w tworzeniu przyjaznego, silnego oraz zdyscyplinowanego społeczeństwa.",
     "whoAreWeContent2": "",
     "ourMission": "Nasza misja",
     "ourMissionContent": "Misją Zjednoczonej Polskiej Korony jest zbudowanie silnej, zorganizowanej i szanującej się nawzajem społeczności klanu. Dążymy do:",
@@ -556,7 +554,58 @@
       "dev": "DEV",
       "release": "STABILNA"
     },
+    "devLocked": {
+      "title": "DEV_ACCESS_REQUIRED",
+      "desc": "Ta sekcja zawiera poufne informacje o wersjach deweloperskich. Dostęp mają tylko członkowie serwera deweloperskiego frakcji.",
+      "login": "Zaloguj się przez Discord"
+    },
     "dev": [
+      {
+        "version": "0.0.14 Hofix Part II - DEV",
+        "date": "17 sie 2026",
+        "changes": [
+          {
+            "type": "bugfix",
+            "title": "Globalne wygasanie sesji (12h)",
+            "description": "Nowy globalny kontekst sesji (SessionContext) — wygasła sesja jest wykrywana i usuwana automatycznie (licznik co 1 s), bez czekania na wejście na KOS/WarLogs. Badge z avatarem, licznik i przycisk admina znikają na żywo, a AuthGuard i DevGuard egzekwują TTL również na wersji dev."
+          },
+          {
+            "type": "bugfix",
+            "title": "Naprawa wiecznego ekranu ładowania na stronie dev",
+            "description": "React.lazy był tworzony wewnątrz komponentu (nowy fetch przy każdym renderze → wieczny spinner), a DevGuard zwracał null zamiast false dla braku sesji. Oba błędy naprawione — niezalogowany użytkownik widzi LoginPage zamiast wiszącego ekranu ładowania."
+          },
+          {
+            "type": "bugfix",
+            "title": "Redirect /api/* → funkcje Netlify",
+            "description": "Frontend wołał funkcje przez /api/*, ale Netlify wystawia je tylko pod /.netlify/functions/* — każdy endpoint (verify-admin, kos-store, announce, ably-token-request) zwracał 404. Dodany redirect w netlify.toml; odblokowuje panel admina w KOS, realtime (LIVE) i ogłoszenia."
+          },
+          {
+            "type": "bugfix",
+            "title": "Naprawa zamrożenia po wylogowaniu",
+            "description": "Wylogowanie robiło location.href = '#/' — gdy byłeś już na stronie głównej, hash się nie zmieniał i nie było przeładowania. Teraz pełny reload na czysty URL (location.replace), koniec z wiszącym ekranem ładowania po logout."
+          },
+          {
+            "type": "feature",
+            "title": "Rozbudowany system admina: wiele serwerów + auto-admin",
+            "description": "ZPK_ADMIN_ROLE_IDS obsługuje role przypisane do konkretnych serwerów (guildId:roleId) oraz nową zmienną ZPK_GUILD_IDS. Właściciel serwera lub osoba z uprawnieniem ADMINISTRATOR dostaje panel admina automatycznie — bez podawania ID ról, nawet bez tokena bota."
+          },
+          {
+            "type": "security",
+            "title": "Wersje DEV w changelogu chronione",
+            "description": "Zakładka DEV Versions widoczna tylko dla członków serwera deweloperskiego (is_dev_member). Osoby spoza serwera widzą stylizowaną blokadę z przyciskiem logowania przez Discord, po zalogowaniu zakładka odblokowuje się od razu."
+          },
+          {
+            "type": "improvement",
+            "title": "Diagnostyka statusu realtime",
+            "description": "Pigułka STANDBY pokazuje teraz powód braku połączenia w tooltipie (np. ABLY_NOT_CONFIGURED, błąd tokena) oraz stan ŁĄCZENIE podczas nawiązywania połączenia — zamiast zgadywania, co jest nie tak."
+          },
+          {
+            "type": "improvement",
+            "title": "Lokalny dev przez netlify-cli",
+            "description": "Nowy skrypt npm run dev uruchamia CRA razem z funkcjami Netlify (netlify dev) — /api/* działa lokalnie tak jak na produkcji, a KOS od razu widzi weryfikację admina."
+          }
+        ]
+      },
       {
         "version": "0.0.14 HOTFIX - DEV",
         "date": "14 sie 2026",

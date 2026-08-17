@@ -606,3 +606,104 @@
     font-size: 1.1rem;
   }
 }
+
+/* ============================================================
+   BLOKADA WERSJI DEV — dostęp tylko dla członków serwera dev
+   ============================================================ */
+.changelog-dev-lock {
+  position: relative;
+  max-width: 560px;
+  margin: 0 auto 50px;
+  padding: 60px 40px;
+  text-align: center;
+  background: rgba(10, 5, 5, 0.6);
+  border: 1px solid var(--log-border);
+  border-radius: 4px;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.changelog-dev-lock::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, var(--log-glass) 0%, transparent 60%);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.dev-lock-icon {
+  color: var(--log-primary);
+  margin-bottom: 24px;
+  filter: drop-shadow(0 0 12px var(--log-glass));
+  animation: lockPulse 2s ease-in-out infinite;
+}
+
+@keyframes lockPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+.dev-lock-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin: 0 0 16px;
+  text-shadow: 0 0 20px var(--log-glass);
+}
+
+.dev-lock-desc {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--log-text);
+  opacity: 0.85;
+  max-width: 420px;
+  margin: 0 auto 28px;
+}
+
+.dev-lock-login {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
+  border: 1px solid var(--log-primary);
+  color: #ffffff;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 14px 32px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.dev-lock-login:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.15));
+  box-shadow: 0 0 30px var(--log-glass);
+  transform: translateY(-2px);
+}
+
+.dev-lock-hint {
+  margin-top: 22px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--log-text);
+  opacity: 0.35;
+}
+
+.dev-lock-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--log-primary);
+  opacity: 0.4;
+}
+
+.dev-lock-corner.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+.dev-lock-corner.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+.dev-lock-corner.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+.dev-lock-corner.br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
