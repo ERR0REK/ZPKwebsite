@@ -80,7 +80,7 @@ exports.handler = async (event) => {
     // 4. Historia w Netlify Blobs (ostatnie 50 ogłoszeń)
     try {
       const store = getStore({ name: STORE_NAME });
-      const existing = await store.getJSON(BLOB_KEY, { type: "json" });
+      const existing = await store.get(BLOB_KEY, { type: "json" });
       const history = Array.isArray(existing) ? existing : [];
       const next = [announcement, ...history].slice(0, HISTORY_LIMIT);
       await store.setJSON(BLOB_KEY, next);
