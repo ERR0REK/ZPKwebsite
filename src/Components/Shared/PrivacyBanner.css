@@ -1,0 +1,135 @@
+/* src/Components/Shared/PrivacyBanner.css */
+
+.privacy-banner {
+    position: relative;
+    z-index: 2;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.privacy-banner-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: rgba(8, 12, 18, 0.65);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(34, 197, 94, 0.12);
+    border-left: 3px solid #22c55e;
+    padding: 16px 22px;
+    border-radius: 5px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* HUD corners */
+.privacy-banner-inner::before,
+.privacy-banner-inner::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid rgba(34, 197, 94, 0.2);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.privacy-banner-inner::before {
+    top: -1px;
+    right: -1px;
+    border-bottom: none;
+    border-left: none;
+}
+
+.privacy-banner-inner::after {
+    bottom: -1px;
+    right: -1px;
+    border-top: none;
+    border-left: none;
+}
+
+.privacy-banner-inner:hover::before,
+.privacy-banner-inner:hover::after {
+    opacity: 1;
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.privacy-banner-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.08);
+}
+
+.privacy-banner-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.privacy-banner-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 2.5px;
+    color: #22c55e;
+    opacity: 0.8;
+}
+
+.privacy-banner-desc {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.55;
+}
+
+.privacy-banner-link {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+    color: #22c55e;
+    text-decoration: none;
+    padding: 7px 14px;
+    border: 1px solid rgba(34, 197, 94, 0.18);
+    border-radius: 4px;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: rgba(34, 197, 94, 0.04);
+}
+
+.privacy-banner-link:hover {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.35);
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.06);
+}
+
+@media (max-width: 768px) {
+    .privacy-banner-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 16px;
+    }
+
+    .privacy-banner-desc {
+        font-size: 0.76rem;
+    }
+
+    .privacy-banner-link {
+        width: 100%;
+        text-align: center;
+    }
+}

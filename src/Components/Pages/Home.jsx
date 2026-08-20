@@ -4,6 +4,10 @@ import React from 'react'
 import Navbar from '../Navbar/Navbar'
 import Hero from '../Hero/Hero'
 import ActivityFeed from '../Home/ActivityFeed'
+import DiscordWidget from '../Shared/DiscordWidget'
+import PrivacyBanner from '../Shared/PrivacyBanner'
+import '../Shared/DiscordWidget.css'
+import '../Shared/PrivacyBanner.css'
 
 // Komponent Home nie przyjmuje już ŻADNYCH propsów!
 export function Home() {
@@ -13,6 +17,8 @@ export function Home() {
             <Navbar />
             <Hero />
             <ActivityFeed />
+            <DiscordWidget />
+            <PrivacyBanner />
         </div>
     )
 }

@@ -1,0 +1,142 @@
+/* src/Components/Shared/PrivacyToast.css */
+
+.privacy-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(8, 12, 18, 0.95);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    border-left: 3px solid #22c55e;
+    padding: 14px 22px;
+    max-width: 480px;
+    width: calc(100% - 40px);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow:
+        0 0 25px rgba(34, 197, 94, 0.1),
+        0 0 60px rgba(34, 197, 94, 0.03),
+        0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* HUD corner accents */
+.privacy-toast::before,
+.privacy-toast::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid rgba(34, 197, 94, 0.3);
+    pointer-events: none;
+}
+
+.privacy-toast::before {
+    top: 4px;
+    right: 4px;
+    border-bottom: none;
+    border-left: none;
+}
+
+.privacy-toast::after {
+    bottom: 4px;
+    right: 4px;
+    border-top: none;
+    border-left: none;
+}
+
+.privacy-toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.15);
+}
+
+.privacy-toast-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.privacy-toast-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 2.5px;
+    color: #22c55e;
+    opacity: 0.7;
+    text-transform: uppercase;
+}
+
+.privacy-toast-text {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 0.88rem;
+    color: #e8edf5;
+    line-height: 1.45;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.privacy-toast-close {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.4);
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+    border-radius: 3px;
+}
+
+.privacy-toast-close:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.privacy-toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #22c55e, rgba(34, 197, 94, 0.4));
+    animation: privacy-progress 6s linear forwards;
+}
+
+@keyframes privacy-progress {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+@media (max-width: 768px) {
+    .privacy-toast {
+        bottom: 16px;
+        padding: 12px 16px;
+        gap: 10px;
+    }
+
+    .privacy-toast-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .privacy-toast-text {
+        font-size: 0.82rem;
+    }
+}

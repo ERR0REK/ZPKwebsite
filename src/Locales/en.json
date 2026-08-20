@@ -45,6 +45,11 @@
     "welcome": "Welcome to the official website of the Nightfall Squadron. Explore our history, missions, and more.",
     "discord_button": "Join Discord"
   },
+  "privacyBanner": {
+    "title": "PRIVACY_MODE: ACTIVE",
+    "desc": "Your data is safe. The site does not collect IP, cookies, or any personal data. Hosting: Netlify (USA/EU). SSL/TLS encryption active.",
+    "policy": "Privacy Policy →"
+  },
   "ticker": {
     "line1": "// TRAINING OPERATIONS: ACTIVE",
     "line2": "// UNIT RECRUITMENT: OPEN",

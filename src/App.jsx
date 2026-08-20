@@ -7,6 +7,8 @@ import { SessionProvider, useSession } from './Context/SessionContext';
 import DiscordCallback from './Components/Auth/DiscordCallback';
 import ScrollToTop from './Components/Shared/ScrollToTop';
 import BackToTop from './Components/Shared/BackToTop';
+import PrivacyToast from './Components/Shared/PrivacyToast';
+import './Components/Shared/PrivacyToast.css';
 import LoadingScreen from '../src/Components/LoadingScreen/LoadingScreen';
 import SpaceBackground from './Components/Shared/SpaceBackground';
 import { RealtimeProvider } from './Realtime/RealtimeProvider';
@@ -216,6 +218,7 @@ function App() {
       <SessionProvider>
         <SpaceBackground />
         <SecurityLayer />
+        <PrivacyToast />
         {devSite && <DevBanner />}
         <Router>
           <ScrollToTop />

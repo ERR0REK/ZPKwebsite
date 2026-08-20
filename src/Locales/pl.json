@@ -45,6 +45,11 @@
     "welcome": "Witaj na oficjalnej stronie Zjednoczonego Królestwa Polskiego. Poznaj naszą historię, misje i więcej.",
     "discord_button": "Dołącz na Discorda"
   },
+  "privacyBanner": {
+    "title": "PRYWATNOŚĆ: AKTYWNA",
+    "desc": "Twoje dane są bezpieczne. Strona nie zbiera IP, cookies ani żadnych danych osobowych. Hosting: Netlify (USA/EU). Szyfrowanie SSL/TLS aktywne.",
+    "policy": "Polityka Prywatności →"
+  },
   "ticker": {
     "line1": "// OPERACJE TRENINGOWE: AKTYWNE",
     "line2": "// REKRUTACJA JEDNOSTEK: OTWARTA",
