@@ -140,19 +140,36 @@ export function RealtimeProvider({ children }) {
                 });
                 pendingRef.current = new Map();
             };
-            const onOffline = () => setStatus('off');
+            // Token auth fallback: jika token auth gagal (ORB, CORS, sieć),
+            // spróbuj ponownie kluczem subscribe-only. Wykonujemy max 2 próby
+            // żeby uniknąć pętli (token auth → fail → key → fail → loop).
+            let fallbackAttempts = 0;
+            const MAX_FALLBACK = 2;
+            const tryFallback = (reason) => {
+                setLastError(String(reason).slice(0, 80));
+                if (allowKeyFallback && fallbackAttempts < MAX_FALLBACK) {
+                    fallbackAttempts++;
+                    allowKeyFallback = false; // klucz jako ostatnia deska ratunku
+                    connect({ key: SUB_KEY });
+                } else {
+                    setStatus('error');
+                }
+            };
+
+            const onOffline = () => {
+                // suspended/disconnected z token auth = prawdopodobnie ORB/CORS → fallback
+                if (allowKeyFallback && fallbackAttempts === 0) {
+                    tryFallback('CONNECTION_SUSPENDED');
+                } else {
+                    setStatus('off');
+                }
+            };
             const onFailed = (stateChange) => {
                 const reason =
                     (stateChange && stateChange.reason && stateChange.reason.message) ||
                     (stateChange && stateChange.reason && stateChange.reason.code) ||
                     'CONNECTION_FAILED';
-                setLastError(String(reason).slice(0, 80));
-                if (allowKeyFallback) {
-                    allowKeyFallback = false; // próbuj tylko raz
-                    connect({ key: SUB_KEY });
-                } else {
-                    setStatus('error');
-                }
+                tryFallback(reason);
             };
 
             c.connection.on('connected', onConnected);
@@ -177,8 +194,28 @@ export function RealtimeProvider({ children }) {
                 setLastError('NO_SUB_KEY_LOCAL');
             }
         } else {
-            // Produkcja — token auth, klucz nigdy nie trafia do przeglądarki
-            connect({ authUrl: TOKEN_AUTH_URL, authMethod: 'GET' });
+            // Produkcja — token auth przez authCallback (fetch) zamiast authUrl (XHR).
+            // authUrl powoduje ORB (Opaque Response Blocking) w Chrome — XHR do /api/*
+            // jest blokowany, a Ably SDK v2 nie ma wbudowanego fixa.
+            // authCallback używa własnego fetch(), który nie podlega ORB.
+            connect({
+                authCallback: async (tokenParams, callback) => {
+                    try {
+                        const res = await fetch(TOKEN_AUTH_URL, {
+                            method: 'GET',
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (!res.ok) {
+                            callback(new Error(`Token auth failed: ${res.status}`));
+                            return;
+                        }
+                        const tokenRequest = await res.json();
+                        callback(null, tokenRequest);
+                    } catch (err) {
+                        callback(err);
+                    }
+                }
+            });
         }
 
         return () => {

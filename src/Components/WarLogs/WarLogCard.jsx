@@ -22,7 +22,7 @@ const WarLogCard = ({ log, onClick, delay }) => {
             whileHover={{ scale: 1.02, translateY: -5 }}
         >
             <div className="card-image-container">
-                <img src={log.img} alt={`War against ${log.opponent}`} className="card-bg-img" />
+                <img src={log.victoryImg || log.img} alt={`War against ${log.opponent}`} className="card-bg-img" />
                 <div className={`card-result-badge ${resultClass}`}>
                     {resultLabel}
                 </div>

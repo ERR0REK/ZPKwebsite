@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { Film } from 'lucide-react';
 import './WarLogs.css';
 
 const WarLogModal = ({ log, onClose }) => {
@@ -50,6 +51,15 @@ const WarLogModal = ({ log, onClose }) => {
                     >
                         {t('warLogs.tabs.memberKD', 'KD CZŁONKÓW')}
                     </button>
+                    {log.videoUrl && (
+                        <button
+                            className={`tab-btn ${activeTab === 'video' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('video')}
+                        >
+                            <Film size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                            NAGRANIE
+                        </button>
+                    )}
                 </div>
 
                 <div className="modal-body">
@@ -164,6 +174,69 @@ const WarLogModal = ({ log, onClose }) => {
                                         </div>
                                     ))}
                                 </div>
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'video' && log.videoUrl && (
+                            <motion.div
+                                key="video"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                className="tab-pane video-pane"
+                            >
+                                <div className="video-container">
+                                    {(() => {
+                                        const url = log.videoUrl.trim();
+                                        // YouTube embed
+                                        const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
+                                        if (ytMatch) {
+                                            return (
+                                                <iframe
+                                                    src={`https://www.youtube.com/embed/${ytMatch[1]}`}
+                                                    title="War recording"
+                                                    frameBorder="0"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                    allowFullScreen
+                                                    className="video-iframe"
+                                                />
+                                            );
+                                        }
+                                        // Medal.tv embed (iframe directly)
+                                        if (url.includes('medal.tv')) {
+                                            return (
+                                                <iframe
+                                                    src={url}
+                                                    title="War recording"
+                                                    frameBorder="0"
+                                                    allowFullScreen
+                                                    className="video-iframe"
+                                                />
+                                            );
+                                        }
+                                        // Direct video file (.mp4, .webm, etc.)
+                                        if (url.match(/\.(mp4|webm|ogg)$/i)) {
+                                            return (
+                                                <video controls className="video-player">
+                                                    <source src={url} />
+                                                    Twoja przeglądarka nie obsługuje wideo.
+                                                </video>
+                                            );
+                                        }
+                                        // Discord / inny link — otwórz w nowej karcie
+                                        return (
+                                            <div className="video-link-fallback">
+                                                <p>Nagranie dostępne pod linkiem:</p>
+                                                <a href={url} target="_blank" rel="noopener noreferrer" className="video-external-link">
+                                                    {url}
+                                                </a>
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                                <p className="video-caption">
+                                    K/D statystyki zostały wprowadzone ręcznie na podstawie tego nagrania.
+                                </p>
                             </motion.div>
                         )}
                     </AnimatePresence>

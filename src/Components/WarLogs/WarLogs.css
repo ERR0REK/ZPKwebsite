@@ -988,3 +988,285 @@
         font-size: 0.8rem;
     }
 }
+/* --- Admin Panel (War Logs) --- */
+.warlogs-admin-section {
+  margin-bottom: 30px;
+}
+
+.warlogs-admin-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--ZPK-red);
+  padding: 10px 20px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.warlogs-admin-toggle:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: var(--ZPK-red);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
+}
+
+.warlogs-admin-panel {
+  margin-top: 15px;
+  background: rgba(10, 13, 20, 0.9);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 20px;
+  overflow: hidden;
+}
+
+.warlogs-admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.15);
+  padding-bottom: 10px;
+}
+
+.warlogs-admin-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-dim);
+  padding: 8px 16px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.warlogs-admin-tab:hover {
+  color: #fff;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.warlogs-admin-tab.active {
+  background: var(--ZPK-red);
+  color: #fff;
+  border-color: var(--ZPK-red);
+}
+
+.warlogs-admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.warlogs-form-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.warlogs-form-group {
+  flex: 1;
+  min-width: 150px;
+}
+
+.warlogs-form-group.flex-2 {
+  flex: 2;
+}
+
+.warlogs-form-group label {
+  display: block;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.warlogs-form-group input,
+.warlogs-form-group select {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #fff;
+  padding: 10px 12px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.warlogs-form-group input:focus,
+.warlogs-form-group select:focus {
+  outline: none;
+  border-color: var(--ZPK-red);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.15);
+}
+
+.warlogs-form-group select option {
+  background: #111;
+  color: #fff;
+}
+
+.warlogs-admin-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid var(--ZPK-red);
+  color: #fff;
+  padding: 12px 24px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.warlogs-admin-submit:hover {
+  background: var(--ZPK-red);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.warlogs-admin-message {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-left: 3px solid var(--ZPK-gold);
+  color: var(--text-dim);
+}
+
+.warlogs-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.warlogs-admin-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.warlogs-admin-item:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.warlogs-admin-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.warlogs-admin-item-name {
+  color: #fff;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 0.95rem;
+}
+
+.warlogs-admin-item-date {
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+}
+
+.warlogs-admin-remove-btn {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--ZPK-red);
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.warlogs-admin-remove-btn:hover {
+  background: var(--ZPK-red);
+  color: #fff;
+}
+
+.warlogs-admin-empty {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+}
+
+/* --- Video Tab (War Log Modal) --- */
+.video-pane {
+  width: 100%;
+  padding: 30px;
+}
+
+.video-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  overflow: hidden;
+}
+
+.video-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.video-player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.video-link-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 15px;
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  padding: 20px;
+  text-align: center;
+}
+
+.video-external-link {
+  color: var(--ZPK-gold);
+  text-decoration: none;
+  border: 1px solid var(--ZPK-gold);
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+  word-break: break-all;
+}
+
+.video-external-link:hover {
+  background: var(--ZPK-gold);
+  color: #000;
+}
+
+.video-caption {
+  text-align: center;
+  margin-top: 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
