@@ -373,8 +373,15 @@ const KOS = () => {
                 const res = await fetch('/api/kos-store');
                 const data = await res.json();
                 if (cancelled || !res.ok || !data || data.ok !== true) return;
-                setPersonalTargets(mergeTargets(Array.isArray(data.personal) ? data.personal : [], []));
-                setFactionTargets(mergeTargets(Array.isArray(data.factions) ? data.factions : [], []));
+                // Scal dane z chmury z obecnymi (nie trać celów z kodu/seed)
+                setPersonalTargets(prev => mergeTargets(
+                    Array.isArray(data.personal) ? data.personal : [],
+                    prev.filter(p => !data.personal?.some(c => c.name === p.name))
+                ));
+                setFactionTargets(prev => mergeTargets(
+                    Array.isArray(data.factions) ? data.factions : [],
+                    prev.filter(p => !data.factions?.some(c => c.name === p.name))
+                ));
                 setCloudReady(true);
             } catch (err) {
                 // ignoruj — fallback na lokalne dane
@@ -442,9 +449,16 @@ const KOS = () => {
                 });
                 const data = await res.json();
                 if (res.ok && data && data.ok) {
-                    // Chmura zwróciła pełną listę — aktualizujemy z niej
-                    setPersonalTargets(mergeTargets(Array.isArray(data.personal) ? data.personal : [], []));
-                    setFactionTargets(mergeTargets(Array.isArray(data.factions) ? data.factions : [], []));
+                    // Chmura zwróciła zaktualizowaną listę — scal z obecnymi,
+                    // żeby nie stracić celów z kodu (seed), których chmura jeszcze nie zna.
+                    setPersonalTargets(prev => mergeTargets(
+                        Array.isArray(data.personal) ? data.personal : [],
+                        prev.filter(p => !data.personal?.some(c => c.name === p.name))
+                    ));
+                    setFactionTargets(prev => mergeTargets(
+                        Array.isArray(data.factions) ? data.factions : [],
+                        prev.filter(p => !data.factions?.some(c => c.name === p.name))
+                    ));
                 } else {
                     // Chmura odrzuciła zapis (np. brak roli admina) — lokalny upsert
                     setCloudReady(false);
@@ -500,8 +514,15 @@ const KOS = () => {
                 });
                 const data = await res.json();
                 if (res.ok && data && data.ok) {
-                    setPersonalTargets(mergeTargets(Array.isArray(data.personal) ? data.personal : [], []));
-                    setFactionTargets(mergeTargets(Array.isArray(data.factions) ? data.factions : [], []));
+                    // Scal dane z chmury z obecnymi (nie trać celów z kodu/seed)
+                    setPersonalTargets(prev => mergeTargets(
+                        Array.isArray(data.personal) ? data.personal : [],
+                        prev.filter(p => !data.personal?.some(c => c.name === p.name))
+                    ));
+                    setFactionTargets(prev => mergeTargets(
+                        Array.isArray(data.factions) ? data.factions : [],
+                        prev.filter(p => !data.factions?.some(c => c.name === p.name))
+                    ));
                     return;
                 }
                 setCloudReady(false);

@@ -565,6 +565,47 @@
     },
     "dev": [
       {
+        "version": "0.0.14 Hofix Part III - DEV",
+        "date": "Aug 20, 2026",
+        "changes": [
+          {
+            "type": "bugfix",
+            "title": "KOS: seed + _seeded flag",
+            "description": "Adding a person via cloud no longer removes seed targets (kosSeed.json). New _seeded flag distinguishes an empty database (admin deleted targets) from one that was never seeded — missing code targets are automatically added on first GET so new people from kosTargets.json appear for everyone."
+          },
+          {
+            "type": "bugfix",
+            "title": "KOS: merge instead of replace on client",
+            "description": "After POST/DELETE and in the realtime subscription, KOS now merges cloud data with existing data (upsert) instead of replacing the entire list. No more flashing and disappearing targets on refresh."
+          },
+          {
+            "type": "improvement",
+            "title": "In-memory fallback with seed data",
+            "description": "Local dev without Netlify Blobs now has seed data pre-loaded in memory — POST/GET work end-to-end, zero console errors."
+          },
+          {
+            "type": "bugfix",
+            "title": "Fixed getJSON across all functions",
+            "description": "@netlify/blobs v10 has no getJSON method — replaced with get(key, {type:'json'}) in kos-store, announce, announce-history and security. Without this fix, cloud KOS and announcements never worked in production."
+          },
+          {
+            "type": "bugfix",
+            "title": "ORB fix for Ably realtime",
+            "description": "Chrome ORB (Opaque Response Blocking) blocked Ably SDK's built-in XHR for token auth. Changed authUrl to authCallback (custom fetch) plus fallback on suspended state — STANDBY becomes LIVE after deploy."
+          },
+          {
+            "type": "feature",
+            "title": "Cloud War Logs with admin panel",
+            "description": "War reports stored in Netlify Blobs with seed from warLogs.json. Admin panel: add and remove reports with video evidence (YouTube/Medal.tv). Real-time publish on zpk-war-status channel — ActivityFeed on the homepage shows changes instantly."
+          },
+          {
+            "type": "bugfix",
+            "title": "Multi-server Discord: per-guild admin roles",
+            "description": "ZPK_ADMIN_ROLE_IDS in guildId:roleId format — Elder on dev has no access on official and vice versa. Owner and Administrator of both servers get auto-admin."
+          }
+        ]
+      },
+      {
         "version": "0.0.14 Hofix Part II - DEV",
         "date": "Aug 17, 2026",
         "changes": [

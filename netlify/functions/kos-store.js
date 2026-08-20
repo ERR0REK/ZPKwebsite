@@ -82,8 +82,13 @@ function getStoreOptions(event) {
 // bez runtime Netlify). Dane tymczasowe (na czas życia procesu), ale lokalny
 // dev działa w pełni: seed, dodawanie i usuwanie celów.
 // Interfejs zgodny z @netlify/blobs v10: get(key, { type: "json" }) + setJSON.
+// Seed jest wczytywany z kosSeed.json przy tworzeniu, żeby in-memory
+// miało dane od razu (nie tylko po pierwszym GET).
 let memoryData = null;
 function createInMemoryStore() {
+  // Seed od razu z flagą _seeded — żeby in-memory miało dane startowe
+  // i wiedziało, że seed został już zastosowany.
+  memoryData = { ...normalizeTargets(require("./_lib/kosSeed.json")), _seeded: true };
   return {
     get: async (_key, options) => {
       if (options && options.type === "json") return memoryData ?? null;
@@ -118,6 +123,7 @@ async function resolveStore(event) {
 
 // Normalizuje obiekt celów do stabilnej struktury.
 const normalizeTargets = (data) => ({
+  _seeded: !!(data && data._seeded),
   personal: data && Array.isArray(data.personal) ? data.personal : [],
   factions: data && Array.isArray(data.factions) ? data.factions : [],
 });
@@ -152,15 +158,26 @@ exports.handler = async (event) => {
     if (event.httpMethod === "GET") {
       const store = await resolveStore(event);
       const data = await store.get(KEY, { type: "json" });
-      if (data == null || typeof data !== "object") {
-        // Pierwsze uruchomienie — zasiewamy bazę celami z kodu (kosSeed.json),
-        // żeby świeże wdrożenie od razu pokazywało pełną listę.
-        const seeded = normalizeTargets(require("./_lib/kosSeed.json"));
-        await store.setJSON(KEY, seeded);
-        return json(200, { ok: true, ...seeded }, {}, event);
+      const cloud = normalizeTargets(data);
+      const seed = normalizeTargets(require("./_lib/kosSeed.json"));
+
+      // Rozróżnienie: baza nigdy nie seedowana (_seeded=false/null)
+      // vs baza celowo pusta (admin usunął cele, _seeded=true).
+      // Bez flagi dodajemy brakujące cele z kodu, żeby nowe osoby
+      // z kosTargets.json pojawiały się u wszystkich.
+      if (!cloud._seeded) {
+        // Baza nigdy nie seedowana — dodaj brakujące cele z kodu
+        const merged = {
+          _seeded: true,
+          personal: [...seed.personal.filter(s => !cloud.personal.some(c => c.name === s.name)), ...cloud.personal],
+          factions: [...seed.factions.filter(s => !cloud.factions.some(c => c.name === s.name)), ...cloud.factions],
+        };
+        await store.setJSON(KEY, merged);
+        // Zwróć bez _seeded (klient nie potrzebuje tej flagi)
+        return json(200, { ok: true, personal: merged.personal, factions: merged.factions }, {}, event);
       }
-      const targets = normalizeTargets(data);
-      return json(200, { ok: true, ...targets }, {}, event);
+      // Baza już seedowana — zwróć dane jak są (cloud = źródło prawdy)
+      return json(200, { ok: true, personal: cloud.personal, factions: cloud.factions }, {}, event);
     }
 
     // ============ Zabezpieczenia dla POST / DELETE ============
@@ -205,10 +222,11 @@ exports.handler = async (event) => {
       }
       const { store, targets } = await getStoreAndTargets(event);
       targets[key] = targets[key].filter((x) => x.name !== name);
+      targets._seeded = true; // oznacz że baza była edytowana
       await store.setJSON(KEY, targets);
       await publishUpdate(type, "removed", name);
       await audit("kos.remove", `${type}: ${name}`, admin.user);
-      return json(200, { ok: true, ...targets }, {}, event);
+      return json(200, { ok: true, personal: targets.personal, factions: targets.factions }, {}, event);
     }
 
     // 3. POST — dodaj/aktualizuj cel
@@ -222,10 +240,11 @@ exports.handler = async (event) => {
       }
       const { store, targets } = await getStoreAndTargets(event);
       targets[key] = upsertTarget(targets[key], target);
+      targets._seeded = true; // oznacz że baza była edytowana
       await store.setJSON(KEY, targets);
       await publishUpdate(type, "added", target.name);
       await audit("kos.add", `${type}: ${target.name}`, admin.user);
-      return json(200, { ok: true, ...targets }, {}, event);
+      return json(200, { ok: true, personal: targets.personal, factions: targets.factions }, {}, event);
     }
 
     return json(405, { ok: false, error: "METHOD_NOT_ALLOWED" }, {}, event);

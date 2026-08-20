@@ -564,6 +564,47 @@
     },
     "dev": [
       {
+        "version": "0.0.14 Hofix Part III - DEV",
+        "date": "20 sie 2026",
+        "changes": [
+          {
+            "type": "bugfix",
+            "title": "KOS: seed + flaga _seeded",
+            "description": "Dodanie osoby przez chmurę nie usuwa już celów z seeda (kosSeed.json). Nowa flaga _seeded rozróżnia pustą bazę (admin usunął cele) od nigdy nie seedowanej — brakujące cele z kodu są automatycznie dodawane przy pierwszym GET, żeby nowe osoby z kosTargets.json pojawiały się u wszystkich."
+          },
+          {
+            "type": "bugfix",
+            "title": "KOS: merge zamiast replace na kliencie",
+            "description": "Po POST/DELETE oraz w subskrypcji realtime KOS scala dane z chmury z obecnymi (upsert) zamiast zastępować całą listę. Koniec z miganiem i znikaniem celów po odświeżeniu."
+          },
+          {
+            "type": "improvement",
+            "title": "In-memory fallback z seedem",
+            "description": "Lokalny dev bez Netlify Blobs od razu ma dane startowe (seed z kodu) w pamięci — POST/GET działają end-to-end, zero błędów w konsoli."
+          },
+          {
+            "type": "bugfix",
+            "title": "Naprawiono getJSON we wszystkich funkcjach",
+            "description": "@netlify/blobs v10 nie ma metody getJSON — zastąpiono ją get(key, {type:'json'}) w kos-store, announce, announce-history i security. Bez tej naprawy chmura KOS i ogłoszeń nigdy nie działała na produkcji."
+          },
+          {
+            "type": "bugfix",
+            "title": "ORB fix dla Ably realtime",
+            "description": "Chrome ORB (Opaque Response Blocking) blokował wbudowany XHR Ably SDK do token auth. Zmiana authUrl na authCallback (własny fetch) oraz fallback na suspended stan — STANDBY → LIVE po deployu."
+          },
+          {
+            "type": "feature",
+            "title": "Cloud War Logs z panelem admina",
+            "description": "Raporty wojenne przechowywane w Netlify Blobs z seedem z warLogs.json. Panel admina: dodawanie i usuwanie raportów z dowodem wideo (YouTube/Medal.tv). Publikacja na żywo na kanale zpk-war-status — ActivityFeed na stronie głównej pokazuje zmiany natychmiast."
+          },
+          {
+            "type": "bugfix",
+            "title": "Dwóch serwerów Discord: rola admina per guild",
+            "description": "ZPK_ADMIN_ROLE_IDS w formacie guildId:roleId — Elder na dev nie ma dostępu na oficjalnym i odwrotnie. Owner i Administrator obu serwerów dostają auto-admin."
+          }
+        ]
+      },
+      {
         "version": "0.0.14 Hofix Part II - DEV",
         "date": "17 sie 2026",
         "changes": [
