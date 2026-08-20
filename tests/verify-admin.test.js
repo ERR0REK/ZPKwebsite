@@ -171,7 +171,41 @@ process.env.DISCORD_BOT_TOKEN = "bot-token";
   assert.strictEqual(r.error, "BOT_NOT_CONFIGURED");
   process.env.DISCORD_BOT_TOKEN = "bot-token";
 
-  console.log("ALL 12 TESTS PASSED ✅");
+  // 13. Prawdziwe role ZPK — Elder na DEV serwerze → admin na DEV, NIE na MAIN.
+  process.env.ZPK_ADMIN_ROLE_IDS = `${DEV}:1455480152883466351`;
+  setupFetch({
+    guilds: [
+      { id: MAIN, name: "Main", owner: false, permissions: "0" },
+      { id: DEV, name: "Dev", owner: false, permissions: "0" },
+    ],
+    memberRoles: { [MAIN]: ["OTHER"], [DEV]: ["1455480152883466351"] },
+  });
+  r = await verifyAdmin("tok");
+  assert.strictEqual(r.is_admin, true, "Elder na DEV musi być adminem");
+
+  // 14. Ta sama rola Elder DEV → NIE admin na MAIN (przypisana do DEV).
+  setupFetch({
+    guilds: [
+      { id: MAIN, name: "Main", owner: false, permissions: "0" },
+      { id: DEV, name: "Dev", owner: false, permissions: "0" },
+    ],
+    memberRoles: { [MAIN]: ["1455480152883466351"], [DEV]: ["OTHER"] },
+  });
+  r = await verifyAdmin("tok");
+  assert.strictEqual(r.is_admin, false, "Elder DEV nie daje dostępu na MAIN");
+
+  // 15. Właściciel DEV serweru → auto-admin (via: owner).
+  setupFetch({
+    guilds: [
+      { id: MAIN, name: "Main", owner: false, permissions: "0" },
+      { id: DEV, name: "Dev", owner: true, permissions: "0" },
+    ],
+  });
+  r = await verifyAdmin("tok");
+  assert.strictEqual(r.is_admin, true, "Owner DEV musi być adminem");
+  assert.strictEqual(r.via, "owner");
+
+  console.log("ALL 15 TESTS PASSED ✅");
 })().catch((err) => {
   console.error("TEST FAILED:", err.message);
   process.exit(1);
