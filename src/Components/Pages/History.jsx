@@ -8,10 +8,10 @@ import {
     //Calendar,
     History as HistoryIcon,
     //Search,
-    Sword,
+    //Sword,
     Shield,
     Flag,
-    Target,
+    //Target,
     //Terminal,
     Cpu
 } from 'lucide-react';
@@ -40,28 +40,16 @@ const History = () => {
 
     const timelineEvents = [
         {
-            year: "2023_Q3",
-            title: t('history.event1.title', 'INITIATION_PROTOCOL'),
-            content: t('history.event1.content', 'The first division was formed under the codename Zjednoczona Polska Korona. The goal: Unity and tactical dominance.'),
+            year: t('history.event1.year', '2026_Q2'),
+            title: t('history.event1.title', 'NARODZINY ZPK'),
+            content: t('history.event1.content', ''),
             icon: <Flag size={20} />
         },
         {
-            year: "2023_Q4",
-            title: t('history.event2.title', 'FIRST_DEPLOYMENT'),
-            content: t('history.event2.content', 'Engagement in the first major operation. Significant victory achieved through coordinated drone strikes.'),
-            icon: <Sword size={20} />
-        },
-        {
-            year: "2024_Q1",
-            title: t('history.event3.title', 'FORTIFICATION_PHASE'),
-            content: t('history.event3.content', 'Expansion of the digital database and recruitment of elite specialists.'),
+            year: t('history.event2.year', '2026_JUL'),
+            title: t('history.event2.title', 'ROZBUDOWA'),
+            content: t('history.event2.content', ''),
             icon: <Shield size={20} />
-        },
-        {
-            year: "2024_PRESENT",
-            title: t('history.event4.title', 'COMMAND_ASCENSION'),
-            content: t('history.event4.content', 'Modernization of the Web-Command interface and full integration with Global Intelligence Networks.'),
-            icon: <Target size={20} />
         }
     ];
 

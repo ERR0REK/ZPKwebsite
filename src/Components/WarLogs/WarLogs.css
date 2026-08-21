@@ -339,6 +339,17 @@
     gap: 30px;
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+    .warlogs-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .warlogs-container {
+        padding: 110px 25px 40px;
+    }
+}
+
 @media (max-width: 768px) {
     .warlogs-grid {
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

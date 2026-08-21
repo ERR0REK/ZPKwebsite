@@ -98,22 +98,16 @@
   },
   "history": {
     "title": "ARCHIWA OPERACYJNE",
-    "subtitle": "WIP",
+    "subtitle": "Oficjalna chronologia operacji Zjednoczonej Polskiej Korony, od powstania po dzisiejszy dzień.",
     "event1": {
-      "title": "WIP",
-      "content": "WIP"
+      "year": "2026_Q2",
+      "title": "NARODZINY ZPK",
+      "content": "Zjednoczona Polska Korona powstała w drugim kwartale 2026 roku, w wyniku odejścia polskiej frakcji z Nightfall Squadron (obecnie Vanguard Squadron) grającego w War Tycoon na platformie Roblox. Założyciel planował stworzenie wyłącznie polskiej jednostki dedykowanej temu tytułowi, jednak rosnąca aktywność w grze Wanted sprawiła, że plany uległy radykalnej zmianie. W krótkim czasie podjęta została decyzja o utworzeniu pierwszego polskiego klanu w Wanted. Powstawał on jednak w całkowitej tajemnicy. Serwer discordowy był w trakcie budowy i nikt z zewnątrz nie wiedział o jego istnieniu."
     },
     "event2": {
-      "title": "WIP",
-      "content": "WIP"
-    },
-    "event3": {
-      "title": "WIP",
-      "content": "WIP"
-    },
-    "event4": {
-      "title": "WIP",
-      "content": "WIP"
+      "year": "2026_JUL",
+      "title": "ROZBUDOWA: COMMUNITY + KLAN",
+      "content": "W trzydziestym dniu lipca 2026 roku założyciel podjął przełomową decyzję o przekształceniu serwera w połączenie community z klanem. Zamiast tworzyć drugi, osobny serwer dla społeczności, co zajęłoby kolejne miesiące, postanowiono wyposażyć istniejącą hierarchię administracyjną w narzędzia obsługujące zarówno klan, jak i zwykłych członków społeczności. Decyzja ta okazała się trafna. Pozwoliła zaoszczędzić ogromną ilość czasu i zasobów, a jednocześnie utrzymać spójną strukturę zarządzania. Cały czas poświęcony na rozbudowę serwera przyniósł wymierne efekty. ZPK zaczęło funkcjonować jako jedność, a nie jako dwa osobne organizmy."
     }
   },
   "kos": {
@@ -468,8 +462,8 @@
   "regulations": {
     "serverTitle": "Regulamin serwera Zjednoczona Polska Korona",
     "title": "Regulamin serwera Zjednoczona Polska Korona",
-    "warning": "Każdy, kto złamie zasady, poniesie konsekwencje, takie jak wyciszenie na określoną liczbę godzin, ban lub wyrzucenie z serwera. Jeśli ujawnisz dane osobowe innej osoby, możesz spodziewać się trwałego bana i dodania do 𝙺𝙾𝚂.",
-    "highlight": "Niektóre zasady będą podkreślone czego nie złamać jakiegoś regulaminu i wyładować w kos liście.",
+    "warning": "Każdy, kto złamie poniższe zasady, poniesie konsekwencje, takie jak wyciszenie (mute) na określoną liczbę godzin, wyrzucenie (kick) lub permanentny ban.\n\n⚠️ UWAGA: Ujawnienie danych osobowej innej osoby (doxxing) skutkuje natychmiastowym, trwałym banem oraz wpisaniem na czarną listę. Nie ma od tego odwołań. Regulaminu należy bezwzględnie przestrzegać, aby nie wylądować na czarnej liście.",
+    "highlight": "Regulaminu należy bezwzględnie przestrzegać, aby nie wylądować na czarnej liście.",
     "generalRulesTitle": "Sekcja 1: Ogólne zasady",
     "voiceChatRulesTitle": "Sekcja 2: Ogólne zasady dotyczące czatu głosowego",
     "inGameRulesTitle": "",
@@ -496,8 +490,8 @@
       ]
     },
     "footer": {
-      "author": "Autor regulaminu serwera DSX: @polonia.errorglitchtv (✝ DSX_EX0T1C ✝)",
-      "updateDate": "Aktualizacja regulaminu: 12.10.2025"
+      "author": "Autor regulaminu serwera ZPK wykonał: @polonia.errorglitchtv (☦ 𝕆ℕℝ_𝔼ℝℝ𝟘ℕ𝟙𝕏 ☦)",
+      "updateDate": "Ostatnie przesłanie regulaminu: 21.08.2026"
     }
   },
   "warLogs": {

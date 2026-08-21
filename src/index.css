@@ -191,6 +191,95 @@ a {
   cursor: pointer;
 }
 
+/* ============================================= */
+/* CROSS-PLATFORM: Safe Area (iPhone notch etc.) */
+/* ============================================= */
+body {
+  padding:
+    env(safe-area-inset-top, 0px)
+    env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px)
+    env(safe-area-inset-left, 0px);
+}
+
+/* ============================================= */
+/* CROSS-PLATFORM: Touch targets minimum 44px   */
+/* ============================================= */
+button,
+[role='button'],
+a.btn,
+.nav-link,
+.nav-btn,
+.filter-btn,
+.join-btn,
+.copy-btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* ============================================= */
+/* CROSS-PLATFORM: Reduced motion accessibility */
+/* ============================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================= */
+/* CROSS-PLATFORM: Large screen / TV (1920px+)   */
+/* ============================================= */
+@media (min-width: 1920px) {
+  body {
+    font-size: 20px;
+  }
+  .container {
+    max-width: 1600px;
+  }
+}
+
+@media (min-width: 2560px) {
+  body {
+    font-size: 22px;
+  }
+  .container {
+    max-width: 2000px;
+  }
+}
+
+/* ============================================= */
+/* CROSS-PLATFORM: Tablet (768px - 1024px)       */
+/* ============================================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+}
+
+/* ============================================= */
+/* CROSS-PLATFORM: Landscape phone               */
+/* ============================================= */
+@media (max-height: 500px) and (orientation: landscape) {
+  body {
+    font-size: 14px;
+  }
+}
+
+/* ============================================= */
+/* CROSS-PLATFORM: High DPI / Retina            */
+/* ============================================= */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  img {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
 .container {
   max-width: 1400px;
   margin: 0 auto;

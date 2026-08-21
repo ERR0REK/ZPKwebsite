@@ -253,6 +253,16 @@
   margin: 0;
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+  .legal-hero {
+    padding: 130px 25px 35px;
+  }
+
+  .legal-section {
+    padding: 22px 25px;
+  }
+}
+
 @media (max-width: 768px) {
   .legal-hero {
     padding: 120px 15px 30px;

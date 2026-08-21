@@ -98,22 +98,16 @@
   },
   "history": {
     "title": "OPERATIONAL ARCHIVES",
-    "subtitle": "Chronological record of Nightfall Squadron operations and milestones.",
+    "subtitle": "Official chronology of the Zjednoczona Polska Korona operations, from founding to present day.",
     "event1": {
-      "title": "INITIATION_PROTOCOL",
-      "content": "The first division was formed under the codename Nightfall Squadron. Goal: Unity and tactical dominance."
+      "year": "2026_Q2",
+      "title": "THE BIRTH OF ZPK",
+      "content": "Zjednoczona Polska Korona was founded in the second quarter of 2026, following the departure of the Polish faction from Nightfall Squadron (now Vanguard Squadron) who played War Tycoon on the Roblox platform. The founder initially planned to create a Polish-only unit dedicated to that title, however, increasing activity in the game Wanted led to a radical change of plans. In a short time, a decision was made to establish the first Polish clan in Wanted. It was created in complete secrecy. The Discord server was under construction and nobody outside knew of its existence."
     },
     "event2": {
-      "title": "FIRST_DEPLOYMENT",
-      "content": "Engagement in the first major operation. Significant victory achieved through coordinated drone strikes."
-    },
-    "event3": {
-      "title": "FORTIFICATION_PHASE",
-      "content": "Expansion of the digital database and recruitment of elite specialists."
-    },
-    "event4": {
-      "title": "COMMAND_ASCENSION",
-      "content": "Modernization of the Web-Command interface and full integration with global intelligence networks."
+      "year": "2026_JUL",
+      "title": "EXPANSION: COMMUNITY + CLAN",
+      "content": "On July 30th, 2026, the founder made a groundbreaking decision to transform the server into a combination of community and clan. Instead of creating a second, separate server for the community, which would have taken additional months, the existing administrative hierarchy was equipped with tools to serve both the clan and regular community members. This decision proved to be the right one: it saved an enormous amount of time and resources while maintaining a coherent management structure. All the time invested in building the server paid off. ZPK began to function as a single entity rather than two separate organisms."
     }
   },
   "kos": {
@@ -469,8 +463,8 @@
   "regulations": {
     "serverTitle": "Regulations of Nightfall Squadron Server",
     "title": "Regulations of Nightfall Squadron Server",
-    "warning": "Anyone who breaks rules will face consequences, such as being muted for a certain number of hours, banned, or kicked off server. If you give out someone else's personal information, you can expect to receive a permanent ban and be added to ⁠𝙺𝙾𝚂.",
-    "highlight": "Some rules will be highlighted to avoid breaking any regulations and ending up on the kos-list.",
+    "warning": "Anyone who breaks the following rules will face consequences, such as being muted for a certain number of hours, kicked, or permanently banned.\n\n⚠️ WARNING: Disclosing another person's personal information (doxxing) results in an immediate, permanent ban and being added to the blacklist. There are no appeals. The regulations must be strictly followed to avoid ending up on the blacklist.",
+    "highlight": "The regulations must be strictly followed to avoid ending up on the blacklist.",
     "generalRulesTitle": "Section 1: General Rules",
     "voiceChatRulesTitle": "Section 2: General rules in voice chat",
     "inGameRulesTitle": "",
@@ -497,8 +491,8 @@
       ]
     },
     "footer": {
-      "author": "Author of DSX server regulations: @polonia.errorglitchtv (✝ DSX_EX0T1C ✝)",
-      "updateDate": "Regulations update: 12.10.2025"
+      "author": "Author of ZPK server regulations: @polonia.errorglitchtv (☦ 𝕆ℕℝ_𝔼ℝℝ𝟘ℕ𝟙XObject ☦)",
+      "updateDate": "Last regulations update: Aug 21, 2026"
     }
   },
   "warLogs": {

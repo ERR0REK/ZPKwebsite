@@ -265,6 +265,14 @@
 .c-bl { bottom: 0; left: 0; border-top: none; border-right: none; }
 .c-br { bottom: 0; right: 0; border-top: none; border-left: none; }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+  .members-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .staff-hero-section { padding: 100px 25px 35px; }
+}
+
 @media (max-width: 768px) {
   .members-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

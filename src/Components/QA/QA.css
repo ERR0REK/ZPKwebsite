@@ -510,6 +510,21 @@
   opacity: 0.4;
 }
 
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .qa-hero {
+    padding: 130px 25px 40px;
+  }
+
+  .qa-question {
+    padding: 18px 22px;
+  }
+
+  .qa-answer {
+    padding: 5px 22px 22px 65px;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .qa-hero {

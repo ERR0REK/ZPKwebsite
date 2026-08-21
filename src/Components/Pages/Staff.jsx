@@ -11,6 +11,7 @@ import DecodedText from "../Shared/DecodedText";
 /* Importowanie obrazków członków kadry */
 
 import ERR0N1XPFP from "../../Assets/StaffMembersPFP/ERR0N1XPFP.webp"
+import PolakexePFP from "../../Assets/StaffMembersPFP/PolakexePFP.png"
 
 /* Koniec importowania obrazków */
 
@@ -33,7 +34,16 @@ export default function Staff() {
         avatar: ERR0N1XPFP
       }
     ],
-    factionCoLeader: [],
+    factionCoLeader: [
+      {
+        id: 2,
+        name: "(polak.exe.) Chuj wie kto",
+        role: "Współwłaściciel",
+        robloxUsername: "Polskaexe_v3",
+        robloxUserId: "8830479938",
+        avatar: PolakexePFP 
+      }
+    ],
     technicalSpecialist: [],
     trialCoLeader: [],
     elder: [],
