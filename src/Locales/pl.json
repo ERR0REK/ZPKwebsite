@@ -563,6 +563,52 @@
     },
     "dev": [
       {
+        "version": "0.0.15 - DEV",
+        "date": "21 sie 2026",
+        "changes": [
+          {
+            "type": "feature",
+            "title": "Historia Frakcji: Archiwa Operacyjne",
+            "description": "Nowa strona historii z narracją trzecioosobową. Dwa rozdziały: Narodziny ZPK (Q2 2026) oraz Rozbudowa: Community + Klan (Lipiec 2026). Usunięto placeholder WIP, dodano prawdziwą historię frakcji w języku polskim i angielskim."
+          },
+          {
+            "type": "feature",
+            "title": "Cross-platform: pełna responsywność",
+            "description": "Dedykowane breakpointy na tablety (769-1024px), TV/monitory (1920px+, 2560px+), safe area insets na iPhone (notch), prefers-reduced-motion dla accessibility, min. 44px touch targets, landscape phone support oraz ulepszony PWA manifest (orientation, categories, maskable icon)."
+          },
+          {
+            "type": "feature",
+            "title": "Privacy Toast",
+            "description": "Jednorazowy toast informujący o prywatności po wejściu na stronę. Zielony komunikat z ikoną tarczy: strona nie zbiera IP ani danych osobowych. Auto-zniknięcie po 6 sekundach z paskiem postępu."
+          },
+          {
+            "type": "feature",
+            "title": "Privacy Banner",
+            "description": "Banner na dole strony głównej informujący o aktywnej polityce prywatności z linkiem do Polityki Prywatności."
+          },
+          {
+            "type": "feature",
+            "title": "Discord Widget z auto-refresh",
+            "description": "Widget pobierający dane z publicznego API Discorda. Pokazuje liczbę osób online i łączną liczbę członków. Auto-refresh co 60 sekund, ręczny przycisk odświeżania, licznik czasu od ostatniego odświeżenia."
+          },
+          {
+            "type": "improvement",
+            "title": "Regulamin: zaktualizowany footer",
+            "description": "Footer regulaminu zaktualizowany: ZPK zamiast DSX, Unicode Orthodox zamiast ASCII, data aktualizacji 21.08.2026."
+          },
+          {
+            "type": "improvement",
+            "title": "UI nowych komponentów",
+            "description": "Ulepszone style PrivacyToast, DiscordWidget i PrivacyBanner: lepszy blur, HUD corners, glow effects, responsive layout, cienie i hover efekty."
+          },
+          {
+            "type": "bugfix",
+            "title": "Naprawione linki i padding",
+            "description": "PrivacyBanner kierował do /regulations zamiast /privacy. Naprawiono podwójny padding wokół PrivacyBanner na stronie głównej."
+          }
+        ]
+      },
+      {
         "version": "0.0.14 Hofix Part III - DEV",
         "date": "20 sie 2026",
         "changes": [

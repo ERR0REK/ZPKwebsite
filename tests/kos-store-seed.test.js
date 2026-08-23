@@ -1,10 +1,11 @@
 // Test logiki SEED + flagi _seeded w kos-store.js — mockujemy Netlify Blobs.
 // Scenariusze:
 //   1. Baza nigdy nie seedowana (null) → GET zasiewa z kosSeed.json, ustawia _seeded
-//   2. Baza seedowana z danymi admina → GET zwraca dane bez ruszania ich
-//   3. Baza seedowana i PUSTA (admin usunął wszystkie cele) → NIE zasiewa ponownie
+//   2. Baza seedowana z danymi admina → GET dodaje brakujące cele z seeda
+//   3. Baza seedowana i PUSTA (admin usunął) → dodaje cele z seeda (nowa logika)
 //   4. Baza NIE seedowana ale ma dane (np. POST przed flagą) → dodaje brakujące z seeda
 //   5. Blobs NIEDOSTĘPNE → fallback in-memory z seedem
+//   6. Nowe cele w seedzie → scalane z istniejącymi danymi z chmury
 // Uruchom: node tests/kos-store-seed.test.js
 
 const assert = require("assert");
@@ -61,11 +62,10 @@ async function get() {
   assert.strictEqual(r1.personal.length, seed.personal.length, "S1: liczba osob z seeda");
   assert.strictEqual(r1.factions.length, seed.factions.length, "S1: liczba klanów z seeda");
   assert.strictEqual(r1.personal[0].name, seed.personal[0].name, "S1: pierwszy cel z seeda");
-  // Zapisana baza powinna mieć _seeded=true
   assert.strictEqual(storeState.data._seeded, true, "S1: _seeded=true w zapisanych danych");
   console.log("S1 OK — świeża baza zasiana celami z kodu, _seeded=true");
 
-  // ---- Scenariusz 2: baza seedowana z danymi admina → bez zmian ----
+  // ---- Scenariusz 2: baza seedowana z danymi admina → scalanie z seedem ----
   storeState.data = {
     _seeded: true,
     personal: [{ name: "AdminAdded" }],
@@ -73,18 +73,21 @@ async function get() {
   };
   const r2 = await get();
   assert.strictEqual(r2.ok, true, "S2: ok=true");
-  assert.strictEqual(r2.personal.length, 1, "S2: seed NIE nadpisał danych admina");
-  assert.strictEqual(r2.personal[0].name, "AdminAdded", "S2: dane admina zachowane");
-  assert.strictEqual(r2.factions[0].name, "ClanX", "S2: dane admina zachowane (factions)");
-  console.log("S2 OK — istniejące dane nietknięte (_seeded=true, seed pominięty)");
+  // Seed entries (Kerainff, ggxEyx10) should be merged + AdminAdded kept
+  assert.strictEqual(r2.personal.length, seed.personal.length + 1, "S2: seed entries + admin entry");
+  assert.ok(r2.personal.some(p => p.name === "AdminAdded"), "S2: AdminAdded zachowane");
+  assert.ok(r2.personal.some(p => p.name === seed.personal[0].name), "S2: seed entries dodane");
+  assert.strictEqual(r2.factions.length, seed.factions.length + 1, "S2: seed factions + admin faction");
+  assert.ok(r2.factions.some(f => f.name === "ClanX"), "S2: ClanX zachowane");
+  console.log("S2 OK — dane admina zachowane + brakujące cele z seeda dodane");
 
-  // ---- Scenariusz 3: seedowana + PUSTA (admin usunął) → brak re-seedu ----
+  // ---- Scenariusz 3: seedowana i PUSTA (admin usunął) → dodajemy cele z seeda ----
   storeState.data = { _seeded: true, personal: [], factions: [] };
   const r3 = await get();
   assert.strictEqual(r3.ok, true, "S3: ok=true");
-  assert.strictEqual(r3.personal.length, 0, "S3: pusta lista, NIE wskrzeszamy usuniętych");
-  assert.strictEqual(storeState.data.personal.length, 0, "S3: magazyn pozostaje pusty");
-  console.log("S3 OK — usunięte cele nie wracają (_seeded=true, seed pominięty)");
+  assert.strictEqual(r3.personal.length, seed.personal.length, "S3: cele z seeda dodane do pustej");
+  assert.strictEqual(storeState.data.personal.length, seed.personal.length, "S3: magazyn zaktualizowany");
+  console.log("S3 OK — pusta baza po seedowaniu: cele z seeda dodane");
 
   // ---- Scenariusz 4: NIE seedowana ale ma dane → dodaje brakujące z seeda ----
   storeState.data = {
@@ -94,10 +97,9 @@ async function get() {
   };
   const r4 = await get();
   assert.strictEqual(r4.ok, true, "S4: ok=true");
-  // Seed (Kerainff) powinien zostać dodany + NowaOsobaZPosta
-  assert.strictEqual(r4.personal.length, 2, "S4: seed + istniejące dane");
+  assert.strictEqual(r4.personal.length, seed.personal.length + 1, "S4: seed + istniejące dane");
   const names4 = r4.personal.map((p) => p.name);
-  assert.ok(names4.includes("Kerainff"), "S4: Kerainff z seeda dodany");
+  assert.ok(seed.personal.every(s => names4.includes(s.name)), "S4: wszystkie seed entries dodane");
   assert.ok(names4.includes("NowaOsobaZPosta"), "S4: NowaOsobaZPosta zachowana");
   assert.strictEqual(storeState.data._seeded, true, "S4: _seeded=true po scaleniu");
   console.log("S4 OK — brak _seeded = brakujące cele z seeda dodane");
@@ -118,9 +120,26 @@ async function get() {
   assert.strictEqual(postRes.statusCode, 403, "S5: POST bez tokena = 403");
   console.log("S5 OK — brak Blobs = fallback in-memory z seedem");
 
+  // ---- Scenariusz 6: Nowe cele w seedzie → scalanie z istniejącymi ----
+  storeState.throwOnGet = false;
+  storeState.data = {
+    _seeded: true,
+    personal: [{ name: "StaryCel" }, { name: seed.personal[0].name }],
+    factions: [],
+  };
+  const r6 = await get();
+  assert.strictEqual(r6.ok, true, "S6: ok=true");
+  // StaryCel + seed entries — seed entries should not duplicate
+  const names6 = r6.personal.map(p => p.name);
+  assert.ok(names6.includes("StaryCel"), "S6: StaryCel zachowane");
+  assert.ok(seed.personal.every(s => names6.includes(s.name)), "S6: wszystkie seed entries obecne");
+  // Sprawdź brak duplikatów
+  assert.strictEqual(new Set(names6).size, names6.length, "S6: brak duplikatów");
+  console.log("S6 OK — nowe cele z seeda scalane bez duplikatów");
+
   storeState.throwOnGet = false;
 
-  console.log("\n✅ WSZYSTKIE TESTY KOS-STORE PRZESZŁY (5/5)");
+  console.log("\n✅ WSZYSTKIE TESTY KOS-STORE PRZESZŁY (6/6)");
 })().catch((err) => {
   console.error("❌ TEST FAILED:", err.message);
   process.exit(1);

@@ -161,23 +161,26 @@ exports.handler = async (event) => {
       const cloud = normalizeTargets(data);
       const seed = normalizeTargets(require("./_lib/kosSeed.json"));
 
-      // Rozróżnienie: baza nigdy nie seedowana (_seeded=false/null)
-      // vs baza celowo pusta (admin usunął cele, _seeded=true).
-      // Bez flagi dodajemy brakujące cele z kodu, żeby nowe osoby
-      // z kosTargets.json pojawiały się u wszystkich.
-      if (!cloud._seeded) {
-        // Baza nigdy nie seedowana — dodaj brakujące cele z kodu
-        const merged = {
-          _seeded: true,
-          personal: [...seed.personal.filter(s => !cloud.personal.some(c => c.name === s.name)), ...cloud.personal],
-          factions: [...seed.factions.filter(s => !cloud.factions.some(c => c.name === s.name)), ...cloud.factions],
-        };
+      // ZAWSZE scal brakujące cele z seeda z danymi z chmury.
+      // Dzięki temu nowe osoby dodane do kosSeed.json (via kod) pojawiają się
+      // u wszystkich, nawet gdy _seeded=true (cloud istnieje).
+      // Admini mogą USUWAĆ cele (filtr w hiddenList) — scalanie ich nie przywraca.
+      const mergedPersonal = [
+        ...seed.personal.filter(s => !cloud.personal.some(c => c.name === s.name)),
+        ...cloud.personal,
+      ];
+      const mergedFactions = [
+        ...seed.factions.filter(s => !cloud.factions.some(c => c.name === s.name)),
+        ...cloud.factions,
+      ];
+
+      // Zapisz tylko jeśli doszły nowe cele z seeda
+      if (mergedPersonal.length > cloud.personal.length || mergedFactions.length > cloud.factions.length) {
+        const merged = { _seeded: true, personal: mergedPersonal, factions: mergedFactions };
         await store.setJSON(KEY, merged);
-        // Zwróć bez _seeded (klient nie potrzebuje tej flagi)
-        return json(200, { ok: true, personal: merged.personal, factions: merged.factions }, {}, event);
       }
-      // Baza już seedowana — zwróć dane jak są (cloud = źródło prawdy)
-      return json(200, { ok: true, personal: cloud.personal, factions: cloud.factions }, {}, event);
+
+      return json(200, { ok: true, personal: mergedPersonal, factions: mergedFactions }, {}, event);
     }
 
     // ============ Zabezpieczenia dla POST / DELETE ============

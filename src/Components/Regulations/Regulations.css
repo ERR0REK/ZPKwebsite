@@ -638,3 +638,227 @@
     font-size: 0.65rem;
   }
 }
+
+/* --- QoL BUTTONS --- */
+.reg-qol-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+.reg-qol-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--reg-text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+
+.reg-qol-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.08), transparent);
+  transition: left 0.5s ease;
+}
+
+.reg-qol-btn:hover::before {
+  left: 100%;
+}
+
+.reg-qol-btn:hover {
+  border-color: var(--ZPK-red);
+  background: rgba(239, 68, 68, 0.12);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
+  transform: translateY(-2px);
+}
+
+.reg-qol-btn .qol-icon {
+  font-size: 1.1rem;
+}
+
+/* --- BACK TO TOP --- */
+.reg-back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 48px;
+  height: 48px;
+  background: rgba(10, 5, 10, 0.8);
+  border: 1px solid var(--ZPK-red);
+  color: var(--ZPK-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
+}
+
+.reg-back-to-top:hover {
+  background: rgba(239, 68, 68, 0.15);
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.25);
+  transform: translateY(-3px);
+}
+
+/* --- LEGAL LINKS --- */
+.reg-legal-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(239, 68, 68, 0.1);
+  flex-wrap: wrap;
+}
+
+.reg-legal-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--reg-text-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-decoration: none;
+  padding: 10px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.3s ease;
+}
+
+.reg-legal-link:hover {
+  color: var(--ZPK-gold);
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.05);
+  transform: translateY(-1px);
+}
+
+.reg-legal-link .reg-legal-icon {
+  font-size: 1rem;
+}
+
+/* --- PRINT STYLESHEET --- */
+@media print {
+  .navbar, .reg-overlay, .reg-scanlines, .reg-back-to-top,
+  .reg-qol-buttons, .reg-legal-links, .card-scanner, .corner,
+  .warning-corner, .warning-hud-line, .reg-warning-icon-bg {
+    display: none !important;
+  }
+
+  .regulations-page {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .reg-sticky-part {
+    position: static !important;
+    background: #fff !important;
+    border-top: 2px solid #000 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .reg-hero-title, .reg-rule-title {
+    color: #000 !important;
+    text-shadow: none !important;
+  }
+
+  .reg-hero-subtitle, .item-text, .reg-warning-content p {
+    color: #333 !important;
+    text-shadow: none !important;
+  }
+
+  .reg-rule-card {
+    background: #f9f9f9 !important;
+    border: 1px solid #ccc !important;
+    break-inside: avoid;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .reg-rule-item {
+    background: transparent !important;
+    border-left-color: #999 !important;
+  }
+
+  .item-bullet {
+    background: #333 !important;
+    opacity: 1 !important;
+  }
+
+  .reg-rule-section-number {
+    color: #666 !important;
+  }
+
+  .icon-box {
+    background: #eee !important;
+    border-color: #ccc !important;
+    color: #333 !important;
+  }
+
+  .reg-footer p {
+    color: #666 !important;
+  }
+
+  .reg-warning-panel {
+    background: #fff3cd !important;
+    border: 1px solid #ffc107 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .reg-warning-icon {
+    color: #856404 !important;
+    filter: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .reg-qol-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .reg-qol-btn {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+
+  .reg-legal-links {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .reg-legal-link {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+
+  .reg-back-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+  }
+}

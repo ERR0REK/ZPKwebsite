@@ -564,6 +564,52 @@
     },
     "dev": [
       {
+        "version": "0.0.15 - DEV",
+        "date": "Aug 21, 2026",
+        "changes": [
+          {
+            "type": "feature",
+            "title": "Faction History: Operational Archives",
+            "description": "New history page with third-person narrative. Two chapters: The Birth of ZPK (Q2 2026) and Expansion: Community + Clan (July 2026). Replaced WIP placeholders with real faction history in Polish and English."
+          },
+          {
+            "type": "feature",
+            "title": "Cross-platform: full responsiveness",
+            "description": "Dedicated breakpoints for tablets (769-1024px), TV/monitors (1920px+, 2560px+), iPhone safe area insets (notch), prefers-reduced-motion accessibility, min 44px touch targets, landscape phone support and improved PWA manifest (orientation, categories, maskable icon)."
+          },
+          {
+            "type": "feature",
+            "title": "Privacy Toast",
+            "description": "One-time toast informing about privacy on page visit. Green shield message: site does not collect IP or personal data. Auto-dismiss after 6 seconds with progress bar."
+          },
+          {
+            "type": "feature",
+            "title": "Privacy Banner",
+            "description": "Banner at the bottom of the home page informing about active privacy policy with a link to Privacy Policy."
+          },
+          {
+            "type": "feature",
+            "title": "Discord Widget with auto-refresh",
+                       "description": "Widget fetching data from Discord public API. Shows online count and total members. Auto-refresh every 60 seconds, manual refresh button, time-since-last-refresh counter."
+          },
+          {
+            "type": "improvement",
+            "title": "Regulations: updated footer",
+            "description": "Regulations footer updated: ZPK instead of DSX, Unicode Orthodox instead of ASCII, update date Aug 21, 2026."
+          },
+          {
+            "type": "improvement",
+            "title": "New component UI polish",
+            "description": "Enhanced styles for PrivacyToast, DiscordWidget and PrivacyBanner: better blur, HUD corners, glow effects, responsive layout, shadows and hover effects."
+          },
+          {
+            "type": "bugfix",
+            "title": "Fixed links and padding",
+            "description": "PrivacyBanner pointed to /regulations instead of /privacy. Fixed double padding around PrivacyBanner on the home page."
+          }
+        ]
+      },
+      {
         "version": "0.0.14 Hofix Part III - DEV",
         "date": "Aug 20, 2026",
         "changes": [
