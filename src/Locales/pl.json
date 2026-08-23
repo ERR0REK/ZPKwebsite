@@ -563,6 +563,32 @@
     },
     "dev": [
       {
+        "version": "0.0.15 Hotfix - DEV",
+        "date": "23 sie 2026",
+        "changes": [
+          {
+            "type": "bugfix",
+            "title": "KOS: synchronizacja seeda z kodem",
+            "description": "kosSeed.json zaktualizowany o brakujące osoby (sync z kosTargets.json). Serwer zawsze scala brakujące cele z seeda z danymi z chmury, nawet gdy baza była już seedowana (_seeded=true). Koniec z miganiem i znikaniem osób po odświeżeniu."
+          },
+          {
+            "type": "bugfix",
+            "title": "KOS: nowe celest pojawiają się u wszystkich",
+            "description": "Nowa logika GET w kos-store: brakujące cele z kodu (kosSeed.json) są automatycznie dodawane do istniejących danych z chmury. Niezależnie od flagi _seeded, każda nowa osoba z kodu pojawi się natychmiast u wszystkich graczy."
+          },
+          {
+            "type": "improvement",
+            "title": "Regulamin: QoL",
+            "description": "Przycisk DRUKUJ i KOPIUJ regulamin, pływający back-to-top po przewinięciu, linki do Polityki Prywatności i Warunków Korzystania, poprawiony print stylesheet (widoczne zasady na wydruku)."
+          },
+          {
+            "type": "improvement",
+            "title": "Regulamin: zaktualizowana treść",
+            "description": "Sekcja 1 i 2 regulaminu zgodne z oficjalnym embedem Discorda. Ostrzeżenie o doxxingu (stały ban + blacklista). Footer: @polonia.errorglitchtv (☦ 𝕆ℕℝ_𝔼ℝℝ𝟘ℕ𝟙𝕏 ☦), data 21.08.2026."
+          }
+        ]
+      },
+      {
         "version": "0.0.15 - DEV",
         "date": "21 sie 2026",
         "changes": [
@@ -1384,22 +1410,67 @@
     "release": [
       {
         "version": "1.0.0",
-        "date": "Wkrótce",
+        "date": "23 sie 2026",
         "changes": [
           {
             "type": "feature",
-            "title": "Uruchomienie produkcji",
-            "description": "Oficjalne publiczne uruchomienie strony Zjednoczona Polska Korona"
+            "title": "Oficjalne uruchomienie strony ZPK",
+            "description": "Pierwsza publiczna wersja oficjalnej strony Zjednoczonej Polskiej Korony. Strona zawiera pełną dokumentację frakcji, regulamin, FAQ, listę kadry oraz historię."
           },
           {
             "type": "feature",
-            "title": "Ostateczne dopracowanie",
-            "description": "Poprawki błędów i optymalizacja wydajności"
+            "title": "KOS (Kill on Sight) z chmurą",
+            "description": "System listy celów przechowywany w Netlify Blobs. Wspólna baza danych dla wszystkich graczy, aktualizacje w czasie rzeczywistym przez Ably. Admini mogą dodawać i usuwać cele ze strony."
           },
           {
             "type": "feature",
-            "title": "Live Backend",
-            "description": "Integracja z live server APIs i bazami danych"
+            "title": "War Logs (Logi Wojenne)",
+            "description": "System raportów wojennych z obsługą dowodów (zdjęcia, filmy, linki). Wspólna chmura dla wszystkich graczy. Realtime aktualizacje przez Ably."
+          },
+          {
+            "type": "feature",
+            "title": "System logowania Discord OAuth2",
+            "description": "Logowanie przez Discord z weryfikacją ról administracyjnych. Session management z bezpiecznym tokenem. Strona nie przechowuje haseł, IP ani danych osobowych."
+          },
+          {
+            "type": "feature",
+            "title": "Realtime: Ably integration",
+            "description": "Aktualizacje KOS, War Logs i ogłoszeń w czasie rzeczywistym. Token auth przez Netlify Functions (API key nigdy nie opuszcza serwera). Fallback na STANDBY gdy brak połączenia."
+          },
+          {
+            "type": "feature",
+            "title": "Activity Feed na stronie głównej",
+            "description": "Sekcja aktywnosci frakcji na stronie glownej pokazujaca najnowsze zmiany w KOS, raportach wojennych i ogloszeniach. Aktualizacje realtime."
+          },
+          {
+            "type": "feature",
+            "title": "Historia Frakcji: Archiwa Operacyjne",
+            "description": "Dwa rozdziały historii ZPK w narracji trzecioosobowej: Narodziny ZPK (Q2 2026) i Rozbudowa: Community + Klan (Lipiec 2026)."
+          },
+          {
+            "type": "feature",
+            "title": "Cross-platform: pełna responsywność",
+            "description": "Tablety, TV, smartfony, iPhone notch (safe area), prefers-reduced-motion, touch targets 44px+, PWA manifest z maskable icon."
+          },
+          {
+            "type": "feature",
+            "title": "Prywatność i bezpieczeństwo",
+            "description": "Privacy Toast, Privacy Banner, Polityka Prywatności, Warunki Korzystania. Strona nie zbiera IP, cookies ani danych osobowych."
+          },
+          {
+            "type": "feature",
+            "title": "Discord Widget",
+            "description": "Widget pokazujący liczbę członków online i łączną liczbę członków serwera Discord. Auto-refresh co 60 sekund."
+          },
+          {
+            "type": "feature",
+            "title": "Wielojęzyczność (PL/EN)",
+            "description": "Pełne tłumaczenie strony na język polski i angielski. Automatyczne wykrywanie języka przeglądarki."
+          },
+          {
+            "type": "improvement",
+            "title": "Regulamin: QoL",
+            "description": "Drukuj, kopiuj, back-to-top, linki do Polityki Prywatności i Warunków Korzystania."
           }
         ]
       }
