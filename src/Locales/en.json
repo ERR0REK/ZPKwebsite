@@ -564,6 +564,32 @@
     },
     "dev": [
       {
+        "version": "0.0.15 Hotfix - DEV",
+        "date": "Aug 23, 2026",
+        "changes": [
+          {
+            "type": "bugfix",
+            "title": "KOS: seed sync with code",
+            "description": "kosSeed.json updated with missing persons (synced from kosTargets.json). Server always merges missing seed entries with cloud data, even when database was already seeded (_seeded=true). No more flickering and disappearing entries on refresh."
+          },
+          {
+            "type": "bugfix",
+            "title": "KOS: new targets appear for everyone",
+            "description": "New GET logic in kos-store: missing code entries (kosSeed.json) are automatically added to existing cloud data. Regardless of the _seeded flag, any new person from code appears immediately for all players."
+          },
+          {
+            "type": "improvement",
+            "title": "Regulations: QoL",
+            "description": "Print and copy buttons for regulations, floating back-to-top button, links to Privacy Policy and Terms of Use, fixed print stylesheet (visible rules on print)."
+          },
+          {
+            "type": "improvement",
+            "title": "Regulations: updated content",
+            "description": "Sections 1 and 2 matching official Discord embed. Doxxing warning (permanent ban + blacklist). Footer: @polonia.errorglitchtv, date Aug 21, 2026."
+          }
+        ]
+      },
+      {
         "version": "0.0.15 - DEV",
         "date": "Aug 21, 2026",
         "changes": [
@@ -1369,22 +1395,67 @@
     "release": [
       {
         "version": "1.0.0",
-        "date": "Coming Soon",
+        "date": "Aug 23, 2026",
         "changes": [
           {
             "type": "feature",
-            "title": "Production Launch",
-            "description": "Official public release of Nightfall Squadron website"
+            "title": "Official ZPK Website Launch",
+            "description": "First public version of the official United Polish Crown website. Full faction documentation, regulations, FAQ, staff list and history."
           },
           {
             "type": "feature",
-            "title": "Final Polish",
-            "description": "Bug fixes and performance optimization"
+            "title": "KOS (Kill on Sight) with Cloud Storage",
+            "description": "Target list system stored in Netlify Blobs. Shared database for all players, real-time updates via Ably. Admins can add and remove targets from the website."
           },
           {
             "type": "feature",
-            "title": "Live Backend",
-            "description": "Integration with live server APIs and databases"
+            "title": "War Logs",
+            "description": "War report system with evidence support (photos, videos, links). Shared cloud storage for all players. Realtime updates via Ably."
+          },
+          {
+            "type": "feature",
+            "title": "Discord OAuth2 Login",
+            "description": "Login via Discord with administrative role verification. Session management with secure token. Website stores no passwords, IP or personal data."
+          },
+          {
+            "type": "feature",
+            "title": "Realtime: Ably Integration",
+            "description": "KOS, War Logs and announcements updated in real-time. Token auth via Netlify Functions (API key never leaves server). STANDBY fallback when offline."
+          },
+          {
+            "type": "feature",
+            "title": "Activity Feed on Homepage",
+            "description": "Faction Activity section on homepage showing latest KOS, War Log and announcement changes. Realtime updates."
+          },
+          {
+            "type": "feature",
+            "title": "History: Operational Archives",
+            "description": "Two chapters of ZPK history in third-person narrative: Birth of ZPK (Q2 2026) and Expansion: Community + Clan (July 2026)."
+          },
+          {
+            "type": "feature",
+            "title": "Cross-platform: Full Responsiveness",
+            "description": "Tablets, TV, smartphones, iPhone notch (safe area), prefers-reduced-motion, 44px+ touch targets, PWA manifest with maskable icon."
+          },
+          {
+            "type": "feature",
+            "title": "Privacy and Security",
+            "description": "Privacy Toast, Privacy Banner, Privacy Policy, Terms of Use. Website collects no IP, cookies or personal data."
+          },
+          {
+            "type": "feature",
+            "title": "Discord Widget",
+            "description": "Widget showing online member count and total member count. Auto-refresh every 60 seconds."
+          },
+          {
+            "type": "feature",
+            "title": "Multi-language (PL/EN)",
+            "description": "Full Polish and English translations. Automatic browser language detection."
+          },
+          {
+            "type": "improvement",
+            "title": "Regulations: QoL",
+            "description": "Print, copy, back-to-top, links to Privacy Policy and Terms of Use."
           }
         ]
       }
