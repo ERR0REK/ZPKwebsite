@@ -11,7 +11,7 @@
     "regulations": "Regulations",
     "qa": "Q&A",
     "staff": "Staff",
-    "history": "Faction History",
+    "history": "Clan History",
     "kos": "KOS",
     "changelog": "Changelog",
     "sessionBadge": "LOGGED IN",
@@ -130,17 +130,17 @@
     "showLess": "SHOW LESS",
     "noResults": "NO MATCHING THREATS FOUND IN ARCHIVE",
     "personalSection": "PERSONAL TARGETS",
-    "factionSection": "FACTION TARGETS",
+    "factionSection": "CLAN TARGETS",
     "stats": {
       "total": "ACTIVE_THREATS",
       "evidence": "RECORDED_EVIDENCE",
-      "monitored": "MONITORED_FACTIONS"
+      "monitored": "MONITORED_CLANS"
     },
     "filters": {
       "all": "ALL",
       "personal": "PERSONAL",
-      "faction": "FACTIONS",
-      "factions": "FACTIONS"
+      "faction": "CLAN",
+      "factions": "CLAN"
     },
     "reasons": {
       "reasonMissing": "Reason not specified.",

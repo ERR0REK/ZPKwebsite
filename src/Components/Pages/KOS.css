@@ -129,6 +129,22 @@
     min-width: 300px;
 }
 
+.search-box input::placeholder {
+    color: #FFE066 !important;
+    opacity: 1 !important;
+}
+
+.search-box input {
+    background: transparent;
+    color: #FFE066;
+    border: none;
+    outline: none;
+    flex: 1;
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+}
+
 .filter-tabs {
     display: flex;
     gap: 10px;
