@@ -23,9 +23,9 @@
 // przełącza się na magazyn in-memory — lokalny dev działa end-to-end (seed,
 // dodawanie, usuwanie) bez błędów. Produkcja: auto-kontekst z env, bez zmian.
 
-const { getStore } = require("@netlify/blobs");
 const { verifyAdmin, json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, bodyTooLarge, audit, handleError } = require("./_lib/security");
+const { resolveStore, getStoreAndData } = require("./_lib/blobStore");
 
 const STORE_NAME = "zpk-kos";
 const KEY = "targets";
@@ -57,70 +57,6 @@ async function publishUpdate(type, action, targetName) {
   }
 }
 
-// Kontekst Blobs z eventu. Lokalny dev (netlify-cli lambda-local) przekazuje
-// poświadczenia przez event.blobs (baza64 JSON) — bez siteID, więc dodajemy
-// mockowe "unlinked" (wartość sandboxa netlify-cli). Produkcja: event.blobs
-// nie istnieje → getStore używa auto-kontekstu ze środowiska Netlify.
-function getStoreOptions(event) {
-  try {
-    if (event && event.blobs) {
-      const ctx = JSON.parse(Buffer.from(event.blobs, "base64").toString("utf8"));
-      return {
-        siteID: ctx.siteID || "unlinked",
-        token: ctx.token,
-        edgeURL: ctx.url_uncached || ctx.url,
-        apiURL: ctx.apiURL,
-      };
-    }
-  } catch (err) {
-    /* ignore */
-  }
-  return {};
-}
-
-// In-memory fallback — gdy Blobs nie da się skonfigurować (np. funkcja odpalona
-// bez runtime Netlify). Dane tymczasowe (na czas życia procesu), ale lokalny
-// dev działa w pełni: seed, dodawanie i usuwanie celów.
-// Interfejs zgodny z @netlify/blobs v10: get(key, { type: "json" }) + setJSON.
-// Seed jest wczytywany z kosSeed.json przy tworzeniu, żeby in-memory
-// miało dane od razu (nie tylko po pierwszym GET).
-let memoryData = null;
-function createInMemoryStore() {
-  // Seed od razu z flagą _seeded — żeby in-memory miało dane startowe
-  // i wiedziało, że seed został już zastosowany.
-  memoryData = { ...normalizeTargets(require("./_lib/kosSeed.json")), _seeded: true };
-  return {
-    get: async (_key, options) => {
-      if (options && options.type === "json") return memoryData ?? null;
-      return memoryData == null ? null : JSON.stringify(memoryData);
-    },
-    setJSON: async (_key, value) => {
-      memoryData = value;
-    },
-  };
-}
-
-// Store rozwiązany RAZ (z pingiem) — bez powtarzania prób przy każdym requeście.
-let cachedStore = null;
-async function resolveStore(event) {
-  if (cachedStore) return cachedStore;
-  try {
-    const store = getStore(STORE_NAME, getStoreOptions(event));
-    // Ping — wykrywa MissingBlobsEnvironmentError (getStore rzuca synchronicznie,
-    // a sieciowy błąd sandboxa dopiero przy operacji).
-    await store.get(KEY, { type: "json" });
-    cachedStore = store;
-    return store;
-  } catch (err) {
-    console.warn(
-      "kos-store: Netlify Blobs niedostępne — magazyn in-memory (dane tymczasowe):",
-      err && err.message ? err.message : err
-    );
-    cachedStore = createInMemoryStore();
-    return cachedStore;
-  }
-}
-
 // Normalizuje obiekt celów do stabilnej struktury.
 const normalizeTargets = (data) => ({
   _seeded: !!(data && data._seeded),
@@ -128,11 +64,15 @@ const normalizeTargets = (data) => ({
   factions: data && Array.isArray(data.factions) ? data.factions : [],
 });
 
+// Seed — dane startowe z kodu (fallback gdy Blobs puste)
+const kosSeed = normalizeTargets(require("./_lib/kosSeed.json"));
+
 // Otwiera store i zwraca aktualne cele (pusta lista, jeśli nic nie zapisano).
 async function getStoreAndTargets(event) {
-  const store = await resolveStore(event);
-  const targets = normalizeTargets(await store.get(KEY, { type: "json" }));
-  return { store, targets };
+  const { store, data } = await getStoreAndData(
+    event, STORE_NAME, KEY, kosSeed, normalizeTargets
+  );
+  return { store, targets: data };
 }
 
 const upsertTarget = (list, target) => [

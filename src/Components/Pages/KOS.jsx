@@ -20,21 +20,19 @@ import {
     Image,
     User,
     Database,
-    Plus,
-    Trash2,
     MessageCircle,
     Link2,
-    Upload,
     Loader2,
     Lock,
-    Wifi,
     Copy,
     Check,
     ArrowUpDown
 } from 'lucide-react';
 import DecodedText from '../Shared/DecodedText';
 import kosTargets from '../../data/kosTargets.json';
-import { useRealtime } from '../../Realtime/RealtimeProvider';
+import useCloudStore from '../../hooks/useCloudStore';
+import { useSession } from '../../Context/SessionContext';
+import KOSManagePanel from '../KOS/KOSManagePanel';
 import './KOS.css';
 
 const INITIAL_PERSONAL = 4;
@@ -60,13 +58,7 @@ const EvidenceIcon = ({ type, size = 14 }) => {
     return <Clapperboard size={size} />; // medal + fallback
 };
 
-const readSession = () => {
-    try {
-        return JSON.parse(localStorage.getItem('ZPK_auth_session') || '{}');
-    } catch (e) {
-        return {};
-    }
-};
+
 
 // Merge code-defined targets with locally stored ones.
 // WAŻNE: cele z kodu (statyczne) mają pierwszeństwo — to one są
@@ -171,8 +163,6 @@ const KOS = () => {
     const [manageTab, setManageTab] = useState('personal'); // personal, faction
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
-    // null = jeszcze nie sprawdzone, true = chmura aktywna, false = tryb lokalny
-    const [cloudReady, setCloudReady] = useState(null);
     const [form, setForm] = useState({
         name: '',
         reasonMode: 'preset', // 'preset' | 'custom'
@@ -185,19 +175,18 @@ const KOS = () => {
         evidenceText: ''
     });
 
-    const session = readSession();
+    const { session } = useSession();
 
     // Weryfikacja admina NA ŻYWO — KOS sprawdza rolę przez /api/verify-admin
     // przy każdym wejściu na stronę, zamiast ufać tylko flagi zapisanej przy
     // logowaniu. Dzięki temu nadanie roli na Discordzie działa od razu, bez
     // wylogowywania. Fallback: flaga is_admin z sesji (gdy funkcja nie działa).
-    const [isAdmin, setIsAdmin] = useState(session.is_admin === true);
+    const [isAdmin, setIsAdmin] = useState(session?.is_admin === true);
     const [adminChecking, setAdminChecking] = useState(false);
     useEffect(() => {
         let cancelled = false;
         (async () => {
-            const s = readSession();
-            if (!s || !s.access_token) {
+            if (!session || !session.access_token) {
                 setIsAdmin(false);
                 return;
             }
@@ -206,18 +195,12 @@ const KOS = () => {
                 const res = await fetch('/api/verify-admin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ access_token: s.access_token })
+                    body: JSON.stringify({ access_token: session.access_token })
                 });
                 const data = await res.json();
                 if (cancelled) return;
                 if (data && data.ok) {
                     setIsAdmin(data.is_admin === true);
-                    // Zaktualizuj flagę w sesji, żeby była spójna
-                    const fresh = readSession();
-                    if (fresh && fresh.user_id === s.user_id) {
-                        fresh.is_admin = data.is_admin === true;
-                        localStorage.setItem('ZPK_auth_session', JSON.stringify(fresh));
-                    }
                 }
             } catch (err) {
                 // Fallback: zostaje flaga z sesji
@@ -226,7 +209,7 @@ const KOS = () => {
             }
         })();
         return () => { cancelled = true; };
-    }, []);
+    }, [session]);
 
     // ==================================================================
     // 📌 CELE PODSTAWOWE (FALLBACK) — EDYTUJ JE W src/data/kosTargets.json
@@ -265,13 +248,22 @@ const KOS = () => {
     const staticPersonalTargets = Array.isArray(kosTargets.personal) ? kosTargets.personal : [];
     const staticFactionTargets = Array.isArray(kosTargets.factions) ? kosTargets.factions : [];
 
-    // Cele lokalne (z localStorage) — łączone z celami statycznymi
-    // (lokalne nadpisują statyczne o tej samej nazwie)
     const initialHidden = loadStored(STORAGE_HIDDEN);
     const [hiddenNames, setHiddenNames] = useState(() => initialHidden);
-    // Startujemy TYLKO z celów z kodu — dane z localStorage łączymy dopiero
-    // gdy wiadomo, że chmura nie działa. Dzięki temu po odświeżeniu nie ma
-    // flasha lokalnych celów, które zaraz znikną po wczytaniu danych z chmury.
+
+    // ☁️ useCloudStore — fetch z chmury, fallback na seed, realtime (Ably)
+    // Zamiast zduplikowanej logiki fetch + subscribe w KOS i WarLogs.
+    const { data: cloudData, cloudReady, refresh: refreshCloud } = useCloudStore({
+        endpoint: '/api/kos-store',
+        channel: 'zpk-kos-updates',
+        seedData: { personal: staticPersonalTargets, factions: staticFactionTargets },
+        normalizeFn: (res) => ({
+            personal: Array.isArray(res.personal) ? res.personal : [],
+            factions: Array.isArray(res.factions) ? res.factions : [],
+        }),
+    });
+
+    // Scal dane z chmury/seed z hiddenNames — cele usunięte przez admina nie wracają
     const [personalTargets, setPersonalTargets] = useState(() =>
         mergeTargets(staticPersonalTargets, [])
     );
@@ -279,122 +271,37 @@ const KOS = () => {
         mergeTargets(staticFactionTargets, [])
     );
 
-    // Automatyczny zapis do localStorage po każdej zmianie.
-    // GATE: dopiero gdy wiadomo, czy chmura działa (cloudReady !== null) —
-    // inaczej nadpisalibyśmy lokalne dane zanim zdążymy je odczytać.
+    // Aktualizuj cele gdy cloudData się zmieni (fetch/refresh/realtime)
+    useEffect(() => {
+        if (!cloudData) return;
+        setPersonalTargets(
+            mergeTargets(cloudData.personal || [], [], hiddenNames)
+        );
+        setFactionTargets(
+            mergeTargets(cloudData.factions || [], [], hiddenNames)
+        );
+    }, [cloudData, hiddenNames]);
+
+    // Zapis do localStorage (fallback offline)
     useEffect(() => {
         if (cloudReady === null) return;
         try {
             localStorage.setItem(STORAGE_PERSONAL, JSON.stringify(personalTargets));
-        } catch (e) {
-            /* ignore */
-        }
+        } catch (e) { /* ignore */ }
     }, [personalTargets, cloudReady]);
 
     useEffect(() => {
         if (cloudReady === null) return;
         try {
             localStorage.setItem(STORAGE_FACTION, JSON.stringify(factionTargets));
-        } catch (e) {
-            /* ignore */
-        }
+        } catch (e) { /* ignore */ }
     }, [factionTargets, cloudReady]);
 
     useEffect(() => {
         try {
             localStorage.setItem(STORAGE_HIDDEN, JSON.stringify(hiddenNames));
-        } catch (e) {
-            /* ignore */
-        }
+        } catch (e) { /* ignore */ }
     }, [hiddenNames]);
-
-    // ============================================================
-    // ☁️ WSPÓLNA BAZA (Netlify Blobs) — ładowanie na starcie
-    // Jeśli funkcja /api/kos-store odpowie, lista celów jest
-    // wspólna dla WSZYSTKICH graczy (koniec z per-przeglądarka).
-    // W razie błędu (offline / lokalny dev / nie wdrożona funkcja)
-    // strona wraca do kosTargets.json + localStorage — nie pokazuje
-    // nigdy pustki i nigdy nie wysypie się.
-    // ============================================================
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            let ok = false;
-            try {
-                const res = await fetch('/api/kos-store');
-                const data = await res.json();
-                if (cancelled) return;
-                if (res.ok && data && data.ok === true) {
-                    const personal = Array.isArray(data.personal) ? data.personal : [];
-                    const factions = Array.isArray(data.factions) ? data.factions : [];
-                    // Chmura jest źródłem prawdy — localStorage pomijane
-                    setPersonalTargets(mergeTargets(personal, []));
-                    setFactionTargets(mergeTargets(factions, []));
-                    setCloudReady(true);
-                    ok = true;
-                }
-            } catch (err) {
-                /* ignore */
-            }
-            if (!cancelled && !ok) {
-                // Chmura niedostępna — dopiero TERAZ łączymy dane z localStorage
-                // (lokalne cele nie były wcześniej pokazywane, więc nie ma flasha).
-                // Hidden czytamy świeżo — nie trzymamy go w deps (nowa tablica co render).
-                setCloudReady(false);
-                setPersonalTargets(
-                    mergeTargets(staticPersonalTargets, loadStored(STORAGE_PERSONAL), loadStored(STORAGE_HIDDEN))
-                );
-                setFactionTargets(
-                    mergeTargets(staticFactionTargets, loadStored(STORAGE_FACTION), loadStored(STORAGE_HIDDEN))
-                );
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
-        // static*Targets i loadStored to stabilne wartości (import JSON / czysty odczyt) —
-        // efekt ma się wykonać tylko raz, przy wejściu na stronę.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    // ============================================================
-    // 🔴 LIVE KOS (Ably) — subskrypcja kanału zpk-kos-updates
-    // Gdy admin doda/usunie cel przez /api/kos-store, funkcja serwera
-    // publikuje event — tutaj natychmiast odświeżamy listę z chmury.
-    // Fallback: jeśli realtime nie działa, lista i tak się odświeży
-    // przy następnym wejściu / odświeżeniu strony.
-    // ============================================================
-    const realtime = useRealtime();
-    useEffect(() => {
-        if (!realtime || !realtime.subscribe) return;
-        let cancelled = false;
-        const refreshFromCloud = async () => {
-            try {
-                const res = await fetch('/api/kos-store');
-                const data = await res.json();
-                if (cancelled || !res.ok || !data || data.ok !== true) return;
-                // Scal dane z chmury z obecnymi (nie trać celów z kodu/seed)
-                setPersonalTargets(prev => mergeTargets(
-                    Array.isArray(data.personal) ? data.personal : [],
-                    prev.filter(p => !data.personal?.some(c => c.name === p.name))
-                ));
-                setFactionTargets(prev => mergeTargets(
-                    Array.isArray(data.factions) ? data.factions : [],
-                    prev.filter(p => !data.factions?.some(c => c.name === p.name))
-                ));
-                setCloudReady(true);
-            } catch (err) {
-                // ignoruj — fallback na lokalne dane
-            }
-        };
-        const unsubscribe = realtime.subscribe('zpk-kos-updates', () => {
-            refreshFromCloud();
-        });
-        return () => {
-            cancelled = true;
-            unsubscribe();
-        };
-    }, [realtime]);
 
     const upsertTarget = (list, target) => [
         ...list.filter((x) => x.name !== target.name),
@@ -437,40 +344,25 @@ const KOS = () => {
         // ☁️ Zapis do wspólnej chmury (Netlify Blobs) — jeśli dostępna
         if (cloudReady) {
             try {
-                const sessionData = readSession();
                 const res = await fetch('/api/kos-store', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        access_token: sessionData.access_token,
+                        access_token: session?.access_token,
                         type: section,
                         target: newTarget
                     })
                 });
                 const data = await res.json();
                 if (res.ok && data && data.ok) {
-                    // Chmura zwróciła zaktualizowaną listę — scal z obecnymi,
-                    // żeby nie stracić celów z kodu (seed), których chmura jeszcze nie zna.
-                    setPersonalTargets(prev => mergeTargets(
-                        Array.isArray(data.personal) ? data.personal : [],
-                        prev.filter(p => !data.personal?.some(c => c.name === p.name))
-                    ));
-                    setFactionTargets(prev => mergeTargets(
-                        Array.isArray(data.factions) ? data.factions : [],
-                        prev.filter(p => !data.factions?.some(c => c.name === p.name))
-                    ));
+                    refreshCloud();
                 } else {
-                    // Chmura odrzuciła zapis (np. brak roli admina) — lokalny upsert
-                    setCloudReady(false);
                     applyLocal();
                 }
             } catch (err) {
-                // Błąd sieci — lokalny upsert (strona nie wywala się)
-                setCloudReady(false);
                 applyLocal();
             }
         } else {
-            // Tryb lokalny (bez chmury) — jak dotychczas
             applyLocal();
         }
 
@@ -502,33 +394,22 @@ const KOS = () => {
         // ☁️ Usunięcie z wspólnej chmury — jeśli dostępna
         if (cloudReady) {
             try {
-                const sessionData = readSession();
                 const res = await fetch('/api/kos-store', {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        access_token: sessionData.access_token,
+                        access_token: session?.access_token,
                         type: section,
                         name
                     })
                 });
                 const data = await res.json();
                 if (res.ok && data && data.ok) {
-                    // Scal dane z chmury z obecnymi (nie trać celów z kodu/seed)
-                    setPersonalTargets(prev => mergeTargets(
-                        Array.isArray(data.personal) ? data.personal : [],
-                        prev.filter(p => !data.personal?.some(c => c.name === p.name))
-                    ));
-                    setFactionTargets(prev => mergeTargets(
-                        Array.isArray(data.factions) ? data.factions : [],
-                        prev.filter(p => !data.factions?.some(c => c.name === p.name))
-                    ));
+                    refreshCloud();
                     return;
                 }
-                setCloudReady(false);
             } catch (err) {
                 /* fallthrough do trybu lokalnego */
-                setCloudReady(false);
             }
         }
         applyLocal();
@@ -540,12 +421,9 @@ const KOS = () => {
                 localStorage.removeItem(STORAGE_PERSONAL);
                 localStorage.removeItem(STORAGE_FACTION);
                 localStorage.removeItem(STORAGE_HIDDEN);
-            } catch (e) {
-                /* ignore */
-            }
+            } catch (e) { /* ignore */ }
             setHiddenNames([]);
-            setPersonalTargets(mergeTargets(staticPersonalTargets, []));
-            setFactionTargets(mergeTargets(staticFactionTargets, []));
+            refreshCloud();
         }
     };
 
@@ -625,12 +503,11 @@ const KOS = () => {
                 reader.onerror = reject;
                 reader.readAsDataURL(file);
             });
-            const sessionData = readSession();
             const res = await fetch('/api/upload-evidence', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    access_token: sessionData.access_token,
+                    access_token: session?.access_token,
                     filename: file.name,
                     file_base64: base64
                 })
@@ -1108,228 +985,24 @@ const KOS = () => {
                         exit={{ opacity: 0 }}
                         onClick={() => setManageOpen(false)}
                     >
-                        <motion.div
-                            className="manage-modal"
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <div className="intel-header">
-                                <Database className="intel-icon" size={32} />
-                                <div>
-                                    <h2 className="intel-title">{cloudReady === true ? t('kos.manage.titleCloud') : t('kos.manage.title')}</h2>
-                                    <p className="intel-subtitle">{cloudReady === true ? t('kos.manage.subtitleCloud') : t('kos.manage.subtitle')}</p>
-                                </div>
-                            </div>
-
-                            {/* Wskaźnik trybu zapisu: wspólna chmura vs tryb lokalny */}
-                            {cloudReady !== null && (
-                                <div className={`cloud-status ${cloudReady ? 'cloud-online' : 'cloud-offline'}`}>
-                                    <Wifi size={14} />
-                                    <span>
-                                        {cloudReady
-                                            ? t('kos.manage.cloudOnline')
-                                            : t('kos.manage.cloudOffline')}
-                                    </span>
-                                </div>
-                            )}
-
-                            {!isAdmin && (
-                                <div className="manage-admin-warning">
-                                    <ShieldAlert size={16} />
-                                    <span>{t('kos.manage.adminOnlyWarning')}</span>
-                                </div>
-                            )}
-
-                            <div className="manage-tabs">
-                                {['personal', 'faction'].map((tab) => (
-                                    <button
-                                        key={tab}
-                                        className={`manage-tab ${manageTab === tab ? 'active' : ''}`}
-                                        onClick={() => setManageTab(tab)}
-                                    >
-                                        {t(`kos.filters.${tab}`)}
-                                    </button>
-                                ))}
-                            </div>
-
-                            <form className="manage-form" onSubmit={handleAddTarget}>
-                                <div className="manage-field">
-                                    <label>{t('kos.manage.nameLabel')}</label>
-                                    <input
-                                        type="text"
-                                        value={form.name}
-                                        onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                                        placeholder={t('kos.manage.namePlaceholder')}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="manage-field">
-                                    <label>{t('kos.manage.reasonLabel')}</label>
-                                    <div className="reason-mode-tabs">
-                                        <button
-                                            type="button"
-                                            className={`reason-mode-tab ${form.reasonMode === 'preset' ? 'active' : ''}`}
-                                            onClick={() => setForm((f) => ({ ...f, reasonMode: 'preset' }))}
-                                        >
-                                            {t('kos.manage.reasonPreset')}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`reason-mode-tab ${form.reasonMode === 'custom' ? 'active' : ''}`}
-                                            onClick={() => setForm((f) => ({ ...f, reasonMode: 'custom' }))}
-                                        >
-                                            {t('kos.manage.reasonCustom')}
-                                        </button>
-                                    </div>
-                                    {form.reasonMode === 'preset' ? (
-                                        <select
-                                            value={form.reasonKey}
-                                            onChange={(e) => setForm((f) => ({ ...f, reasonKey: e.target.value }))}
-                                        >
-                                            {REASON_KEYS.map((key) => (
-                                                <option key={key} value={key}>
-                                                    {t(`kos.reasons.${key}`)}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    ) : (
-                                        <input
-                                            type="text"
-                                            value={form.customReason}
-                                            onChange={(e) => setForm((f) => ({ ...f, customReason: e.target.value }))}
-                                            placeholder={t('kos.manage.customReasonPlaceholder')}
-                                        />
-                                    )}
-                                </div>
-
-                                {manageTab === 'personal' ? (
-                                    <div className="manage-field">
-                                        <label>{t('kos.manage.robloxLinkLabel')}</label>
-                                        <input
-                                            type="url"
-                                            value={form.robloxLink}
-                                            onChange={(e) => setForm((f) => ({ ...f, robloxLink: e.target.value }))}
-                                            placeholder="https://www.roblox.com/users/123456/profile"
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="manage-field-row">
-                                        <div className="manage-field">
-                                            <label>{t('kos.intel.factionLeaders')}</label>
-                                            <input
-                                                type="text"
-                                                value={form.leaders}
-                                                onChange={(e) => setForm((f) => ({ ...f, leaders: e.target.value }))}
-                                                placeholder="Lider1, Lider2"
-                                            />
-                                        </div>
-                                        <div className="manage-field">
-                                            <label>{t('kos.intel.allies')}</label>
-                                            <input
-                                                type="text"
-                                                value={form.allies}
-                                                onChange={(e) => setForm((f) => ({ ...f, allies: e.target.value }))}
-                                                placeholder="Klan Sojuszniczy"
-                                            />
-                                        </div>
-                                        <div className="manage-field">
-                                            <label>{t('kos.intel.firepower')}</label>
-                                            <input
-                                                type="text"
-                                                value={form.firepower}
-                                                onChange={(e) => setForm((f) => ({ ...f, firepower: e.target.value }))}
-                                                placeholder="HEAVY_ARMORED"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="manage-field">
-                                    <label>{t('kos.manage.evidenceLabel')}</label>
-                                    <textarea
-                                        rows={4}
-                                        value={form.evidenceText}
-                                        onChange={(e) => setForm((f) => ({ ...f, evidenceText: e.target.value }))}
-                                        placeholder={t('kos.manage.evidenceHint')}
-                                    />
-                                </div>
-
-                                {isAdmin && (
-                                    <div className="upload-box">
-                                        <label className="upload-btn">
-                                            {uploading ? (
-                                                <Loader2 size={14} className="spin" />
-                                            ) : (
-                                                <Upload size={14} />
-                                            )}
-                                            <span>
-                                                {uploading
-                                                    ? t('kos.manage.uploading')
-                                                    : t('kos.manage.uploadBtn')}
-                                            </span>
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handleUpload}
-                                                disabled={uploading}
-                                            />
-                                        </label>
-                                        {uploadError && (
-                                            <span className="upload-error">{t('kos.manage.uploadError')}</span>
-                                        )}
-                                    </div>
-                                )}
-
-                                <button
-                                    type="submit"
-                                    className="manage-add-btn"
-                                    disabled={form.reasonMode === 'custom' && !form.customReason.trim()}
-                                >
-                                    <Plus size={14} />
-                                    <span>{t('kos.manage.addBtn')}</span>
-                                </button>
-                            </form>
-
-                            <div className="manage-list">
-                                <h4 className="manage-list-title">{t('kos.manage.listTitle')}</h4>
-                                {(manageTab === 'personal' ? personalTargets : factionTargets).length === 0 ? (
-                                    <p className="manage-empty">{t('kos.manage.empty')}</p>
-                                ) : (
-                                    (manageTab === 'personal' ? personalTargets : factionTargets).map((target) => (
-                                        <div key={target.name} className="manage-item">
-                                            <span className="manage-item-name">{target.name}</span>
-                                            <span className="manage-item-reason">{getReasonText(target)}</span>
-                                            <button
-                                                type="button"
-                                                className="manage-remove-btn"
-                                                onClick={() => handleRemoveTarget(target.name)}
-                                                title={t('kos.manage.remove')}
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-
-                            {cloudReady !== true && (
-                                <button type="button" className="manage-reset-btn" onClick={handleResetLocal}>
-                                    {t('kos.manage.resetBtn')}
-                                </button>
-                            )}
-
-                            <button className="close-intel-btn" onClick={() => setManageOpen(false)}>
-                                {t('kos.intel.close')}
-                            </button>
-
-                            <div className="intel-hud-corners">
-                                <div className="h-tl"></div><div className="h-tr"></div>
-                                <div className="h-bl"></div><div className="h-br"></div>
-                            </div>
-                        </motion.div>
+                        <KOSManagePanel
+                            cloudReady={cloudReady}
+                            isAdmin={isAdmin}
+                            manageTab={manageTab}
+                            setManageTab={setManageTab}
+                            form={form}
+                            setForm={setForm}
+                            personalTargets={personalTargets}
+                            factionTargets={factionTargets}
+                            handleAddTarget={handleAddTarget}
+                            handleRemoveTarget={handleRemoveTarget}
+                            handleResetLocal={handleResetLocal}
+                            handleUpload={handleUpload}
+                            uploading={uploading}
+                            uploadError={uploadError}
+                            getReasonText={getReasonText}
+                            onClose={() => setManageOpen(false)}
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>

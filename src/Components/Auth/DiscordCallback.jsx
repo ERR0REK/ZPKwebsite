@@ -17,18 +17,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, CheckCircle2, Terminal, Cpu } from 'lucide-react';
 import LoadingScreen from '../LoadingScreen/LoadingScreen';
 import { isDevSite } from '../../utils/siteEnv';
+import { readSession } from '../../utils/session';
+import './DiscordCallback.css';
 
-const REQUIRED_GUILD_ID = "1445399610414858340"; // Main Faction Server
-const REQUIRED_DEV_GUILD_ID = "1368589684858683453"; // Dev Server ID
-
-const readSession = () => {
-  try {
-    const raw = localStorage.getItem('ZPK_auth_session');
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    return null;
-  }
-};
+const REQUIRED_GUILD_ID = process.env.REACT_APP_GUILD_ID || "1445399610414858340";
+const REQUIRED_DEV_GUILD_ID = process.env.REACT_APP_DEV_GUILD_ID || "1368589684858683453";
 
 // Czyści access_token z hash i robi pełny redirect na czysty URL.
 const cleanAndRedirect = (target) => {
@@ -152,25 +145,8 @@ const DiscordCallback = () => {
     }, [t]);
 
     return (
-        <div className="auth-callback-page" style={{
-            background: '#0a0a0a',
-            height: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            overflow: 'hidden'
-        }}>
-            {/* Tactical Decorations */}
-            <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                background: 'radial-gradient(circle at center, transparent 0%, rgba(0,255,102,0.05) 100%)',
-                pointerEvents: 'none'
-            }}></div>
+        <div className="auth-callback-page">
+            <div className="auth-callback-glow"></div>
 
             <AnimatePresence mode="wait">
                 {status === 'verifying' && (
@@ -187,26 +163,14 @@ const DiscordCallback = () => {
                 {status === 'success' && (
                     <motion.div
                         key="success"
-                        className="auth-status-card"
+                        className="auth-status-card success"
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        style={{
-                            background: 'rgba(15, 20, 15, 0.95)',
-                            border: '1px solid #00ff66',
-                            padding: '40px',
-                            textAlign: 'center',
-                            position: 'relative',
-                            maxWidth: '450px',
-                            width: '90%',
-                            boxShadow: '0 0 30px rgba(0, 255, 102, 0.2)',
-                            zIndex: 10
-                        }}
                     >
-                        <CheckCircle2 color="#00ff66" size={60} style={{ marginBottom: '20px' }} />
-                        <h2 style={{ color: '#00ff66', fontFamily: 'Orbitron, sans-serif', marginBottom: '15px', textTransform: 'uppercase' }}>{t('login.success_title')}</h2>
-                        <p style={{ color: '#fff', opacity: 0.8, marginBottom: '25px', fontFamily: 'Chakra Petch' }}>{t('login.success_body')}</p>
-
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: '#00ff66', fontSize: '0.8rem', fontFamily: 'Chakra Petch' }}>
+                        <CheckCircle2 className="auth-icon" size={60} />
+                        <h2 className="auth-title">{t('login.success_title')}</h2>
+                        <p className="auth-body">{t('login.success_body')}</p>
+                        <div className="auth-status">
                             <Cpu size={14} className="spinning-icon" />
                             <span>{t('login.redirecting')}</span>
                         </div>
@@ -216,41 +180,19 @@ const DiscordCallback = () => {
                 {status === 'error' && (
                     <motion.div
                         key="error"
-                        className="auth-status-card"
+                        className="auth-status-card error"
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        style={{
-                            background: 'rgba(20, 10, 10, 0.95)',
-                            border: '1px solid #ff3333',
-                            padding: '40px',
-                            textAlign: 'center',
-                            position: 'relative',
-                            maxWidth: '450px',
-                            width: '90%',
-                            boxShadow: '0 0 30px rgba(255, 51, 51, 0.2)',
-                            zIndex: 10
-                        }}
                     >
-                        <ShieldAlert color="#ff3333" size={60} style={{ marginBottom: '20px' }} />
-                        <h2 style={{ color: '#ff3333', fontFamily: 'Orbitron, sans-serif', marginBottom: '15px', textTransform: 'uppercase' }}>{error}</h2>
-
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: '#ff3333', fontSize: '0.7rem', marginBottom: '30px', opacity: 0.6, fontFamily: 'Chakra Petch' }}>
+                        <ShieldAlert className="auth-icon" size={60} />
+                        <h2 className="auth-title">{error}</h2>
+                        <div className="auth-status">
                             <Terminal size={12} />
                             <span>AUTH_PROTOCOL_TERMINATED_BY_SECURITY</span>
                         </div>
-
                         <button
+                            className="auth-return-btn"
                             onClick={() => window.location.href = window.location.origin + "/#/"}
-                            style={{
-                                background: 'transparent',
-                                border: '1px solid #ff3333',
-                                color: '#ff3333',
-                                padding: '12px 30px',
-                                cursor: 'pointer',
-                                textTransform: 'uppercase',
-                                fontFamily: 'Orbitron, sans-serif',
-                                transition: 'all 0.3s'
-                            }}
                         >
                             Return to Login
                         </button>

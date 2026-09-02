@@ -8,9 +8,9 @@
 //   ABLY_API_KEY — klucz ROOT z panelu Ably (publikacja po stronie serwera).
 
 const Ably = require("ably");
-const { getStore } = require("@netlify/blobs");
 const { verifyAdmin, json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, bodyTooLarge, audit, handleError } = require("./_lib/security");
+const { resolveStore } = require("./_lib/blobStore");
 
 const CHANNEL = "zpk-announcements";
 const STORE_NAME = "zpk-announce";
@@ -79,7 +79,7 @@ exports.handler = async (event) => {
 
     // 4. Historia w Netlify Blobs (ostatnie 50 ogłoszeń)
     try {
-      const store = getStore({ name: STORE_NAME });
+      const store = await resolveStore(event, STORE_NAME, BLOB_KEY, []);
       const existing = await store.get(BLOB_KEY, { type: "json" });
       const history = Array.isArray(existing) ? existing : [];
       const next = [announcement, ...history].slice(0, HISTORY_LIMIT);

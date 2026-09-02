@@ -14,16 +14,6 @@ import { useSession } from '../../Context/SessionContext';
 
 const SEVERITIES = ['info', 'warning', 'critical'];
 
-// Czyta ŚWIEŻĄ sesję (potrzebna przy wysyłce — token z localStorage).
-const readSession = () => {
-  try {
-    const raw = localStorage.getItem('ZPK_auth_session');
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    return null;
-  }
-};
-
 const AnnounceBell = () => {
   const { t } = useTranslation();
   const realtime = useRealtime();
@@ -82,12 +72,11 @@ const AnnounceBell = () => {
     setSending(true);
     setError('');
     try {
-      const s = readSession();
       const res = await fetch('/api/announce', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          access_token: s && s.access_token,
+          access_token: session?.access_token,
           title: form.title.trim(),
           message: form.message.trim(),
           severity: form.severity

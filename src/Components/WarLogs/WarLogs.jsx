@@ -4,7 +4,7 @@ import Navbar from "../Navbar/Navbar";
 import WarLogCard from "./WarLogCard";
 import WarLogModal from "./WarLogModal";
 import DecodedText from "../Shared/DecodedText";
-import { useRealtime } from "../../Realtime/RealtimeProvider";
+import useCloudStore from "../../hooks/useCloudStore";
 import { useSession } from "../../Context/SessionContext";
 import "./WarLogs.css";
 import { AnimatePresence, motion } from "framer-motion";
@@ -22,23 +22,14 @@ import warLogsData from "../../data/warLogs.json";
 
 const RESULT_FILTERS = ["ALL", "WIN", "LOSS", "EASY_WIN", "DRAW"];
 
-const readSession = () => {
-  try {
-    return JSON.parse(localStorage.getItem("ZPK_auth_session") || "{}");
-  } catch {
-    return {};
-  }
-};
+
 
 const WarLogs = () => {
   const { t } = useTranslation();
-  const realtime = useRealtime();
-  const session = useSession();
+  const { session } = useSession();
   const [selectedLog, setSelectedLog] = useState(null);
-  const [logs, setLogs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [resultFilter, setResultFilter] = useState("ALL");
-  const [cloudReady, setCloudReady] = useState(null); // null = sprawdzam, true/false = wynik
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [adminTab, setAdminTab] = useState("add"); // add | list
   const [form, setForm] = useState({
@@ -54,92 +45,27 @@ const WarLogs = () => {
   });
   const [adminMessage, setAdminMessage] = useState("");
 
-  const isAdmin = session.is_admin === true;
+  const isAdmin = session?.is_admin === true;
 
-  // ═══════════════════════════════════════════════════════════
-  // 1. Ładowanie danych — chmura lub fallback lokalny
-  // ═══════════════════════════════════════════════════════════
-  useEffect(() => {
-    let cancelled = false;
-    const loadFromCloud = async () => {
-      try {
-        const res = await fetch("/api/war-store");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (cancelled) return;
-        if (data && data.ok) {
-          setLogs(
-            Array.isArray(data.logs)
-              ? [...data.logs].sort(
-                  (a, b) => String(b.date || "").localeCompare(String(a.date || ""))
-                )
-              : []
-          );
-          setCloudReady(true);
-        } else {
-          throw new Error("bad response");
-        }
-      } catch (err) {
-        if (cancelled) return;
-        // Fallback — dane z pliku
-        const initial = Array.isArray(warLogsData.logs)
-          ? warLogsData.logs
-          : [];
-        setLogs(
-          [...initial].sort(
-            (a, b) => String(b.date || "").localeCompare(String(a.date || ""))
-          )
-        );
-        setCloudReady(false);
-      }
-    };
-    loadFromCloud();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // ☁️ useCloudStore — fetch z chmury, fallback na seed, realtime (Ably)
+  const { data: cloudLogs, cloudReady, refresh: refreshCloud } = useCloudStore({
+    endpoint: "/api/war-store",
+    channel: "zpk-war-status",
+    seedData: Array.isArray(warLogsData.logs) ? warLogsData.logs : [],
+    normalizeFn: (res) => Array.isArray(res.logs) ? res.logs : [],
+  });
 
-  // ═══════════════════════════════════════════════════════════
-  // 2. Live — subskrypcja zpk-war-status
-  // ═══════════════════════════════════════════════════════════
+  // Sync cloudLogs → local logs state (posortowane)
+  const [logs, setLogs] = useState([]);
   useEffect(() => {
-    if (!realtime || !realtime.subscribe) return;
-    const unsubscribe = realtime.subscribe("zpk-war-status", (msg) => {
-      const d = msg.data || {};
-      if (d.action === "added" || d.action === "removed") {
-        // Odśwież dane z chmury
-        fetch("/api/war-store")
-          .then((r) => r.json())
-          .then((data) => {
-            if (data && data.ok && Array.isArray(data.logs)) {
-              setLogs(
-                [...data.logs].sort(
-                  (a, b) =>
-                    String(b.date || "").localeCompare(String(a.date || ""))
-                )
-              );
-            }
-          })
-          .catch(() => {});
-        // Toast
-        if (typeof realtime.pushToast === "function") {
-          realtime.pushToast({
-            type: "war",
-            title: d.title || t("warLogs.realtime.newWar", "NOWY RAPORT WOJENNY"),
-            message:
-              d.message ||
-              (d.name
-                ? t("warLogs.realtime.warWithName", "Wojna z {{name}}", {
-                    name: d.name,
-                  })
-                : ""),
-            severity: d.severity || "info",
-          });
-        }
-      }
-    });
-    return unsubscribe;
-  }, [realtime, t]);
+    if (cloudLogs) {
+      setLogs(
+        [...cloudLogs].sort(
+          (a, b) => String(b.date || "").localeCompare(String(a.date || ""))
+        )
+      );
+    }
+  }, [cloudLogs]);
 
   // ═══════════════════════════════════════════════════════════
   // 3. Filtrowanie i sortowanie
@@ -194,25 +120,17 @@ const WarLogs = () => {
 
     if (cloudReady) {
       try {
-        const sessionData = readSession();
         const res = await fetch("/api/war-store", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            access_token: sessionData.access_token,
+            access_token: session?.access_token,
             log: newLog,
           }),
         });
         const data = await res.json();
         if (res.ok && data && data.ok) {
-          setLogs(
-            Array.isArray(data.logs)
-              ? [...data.logs].sort(
-                  (a, b) =>
-                    String(b.date || "").localeCompare(String(a.date || ""))
-                )
-              : []
-          );
+          refreshCloud();
           setAdminMessage("✅ Raport dodany do chmury");
           setForm({
             opponent: "",
@@ -258,25 +176,17 @@ const WarLogs = () => {
 
     if (cloudReady) {
       try {
-        const sessionData = readSession();
         const res = await fetch("/api/war-store", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            access_token: sessionData.access_token,
+            access_token: session?.access_token,
             id: logId,
           }),
         });
         const data = await res.json();
         if (res.ok && data && data.ok) {
-          setLogs(
-            Array.isArray(data.logs)
-              ? [...data.logs].sort(
-                  (a, b) =>
-                    String(b.date || "").localeCompare(String(a.date || ""))
-                )
-              : []
-          );
+          refreshCloud();
         }
       } catch (err) {
         // ignoruj
