@@ -1461,6 +1461,37 @@
     ],
     "release": [
       {
+        "version": "1.1.0",
+        "date": "3 wrz 2026",
+        "changes": [
+          {
+            "type": "security",
+            "title": "Logowanie przez Discord z ochroną anty-CSRF",
+            "description": "Parametr state (nonce) w OAuth — wklejony URL z cudzym tokenem nie loguje. Sesja w jednym module z walidacją TTL 12h na wszystkich ścieżkach."
+          },
+          {
+            "type": "feature",
+            "title": "ErrorBoundary — koniec białych ekranów",
+            "description": "Błędy pokazują czytelny ekran z przeładowaniem, a stara karta po deployu odświeża się automatycznie."
+          },
+          {
+            "type": "feature",
+            "title": "/api/health — monitoring magazynu",
+            "description": "Endpoint do monitoringu: ping Netlify Blobs, status 200/503, kontekst deploya i stan klucza Ably."
+          },
+          {
+            "type": "improvement",
+            "title": "Architektura backendu",
+            "description": "Adapter Ably zamiast trzech kopii publikacji oraz rejestr definicji store'ów Netlify Blobs — jedna, przetestowana polityka seedu/merge."
+          },
+          {
+            "type": "improvement",
+            "title": "Panel zarządzania War Logs jako moduł",
+            "description": "Wydzielony WarLogsManagePanel (wzorzec KOSManagePanel) — czystszy kod strony i szybszy rozwój paneli admina."
+          }
+        ]
+      },
+      {
         "version": "1.0.0",
         "date": "23 sie 2026",
         "changes": [
