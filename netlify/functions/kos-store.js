@@ -25,7 +25,8 @@
 
 const { verifyAdmin, json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, bodyTooLarge, audit, handleError } = require("./_lib/security");
-const { resolveStore, getStoreAndData } = require("./_lib/blobStore");
+const { getStoreAndData, defineStore, readStore } = require("./_lib/blobStore");
+const { publish } = require("./_lib/ably");
 
 const STORE_NAME = "zpk-kos";
 const KEY = "targets";
@@ -34,28 +35,18 @@ const MAX_TARGET_SIZE = 50 * 1024; // 50 KB na pojedynczy cel
 // Kanał realtime (Ably) — powiadomienia o zmianach w liście KOS.
 // Wymaga zmiennej ABLY_API_KEY (klucz ROOT) w panelu Netlify.
 const ABLY_CHANNEL = "zpk-kos-updates";
-const Ably = require("ably");
 
 // Publikuje informację o zmianie na kanał Ably, żeby wszystkie otwarte
 // karty /kos zaktualizowały się natychmiast (live KOS).
-// Jeśli Ably nie jest skonfigurowane — cichy fallback (lista i tak działa
+// Adapter nigdy nie rzuca — brak Ably to cichy fallback (lista i tak działa
 // przez odświeżenie / Blobs).
-async function publishUpdate(type, action, targetName) {
-  if (!process.env.ABLY_API_KEY) return;
-  try {
-    const client = new Ably.Realtime({ key: process.env.ABLY_API_KEY });
-    const channel = client.channels.get(ABLY_CHANNEL);
-    await channel.publish("update", {
-      type, // 'personal' | 'faction'
-      action, // 'added' | 'removed'
-      name: targetName,
-      timestamp: Date.now()
-    });
-    client.close();
-  } catch (err) {
-    console.warn("kos-store ably publish skipped:", err.message);
-  }
-}
+const publishUpdate = (type, action, targetName) =>
+  publish(ABLY_CHANNEL, "update", {
+    type, // 'personal' | 'faction'
+    action, // 'added' | 'removed'
+    name: targetName,
+    timestamp: Date.now()
+  });
 
 // Normalizuje obiekt celów do stabilnej struktury.
 const normalizeTargets = (data) => ({
@@ -66,6 +57,33 @@ const normalizeTargets = (data) => ({
 
 // Seed — dane startowe z kodu (fallback gdy Blobs puste)
 const kosSeed = normalizeTargets(require("./_lib/kosSeed.json"));
+
+// Definicja store'a (rejestr w blobStore) — polityka: ZAWSZE scalaj seed.
+// Merge scalą brakujące cele z seeda; zapis do chmury tylko gdy się zmieniło.
+const KOS_STORE = defineStore({
+  storeName: STORE_NAME,
+  key: KEY,
+  seed: kosSeed,
+  normalize: normalizeTargets,
+  seedPolicy: "merge-seed",
+  merge: (cloud, seed) => {
+    const mergedPersonal = [
+      ...seed.personal.filter((s) => !cloud.personal.some((c) => c.name === s.name)),
+      ...cloud.personal,
+    ];
+    const mergedFactions = [
+      ...seed.factions.filter((s) => !cloud.factions.some((c) => c.name === s.name)),
+      ...cloud.factions,
+    ];
+    const changed =
+      mergedPersonal.length > cloud.personal.length ||
+      mergedFactions.length > cloud.factions.length;
+    return {
+      data: { _seeded: true, personal: mergedPersonal, factions: mergedFactions },
+      changed,
+    };
+  },
+});
 
 // Otwiera store i zwraca aktualne cele (pusta lista, jeśli nic nie zapisano).
 async function getStoreAndTargets(event) {
@@ -96,31 +114,8 @@ exports.handler = async (event) => {
   try {
     // ==================== GET (odczyt dla wszystkich) ====================
     if (event.httpMethod === "GET") {
-      const store = await resolveStore(event, STORE_NAME, KEY, kosSeed);
-      const data = await store.get(KEY, { type: "json", consistency: "strong" });
-      const cloud = normalizeTargets(data);
-      const seed = kosSeed;
-
-      // ZAWSZE scal brakujące cele z seeda z danymi z chmury.
-      // Dzięki temu nowe osoby dodane do kosSeed.json (via kod) pojawiają się
-      // u wszystkich, nawet gdy _seeded=true (cloud istnieje).
-      // Admini mogą USUWAĆ cele (filtr w hiddenList) — scalanie ich nie przywraca.
-      const mergedPersonal = [
-        ...seed.personal.filter(s => !cloud.personal.some(c => c.name === s.name)),
-        ...cloud.personal,
-      ];
-      const mergedFactions = [
-        ...seed.factions.filter(s => !cloud.factions.some(c => c.name === s.name)),
-        ...cloud.factions,
-      ];
-
-      // Zapisz tylko jeśli doszły nowe cele z seeda
-      if (mergedPersonal.length > cloud.personal.length || mergedFactions.length > cloud.factions.length) {
-        const merged = { _seeded: true, personal: mergedPersonal, factions: mergedFactions };
-        await store.setJSON(KEY, merged);
-      }
-
-      return json(200, { ok: true, personal: mergedPersonal, factions: mergedFactions }, {}, event);
+      const { data } = await readStore(event, KOS_STORE);
+      return json(200, { ok: true, personal: data.personal, factions: data.factions }, {}, event);
     }
 
     // ============ Zabezpieczenia dla POST / DELETE ============
