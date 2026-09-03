@@ -252,6 +252,7 @@
       "trialCoLeader": "Próbny Wśpółwłaściciel",
       "elder": "Elder",
       "trialElder": "Próbny Elder",
+      "intelligence": "Wywiad",
       "headAdministrator": "Head Administrator",
       "seniorAdministrator": "Senior Administrator",
       "administrator": "Administrator",
@@ -562,6 +563,57 @@
       "login": "Zaloguj się przez Discord"
     },
     "dev": [
+      {
+        "version": "0.0.16 - DEV",
+        "date": "3 wrz 2026",
+        "changes": [
+          {
+            "type": "security",
+            "title": "OAuth: state nonce (anty-CSRF)",
+            "description": "Parametr state w logowaniu przez Discorda (LoginPage i Changelog). DiscordCallback weryfikuje jednorazowy nonce z sessionStorage — wklejony URL z cudzym tokenem kończy się AUTH_BLOCKED zamiast zalogowaniem."
+          },
+          {
+            "type": "security",
+            "title": "Sesja: jedna walidacja TTL wszędzie",
+            "description": "Sesja przeniesiona do jednego modułu (vault) — zapis, odczyt i ważność (TTL 12h) w jednym miejscu. SecurityLayer przestał omijać TTL przy blokadzie F12/inspect: wygasła sesja nie daje już bypassu."
+          },
+          {
+            "type": "bugfix",
+            "title": "War Logs: silna spójność odczytów",
+            "description": "Odczyt Netlify Blobs z consistency:strong — po usunięciu/dodaniu raportu zmiana jest widoczna od razu, zamiast wracać po odświeżeniu (eventual consistency potrafiła trzymać starą wersję do 60 s)."
+          },
+          {
+            "type": "bugfix",
+            "title": "War Logs: usunięty wpis ESF",
+            "description": "Usunięto przestarzały raport 'Wojna z ESF (Elite Strike Forces)' z seeda i chmury na obu stronach (dev i official)."
+          },
+          {
+            "type": "feature",
+            "title": "ErrorBoundary — koniec białych ekranów",
+            "description": "Globalna granica błędów: zwykły błąd pokazuje czytelny ekran z przyciskiem przeładowania, a ChunkLoadError (stara karta po deployu) odświeża się automatycznie tylko raz."
+          },
+          {
+            "type": "improvement",
+            "title": "Architektura backendu: adapter Ably + rejestr store'ów",
+            "description": "Trzy kopie publikacji Ably zastąpione wspólnym adapterem. Netlify Blobs dostał rejestr definicji store'ów (defineStore/readStore) — jedna, przetestowana polityka seedu/merge dla KOS, War Logs i ogłoszeń."
+          },
+          {
+            "type": "improvement",
+            "title": "War Logs: panel zarządzania jako moduł",
+            "description": "Panel admina wydzielony z WarLogs.jsx (543 → 353 linie) do WarLogsManagePanel — czysty interfejs propsów, wzorzec jak KOSManagePanel."
+          },
+          {
+            "type": "improvement",
+            "title": "/api/health — status magazynu",
+            "description": "Endpoint monitorujący pinguje store'y Netlify Blobs i raportuje 200/503, kontekst deploya oraz stan ABLY_API_KEY."
+          },
+          {
+            "type": "bugfix",
+            "title": "i18n: brakujący klucz roli Wywiadu",
+            "description": "Uzupełniono brakujący klucz staff.roles.intelligence w pl.json — rola nie wyświetla się już jako surowy klucz."
+          }
+        ]
+      },
       {
         "version": "0.0.15 Hotfix - DEV",
         "date": "23 sie 2026",

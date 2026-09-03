@@ -7,10 +7,10 @@
 // Wymagana zmienna środowiskowa (w panelu Netlify, NIE w repo):
 //   ABLY_API_KEY — klucz ROOT z panelu Ably (publikacja po stronie serwera).
 
-const Ably = require("ably");
 const { verifyAdmin, json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, bodyTooLarge, audit, handleError } = require("./_lib/security");
 const { resolveStore } = require("./_lib/blobStore");
+const { publish } = require("./_lib/ably");
 
 const CHANNEL = "zpk-announcements";
 const STORE_NAME = "zpk-announce";
@@ -90,12 +90,12 @@ exports.handler = async (event) => {
     }
 
     // 5. Publikacja do kanału announcements (klucz ROOT po stronie serwera)
-    // UWAGA: publish(name, data) — pojedynczy obiekt byłby zinterpretowany
-    // przez SDK jako obiekt wiadomości {name, data} i data by zginęła.
-    const client = new Ably.Realtime({ key: process.env.ABLY_API_KEY });
-    const channel = client.channels.get(CHANNEL);
-    await channel.publish("announce", announcement);
-    client.close();
+    // Ogłoszenie WYMAGA publikacji — jeśli adapter nie opublikował (brak klucza
+    // wyłapany wcześniej, błąd sieci/Ably), cała akcja kończy się 500.
+    const ablyRes = await publish(CHANNEL, "announce", announcement);
+    if (!ablyRes.published) {
+      throw new Error(ablyRes.reason || "ABLY_PUBLISH_FAILED");
+    }
 
     await audit("announce", `${safeSeverity}: ${announcement.title}`, admin.user);
 

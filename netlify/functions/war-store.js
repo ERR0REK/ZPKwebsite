@@ -16,7 +16,8 @@
 
 const { verifyAdmin, json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, bodyTooLarge, audit, handleError } = require("./_lib/security");
-const { resolveStore, getStoreAndData } = require("./_lib/blobStore");
+const { getStoreAndData, defineStore, readStore } = require("./_lib/blobStore");
+const { publish } = require("./_lib/ably");
 
 const STORE_NAME = "zpk-war-logs";
 const KEY = "logs";
@@ -24,26 +25,16 @@ const MAX_LOG_SIZE = 100 * 1024; // 100 KB na raport
 
 // Kanał Ably — powiadomienia o zmianach w War Logs.
 const ABLY_CHANNEL = "zpk-war-status";
-const Ably = require("ably");
 
-async function publishUpdate(action, logData) {
-  if (!process.env.ABLY_API_KEY) return;
-  try {
-    const client = new Ably.Realtime({ key: process.env.ABLY_API_KEY });
-    const channel = client.channels.get(ABLY_CHANNEL);
-    await channel.publish("update", {
-      action, // 'added' | 'removed'
-      name: logData?.opponent || logData?.name || "",
-      title: action === "added" ? "NOWY RAPORT WOJENNY" : "USUNIĘTO RAPORT",
-      message: logData?.opponent || "",
-      severity: "info",
-      timestamp: Date.now(),
-    });
-    client.close();
-  } catch (err) {
-    console.warn("war-store ably publish skipped:", err.message);
-  }
-}
+const publishUpdate = (action, logData) =>
+  publish(ABLY_CHANNEL, "update", {
+    action, // 'added' | 'removed'
+    name: logData?.opponent || logData?.name || "",
+    title: action === "added" ? "NOWY RAPORT WOJENNY" : "USUNIĘTO RAPORT",
+    message: logData?.opponent || "",
+    severity: "info",
+    timestamp: Date.now(),
+  });
 
 const normalizeLogs = (data) => ({
   logs: data && Array.isArray(data.logs) ? data.logs : [],
@@ -51,6 +42,15 @@ const normalizeLogs = (data) => ({
 
 // Seed — dane startowe z kodu
 const warSeed = normalizeLogs(require("./_lib/warSeed.json"));
+
+// Definicja store'a (rejestr w blobStore) — polityka: zasiej tylko gdy
+// klucz nigdy nie był zapisany (seed-if-missing, domyślna).
+const WAR_STORE = defineStore({
+  storeName: STORE_NAME,
+  key: KEY,
+  seed: warSeed,
+  normalize: normalizeLogs,
+});
 
 async function getStoreAndLogs(event) {
   const { store, data } = await getStoreAndData(
@@ -77,14 +77,8 @@ exports.handler = async (event) => {
   try {
     // ==================== GET ====================
     if (event.httpMethod === "GET") {
-      const store = await resolveStore(event, STORE_NAME, KEY, warSeed);
-      const data = await store.get(KEY, { type: "json", consistency: "strong" });
-      if (data == null || typeof data !== "object") {
-        const seeded = normalizeLogs(require("./_lib/warSeed.json"));
-        await store.setJSON(KEY, seeded);
-        return json(200, { ok: true, ...seeded }, {}, event);
-      }
-      return json(200, { ok: true, ...normalizeLogs(data) }, {}, event);
+      const { data } = await readStore(event, WAR_STORE);
+      return json(200, { ok: true, ...data }, {}, event);
     }
 
     // ============ POST / DELETE — admin only ============

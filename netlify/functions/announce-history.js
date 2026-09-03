@@ -7,11 +7,21 @@
 
 const { json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, handleError } = require("./_lib/security");
-const { resolveStore } = require("./_lib/blobStore");
+const { defineStore, readStore } = require("./_lib/blobStore");
 
 const STORE_NAME = "zpk-announce";
 const BLOB_KEY = "history";
 const LIMIT = 50;
+
+// Definicja store'a (rejestr w blobStore) — polityka read-only:
+// czysty odczyt + normalize (limit 50), zero zapisów do chmury.
+const ANNOUNCE_HISTORY_STORE = defineStore({
+  storeName: STORE_NAME,
+  key: BLOB_KEY,
+  seed: [],
+  normalize: (raw) => (Array.isArray(raw) ? raw : []).slice(0, LIMIT),
+  seedPolicy: "read-only",
+});
 
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
@@ -27,16 +37,15 @@ exports.handler = async (event) => {
 
     let history = [];
     try {
-      const store = await resolveStore(event, STORE_NAME, BLOB_KEY, []);
-      const existing = await store.get(BLOB_KEY, { type: "json", consistency: "strong" });
-      if (Array.isArray(existing)) history = existing;
+      const { data } = await readStore(event, ANNOUNCE_HISTORY_STORE);
+      history = data;
     } catch (blobErr) {
       // Blobs niedostępny — zwracamy pustą historię zamiast błędu,
       // żeby dzwonek pokazywał "BRAK OGŁOSZEŃ" zamiast crasha.
       console.warn("announce-history: blobs unavailable:", blobErr.message);
     }
 
-    return json(200, { ok: true, history: history.slice(0, LIMIT) }, {}, event);
+    return json(200, { ok: true, history }, {}, event);
   } catch (err) {
     return handleError(err, "announce-history", event);
   }
