@@ -5,9 +5,9 @@
 // Dostępne dla wszystkich (ogłoszenia są publiczne) — rate limit chroni
 // przed spamem, CORS z allowlistą domen.
 
-const { getStore } = require("@netlify/blobs");
 const { json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, handleError } = require("./_lib/security");
+const { resolveStore } = require("./_lib/blobStore");
 
 const STORE_NAME = "zpk-announce";
 const BLOB_KEY = "history";
@@ -27,7 +27,7 @@ exports.handler = async (event) => {
 
     let history = [];
     try {
-      const store = getStore({ name: STORE_NAME });
+      const store = await resolveStore(event, STORE_NAME, BLOB_KEY, []);
       const existing = await store.get(BLOB_KEY, { type: "json" });
       if (Array.isArray(existing)) history = existing;
     } catch (blobErr) {

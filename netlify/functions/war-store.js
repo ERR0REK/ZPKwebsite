@@ -14,9 +14,9 @@
 //
 // LOKALNY DEV: fallback in-memory (dane tymczasowe) gdy Blobs niedostępne.
 
-const { getStore } = require("@netlify/blobs");
 const { verifyAdmin, json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, bodyTooLarge, audit, handleError } = require("./_lib/security");
+const { resolveStore, getStoreAndData } = require("./_lib/blobStore");
 
 const STORE_NAME = "zpk-war-logs";
 const KEY = "logs";
@@ -45,64 +45,18 @@ async function publishUpdate(action, logData) {
   }
 }
 
-// Store options — patrz kos-store.js
-function getStoreOptions(event) {
-  try {
-    if (event && event.blobs) {
-      const ctx = JSON.parse(Buffer.from(event.blobs, "base64").toString("utf8"));
-      return {
-        siteID: ctx.siteID || "unlinked",
-        token: ctx.token,
-        edgeURL: ctx.url_uncached || ctx.url,
-        apiURL: ctx.apiURL,
-      };
-    }
-  } catch (err) {
-    /* ignore */
-  }
-  return {};
-}
-
-// In-memory fallback
-let memoryData = null;
-function createInMemoryStore() {
-  return {
-    get: async (_key, options) => {
-      if (options && options.type === "json") return memoryData ?? null;
-      return memoryData == null ? null : JSON.stringify(memoryData);
-    },
-    setJSON: async (_key, value) => {
-      memoryData = value;
-    },
-  };
-}
-
-let cachedStore = null;
-async function resolveStore(event) {
-  if (cachedStore) return cachedStore;
-  try {
-    const store = getStore(STORE_NAME, getStoreOptions(event));
-    await store.get(KEY, { type: "json" });
-    cachedStore = store;
-    return store;
-  } catch (err) {
-    console.warn(
-      "war-store: Netlify Blobs niedostępne — magazyn in-memory:",
-      err && err.message ? err.message : err
-    );
-    cachedStore = createInMemoryStore();
-    return cachedStore;
-  }
-}
-
 const normalizeLogs = (data) => ({
   logs: data && Array.isArray(data.logs) ? data.logs : [],
 });
 
+// Seed — dane startowe z kodu
+const warSeed = normalizeLogs(require("./_lib/warSeed.json"));
+
 async function getStoreAndLogs(event) {
-  const store = await resolveStore(event);
-  const data = await store.get(KEY, { type: "json" });
-  return { store, logs: normalizeLogs(data) };
+  const { store, data } = await getStoreAndData(
+    event, STORE_NAME, KEY, warSeed, normalizeLogs
+  );
+  return { store, logs: data };
 }
 
 // Sanity check raportu
@@ -123,7 +77,7 @@ exports.handler = async (event) => {
   try {
     // ==================== GET ====================
     if (event.httpMethod === "GET") {
-      const store = await resolveStore(event);
+      const store = await resolveStore(event, STORE_NAME, KEY, warSeed);
       const data = await store.get(KEY, { type: "json" });
       if (data == null || typeof data !== "object") {
         const seeded = normalizeLogs(require("./_lib/warSeed.json"));

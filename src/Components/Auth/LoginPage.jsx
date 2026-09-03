@@ -16,8 +16,8 @@ import './LoginPage.css';
 const LoginPage = ({ devMode }) => {
     const { t } = useTranslation();
 
-    // Discord Configuration (Placeholder - User needs to fill this in)
-    const DISCORD_CLIENT_ID = "1448793452044222586";
+    // Discord Configuration — client ID z .env (REACT_APP_DISCORD_CLIENT_ID)
+    const DISCORD_CLIENT_ID = process.env.REACT_APP_DISCORD_CLIENT_ID || "1448793452044222586";
     const REDIRECT_URI = encodeURIComponent(window.location.origin + "/#/auth/callback");
 
     // For implicit flow:
