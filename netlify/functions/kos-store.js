@@ -7,14 +7,20 @@
 //   DELETE → usuwa cel po nazwie     (tylko admin) { access_token, type, name }
 //
 // Weryfikacja admina: reuse verifyAdmin z ./_lib/discord (rola z Discorda przez bota).
-// Dane w magazynie "zpk-kos", pod kluczem "targets", jako jeden obiekt JSON:
-//   { personal: [...], factions: [...] }
 //
-// SEED: przy pierwszym GET (klucz nigdy nie był zapisany) baza jest zasiewana
-// celami z ./_lib/kosSeed.json — kopią src/data/kosTargets.json (baza startowa
-// z kodu). Dzięki temu świeże wdrożenie od razu pokazuje cele, a admini mogą
-// je potem edytować. UWAGA: plik seed trzymaj w sync z src/data/kosTargets.json.
-// Usunięcie WSZYSTKICH celów przez admina NIE przywraca seeda (klucz istnieje).
+// STORAGE (redesign: jeden wpis = jeden blob):
+//   Każdy cel to osobny blob w store "zpk-kos":
+//     targets/personal/<nazwa>   (encodeURIComponent)
+//     targets/faction/<nazwa>
+//   Mutacje są atomiczne (onlyIfMatch / onlyIfNew na ETagu wpisu) — dwóch
+//   adminów naraz nie nadpisuje sobie nawzajem całej listy (last-write-wins).
+//
+// MIGRACJA: stary pojedynczy klucz "targets" ({ personal, factions } w jednym
+// JSON) jest przy pierwszym GET rozbijany na wpisy i usuwany (idempotentnie).
+//
+// SEED: kosSeed.json trafia do magazynu TYLKO przy pierwszym uruchomieniu
+// (marker _meta/seeded) — skasowany cel NIE wraca po odświeżeniu.
+// UWAGA: plik seed trzymaj w sync z src/data/kosTargets.json.
 //
 // LOKALNY DEV (netlify-cli lambda-local): poświadczenia Blobs przychodzą przez
 // event.blobs (baza64 JSON z url+token, ALE bez siteID) — dodajemy mockowe
@@ -25,11 +31,18 @@
 
 const { verifyAdmin, json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, bodyTooLarge, audit, handleError } = require("./_lib/security");
-const { getStoreAndData, defineStore, readStore } = require("./_lib/blobStore");
+const {
+  resolveStore,
+  readEntryStore,
+  readEntry,
+  writeEntry,
+  removeEntry,
+} = require("./_lib/blobStore");
 const { publish } = require("./_lib/ably");
 
 const STORE_NAME = "zpk-kos";
-const KEY = "targets";
+const LEGACY_KEY = "targets"; // stary pojedynczy klucz (migracja)
+const PREFIX = "targets/"; // prefiks wpisów
 const MAX_TARGET_SIZE = 50 * 1024; // 50 KB na pojedynczy cel
 
 // Kanał realtime (Ably) — powiadomienia o zmianach w liście KOS.
@@ -48,55 +61,46 @@ const publishUpdate = (type, action, targetName) =>
     timestamp: Date.now()
   });
 
-// Normalizuje obiekt celów do stabilnej struktury.
-const normalizeTargets = (data) => ({
-  _seeded: !!(data && data._seeded),
-  personal: data && Array.isArray(data.personal) ? data.personal : [],
-  factions: data && Array.isArray(data.factions) ? data.factions : [],
-});
-
 // Seed — dane startowe z kodu (fallback gdy Blobs puste)
-const kosSeed = normalizeTargets(require("./_lib/kosSeed.json"));
+const kosSeed = require("./_lib/kosSeed.json");
 
-// Definicja store'a (rejestr w blobStore) — polityka: ZAWSZE scalaj seed.
-// Merge scalą brakujące cele z seeda; zapis do chmury tylko gdy się zmieniło.
-const KOS_STORE = defineStore({
-  storeName: STORE_NAME,
-  key: KEY,
-  seed: kosSeed,
-  normalize: normalizeTargets,
-  seedPolicy: "merge-seed",
-  merge: (cloud, seed) => {
-    const mergedPersonal = [
-      ...seed.personal.filter((s) => !cloud.personal.some((c) => c.name === s.name)),
-      ...cloud.personal,
-    ];
-    const mergedFactions = [
-      ...seed.factions.filter((s) => !cloud.factions.some((c) => c.name === s.name)),
-      ...cloud.factions,
-    ];
-    const changed =
-      mergedPersonal.length > cloud.personal.length ||
-      mergedFactions.length > cloud.factions.length;
-    return {
-      data: { _seeded: true, personal: mergedPersonal, factions: mergedFactions },
-      changed,
-    };
-  },
-});
+// Klucz wpisu dla celu — prefiks niesie typ, nazwa jest URL-encoded,
+// żeby "/" w nazwie nie tworzyło zagnieżdżonych katalogów.
+const entryKey = (type, name) => `${PREFIX}${type}/${encodeURIComponent(name)}`;
 
-// Otwiera store i zwraca aktualne cele (pusta lista, jeśli nic nie zapisano).
-async function getStoreAndTargets(event) {
-  const { store, data } = await getStoreAndData(
-    event, STORE_NAME, KEY, kosSeed, normalizeTargets
-  );
-  return { store, targets: data };
-}
-
-const upsertTarget = (list, target) => [
-  ...list.filter((x) => x.name !== target.name),
-  target,
+// Wspólne mapowanie dokumentu { personal, factions } → wpisy.
+// Używane zarówno przez migrację legacy, jak i seed.
+const kosToEntries = (doc) => [
+  ...(doc && Array.isArray(doc.personal) ? doc.personal : []).map((t) => ({
+    key: entryKey("personal", t.name),
+    data: t,
+  })),
+  ...(doc && Array.isArray(doc.factions) ? doc.factions : []).map((t) => ({
+    key: entryKey("faction", t.name),
+    data: t,
+  })),
 ];
+
+// Definicja entry-store'a KOS (rejestr w blobStore)
+const KOS_ENTRIES = {
+  storeName: STORE_NAME,
+  prefix: PREFIX,
+  legacyKey: LEGACY_KEY,
+  seed: kosSeed,
+  toEntries: kosToEntries,
+};
+
+// Składa wpisy w odpowiedź API — grupa po typie (z klucza), posortowane po nazwie.
+const groupTargets = (entries) => {
+  const personal = [];
+  const factions = [];
+  for (const e of entries) {
+    if (e.key.startsWith(`${PREFIX}personal/`)) personal.push(e.data);
+    else if (e.key.startsWith(`${PREFIX}faction/`)) factions.push(e.data);
+  }
+  const byName = (a, b) => String(a.name || "").localeCompare(String(b.name || ""));
+  return { personal: personal.sort(byName), factions: factions.sort(byName) };
+};
 
 // Sanity check celu — chroni magazyn przed śmieciowymi danymi.
 const isValidTarget = (target, type) => {
@@ -114,8 +118,8 @@ exports.handler = async (event) => {
   try {
     // ==================== GET (odczyt dla wszystkich) ====================
     if (event.httpMethod === "GET") {
-      const { data } = await readStore(event, KOS_STORE);
-      return json(200, { ok: true, personal: data.personal, factions: data.factions }, {}, event);
+      const { entries } = await readEntryStore(event, KOS_ENTRIES);
+      return json(200, { ok: true, ...groupTargets(entries) }, {}, event);
     }
 
     // ============ Zabezpieczenia dla POST / DELETE ============
@@ -151,24 +155,26 @@ exports.handler = async (event) => {
     if (type !== "personal" && type !== "faction") {
       return json(400, { ok: false, error: "BAD_TYPE" }, {}, event);
     }
-    const key = type === "personal" ? "personal" : "factions";
 
     // 2. DELETE — usuń cel po nazwie
     if (event.httpMethod === "DELETE") {
       if (typeof name !== "string" || name.trim() === "") {
         return json(400, { ok: false, error: "MISSING_NAME" }, {}, event);
       }
-      const { store, targets } = await getStoreAndTargets(event);
-      const before = targets[key].length;
-      targets[key] = targets[key].filter((x) => x.name !== name);
-      if (targets[key].length === before) {
+      const store = await resolveStore(event, STORE_NAME, LEGACY_KEY, kosSeed);
+      const key = entryKey(type, name);
+      const existing = await readEntry(store, key);
+      if (!existing) {
         return json(404, { ok: false, error: "NOT_FOUND" }, {}, event);
       }
-      targets._seeded = true; // oznacz że baza była edytowana
-      await store.setJSON(KEY, targets);
+      await removeEntry(store, key);
       await publishUpdate(type, "removed", name);
       await audit("kos.remove", `${type}: ${name}`, admin.user);
-      return json(200, { ok: true, personal: targets.personal, factions: targets.factions }, {}, event);
+
+      // Świeży snapshot — odfiltruj skasowany wpis (list może go jeszcze
+      // pokazywać przez chwilę przy eventual consistency edge'ów).
+      const { entries } = await readEntryStore(event, KOS_ENTRIES);
+      return json(200, { ok: true, ...groupTargets(entries.filter((e) => e.key !== key)) }, {}, event);
     }
 
     // 3. POST — dodaj/aktualizuj cel
@@ -180,17 +186,34 @@ exports.handler = async (event) => {
       if (size > MAX_TARGET_SIZE) {
         return json(413, { ok: false, error: "TARGET_TOO_LARGE" }, {}, event);
       }
-      const { store, targets } = await getStoreAndTargets(event);
-      targets[key] = upsertTarget(targets[key], target);
-      targets._seeded = true; // oznacz że baza była edytowana
-      await store.setJSON(KEY, targets);
+      const store = await resolveStore(event, STORE_NAME, LEGACY_KEY, kosSeed);
+      const key = entryKey(type, target.name);
+
+      // Atomiczny zapis: nowy wpis → onlyIfNew; istniejący → onlyIfMatch (etag).
+      // Jeśli wpis zmienił się między odczytem a zapisem (drugi admin),
+      // onlyIfMatch zwróci modified:false → 409 zamiast cichego nadpisania.
+      let res = await writeEntry(store, key, target, { onlyIfNew: true });
+      if (!res.modified) {
+        const existing = await readEntry(store, key);
+        if (existing) {
+          res = await writeEntry(store, key, target, { onlyIfMatch: existing.etag });
+        } else {
+          res = await writeEntry(store, key, target, { onlyIfNew: true });
+        }
+      }
+      if (!res.modified) {
+        return json(409, { ok: false, error: "CONFLICT" }, {}, event);
+      }
+
       await publishUpdate(type, "added", target.name);
       await audit("kos.add", `${type}: ${target.name}`, admin.user);
-      return json(200, { ok: true, personal: targets.personal, factions: targets.factions }, {}, event);
+
+      const { entries } = await readEntryStore(event, KOS_ENTRIES);
+      return json(200, { ok: true, ...groupTargets(entries) }, {}, event);
     }
 
     return json(405, { ok: false, error: "METHOD_NOT_ALLOWED" }, {}, event);
   } catch (err) {
     return handleError(err, "kos-store", event);
   }
-};
+};

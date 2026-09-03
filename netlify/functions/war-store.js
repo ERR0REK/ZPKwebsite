@@ -6,8 +6,16 @@
 //   POST   → dodaje raport wojenny (tylko admin) { access_token, log }
 //   DELETE → usuwa raport po ID (tylko admin) { access_token, id }
 //
-// SEED: przy pierwszym GET klucz nigdy nie był zapisany → baza jest zasiewana
-// danymi z ./_lib/warSeed.json (kopia src/data/warLogs.json).
+// STORAGE (redesign: jeden wpis = jeden blob):
+//   Każdy raport to osobny blob w store "zpk-war-logs": logs/<id>
+//   Mutacje są atomiczne (onlyIfMatch / onlyIfNew na ETagu wpisu) — dwóch
+//   adminów naraz nie gubi sobie nawzajem raportów (last-write-wins).
+//
+// MIGRACJA: stary pojedynczy klucz "logs" ({ logs: [...] } w jednym JSON)
+// jest przy pierwszym GET rozbijany na wpisy i usuwany (idempotentnie).
+//
+// SEED: warSeed.json jest pusty ({ logs: [] }) — seed nie ma realnego
+// zastosowania, ale ścieżka pozostaje spójna z rejestrem.
 //
 // LIVE: po każdej zmianie publikuje event na kanale Ably "zpk-war-status",
 // żeby strona główna (ActivityFeed) i WarLogs pokazywały zmiany natychmiast.
@@ -16,12 +24,20 @@
 
 const { verifyAdmin, json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, bodyTooLarge, audit, handleError } = require("./_lib/security");
-const { getStoreAndData, defineStore, readStore } = require("./_lib/blobStore");
+const {
+  resolveStore,
+  readEntryStore,
+  readEntry,
+  writeEntry,
+  removeEntry,
+} = require("./_lib/blobStore");
 const { publish } = require("./_lib/ably");
 
 const STORE_NAME = "zpk-war-logs";
-const KEY = "logs";
+const LEGACY_KEY = "logs"; // stary pojedynczy klucz (migracja)
+const PREFIX = "logs/"; // prefiks wpisów
 const MAX_LOG_SIZE = 100 * 1024; // 100 KB na raport
+const MAX_ID_ATTEMPTS = 5;
 
 // Kanał Ably — powiadomienia o zmianach w War Logs.
 const ABLY_CHANNEL = "zpk-war-status";
@@ -36,28 +52,34 @@ const publishUpdate = (action, logData) =>
     timestamp: Date.now(),
   });
 
-const normalizeLogs = (data) => ({
-  logs: data && Array.isArray(data.logs) ? data.logs : [],
-});
+// Seed — dane startowe z kodu (puste — raporty tworzą admini)
+const warSeed = require("./_lib/warSeed.json");
 
-// Seed — dane startowe z kodu
-const warSeed = normalizeLogs(require("./_lib/warSeed.json"));
+// Wspólne mapowanie dokumentu { logs: [...] } → wpisy.
+// Używane zarówno przez migrację legacy, jak i seed.
+const warToEntries = (doc) =>
+  (doc && Array.isArray(doc.logs) ? doc.logs : []).map((l) => ({
+    key: `${PREFIX}${l.id}`,
+    data: l,
+  }));
 
-// Definicja store'a (rejestr w blobStore) — polityka: zasiej tylko gdy
-// klucz nigdy nie był zapisany (seed-if-missing, domyślna).
-const WAR_STORE = defineStore({
+// Definicja entry-store'a War Logs (rejestr w blobStore)
+const WAR_ENTRIES = {
   storeName: STORE_NAME,
-  key: KEY,
+  prefix: PREFIX,
+  legacyKey: LEGACY_KEY,
   seed: warSeed,
-  normalize: normalizeLogs,
-});
+  toEntries: warToEntries,
+};
 
-async function getStoreAndLogs(event) {
-  const { store, data } = await getStoreAndData(
-    event, STORE_NAME, KEY, warSeed, normalizeLogs
-  );
-  return { store, logs: data };
-}
+// Sortowanie jak na froncie: date desc, potem id desc (tie-break).
+const sortLogs = (logs) =>
+  [...logs].sort((a, b) => {
+    const da = String(a.date || "");
+    const db = String(b.date || "");
+    if (da !== db) return db.localeCompare(da);
+    return (Number(b.id) || 0) - (Number(a.id) || 0);
+  });
 
 // Sanity check raportu
 const isValidLog = (log) => {
@@ -66,7 +88,8 @@ const isValidLog = (log) => {
   return true;
 };
 
-// Generuj ID na podstawie timestampu
+// Generuj ID na podstawie timestampu (kolizje w tej samej ms rozwiązuje
+// pętla z onlyIfNew w POST)
 const generateId = () => Date.now();
 
 exports.handler = async (event) => {
@@ -77,8 +100,9 @@ exports.handler = async (event) => {
   try {
     // ==================== GET ====================
     if (event.httpMethod === "GET") {
-      const { data } = await readStore(event, WAR_STORE);
-      return json(200, { ok: true, ...data }, {}, event);
+      const { entries } = await readEntryStore(event, WAR_ENTRIES);
+      const logs = sortLogs(entries.map((e) => e.data));
+      return json(200, { ok: true, logs }, {}, event);
     }
 
     // ============ POST / DELETE — admin only ============
@@ -113,18 +137,23 @@ exports.handler = async (event) => {
       if (id == null) {
         return json(400, { ok: false, error: "MISSING_ID" }, {}, event);
       }
-      const { store, logs } = await getStoreAndLogs(event);
-      // Porównanie po String() — klient może wysłać id jako string;
-      // bez tego strict !== robił cichy no-op (usuwanie "nie działało").
-      const target = logs.logs.find((l) => String(l.id) === String(id));
-      if (!target) {
+      const store = await resolveStore(event, STORE_NAME, LEGACY_KEY, warSeed);
+      const key = `${PREFIX}${id}`;
+      const existing = await readEntry(store, key);
+      if (!existing) {
         return json(404, { ok: false, error: "NOT_FOUND" }, {}, event);
       }
-      logs.logs = logs.logs.filter((l) => String(l.id) !== String(id));
-      await store.setJSON(KEY, logs);
-      await publishUpdate("removed", target);
-      await audit("war.remove", `id: ${id} opponent: ${target.opponent || "?"}`, admin.user);
-      return json(200, { ok: true, ...logs }, {}, event);
+      await removeEntry(store, key);
+      await publishUpdate("removed", existing.data);
+      await audit("war.remove", `id: ${id} opponent: ${existing.data.opponent || "?"}`, admin.user);
+
+      // Świeży snapshot — odfiltruj skasowany wpis (list może go jeszcze
+      // pokazywać przez chwilę przy eventual consistency edge'ów).
+      const { entries } = await readEntryStore(event, WAR_ENTRIES);
+      const logs = sortLogs(
+        entries.filter((e) => e.key !== key).map((e) => e.data)
+      );
+      return json(200, { ok: true, logs }, {}, event);
     }
 
     // ==================== POST ====================
@@ -136,22 +165,50 @@ exports.handler = async (event) => {
       if (size > MAX_LOG_SIZE) {
         return json(413, { ok: false, error: "LOG_TOO_LARGE" }, {}, event);
       }
-      const { store, logs } = await getStoreAndLogs(event);
-      // Upsert: jeśli log ma ID — nadpisz (String(), jak w DELETE);否则 dodaj nowy
-      if (log.id) {
-        logs.logs = logs.logs.filter((l) => String(l.id) !== String(log.id));
+      const store = await resolveStore(event, STORE_NAME, LEGACY_KEY, warSeed);
+
+      let id = log.id;
+      let key;
+
+      if (id == null) {
+        // Nowy raport — wygeneruj unikalne id i zapisz atomowo (onlyIfNew).
+        // Kolizja w tej samej ms (druga instancja) → retry z nowym id.
+        let res = { modified: false };
+        for (let attempt = 0; attempt < MAX_ID_ATTEMPTS && !res.modified; attempt += 1) {
+          id = generateId();
+          key = `${PREFIX}${id}`;
+          res = await writeEntry(store, key, { ...log, id }, { onlyIfNew: true });
+        }
+        if (!res.modified) {
+          return json(409, { ok: false, error: "CONFLICT" }, {}, event);
+        }
       } else {
-        log.id = generateId();
+        // Upsert po id — atomiczny: nowy → onlyIfNew, istniejący → onlyIfMatch.
+        key = `${PREFIX}${id}`;
+        let res = await writeEntry(store, key, log, { onlyIfNew: true });
+        if (!res.modified) {
+          const existing = await readEntry(store, key);
+          if (existing) {
+            res = await writeEntry(store, key, log, { onlyIfMatch: existing.etag });
+          } else {
+            res = await writeEntry(store, key, log, { onlyIfNew: true });
+          }
+        }
+        if (!res.modified) {
+          return json(409, { ok: false, error: "CONFLICT" }, {}, event);
+        }
       }
-      logs.logs.push(log);
-      await store.setJSON(KEY, logs);
-      await publishUpdate("added", log);
-      await audit("war.add", `opponent: ${log.opponent} id: ${log.id}`, admin.user);
-      return json(200, { ok: true, ...logs }, {}, event);
+
+      await publishUpdate("added", { ...log, id });
+      await audit("war.add", `opponent: ${log.opponent} id: ${id}`, admin.user);
+
+      const { entries } = await readEntryStore(event, WAR_ENTRIES);
+      const logs = sortLogs(entries.map((e) => e.data));
+      return json(200, { ok: true, logs }, {}, event);
     }
 
     return json(405, { ok: false, error: "METHOD_NOT_ALLOWED" }, {}, event);
   } catch (err) {
     return handleError(err, "war-store", event);
   }
-};
+};
