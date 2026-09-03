@@ -564,6 +564,57 @@
     },
     "dev": [
       {
+        "version": "0.0.16 - DEV",
+        "date": "Sep 3, 2026",
+        "changes": [
+          {
+            "type": "security",
+            "title": "OAuth: state nonce (anti-CSRF)",
+            "description": "State parameter in Discord login (LoginPage and Changelog). DiscordCallback verifies a one-time nonce from sessionStorage — a pasted URL with someone else's token ends with AUTH_BLOCKED instead of logging in."
+          },
+          {
+            "type": "security",
+            "title": "Session: single TTL validation everywhere",
+            "description": "Session moved into one module (vault) — save, read and validity (12h TTL) in one place. SecurityLayer no longer bypasses TTL on the F12/inspect block: an expired session no longer grants the bypass."
+          },
+          {
+            "type": "bugfix",
+            "title": "War Logs: strong read consistency",
+            "description": "Netlify Blobs reads now use consistency:strong — after deleting/adding a report the change is visible immediately instead of coming back on refresh (eventual consistency could hold a stale version up to 60s)."
+          },
+          {
+            "type": "bugfix",
+            "title": "War Logs: ESF entry removed",
+            "description": "Removed the outdated 'War with ESF (Elite Strike Forces)' report from seed and cloud on both sites (dev and official)."
+          },
+          {
+            "type": "feature",
+            "title": "ErrorBoundary — no more white screens",
+            "description": "Global error boundary: a regular error shows a readable screen with a reload button, and a ChunkLoadError (old tab after a deploy) auto-reloads exactly once."
+          },
+          {
+            "type": "improvement",
+            "title": "Backend architecture: Ably adapter + store registry",
+            "description": "Three copies of Ably publishing replaced with one shared adapter. Netlify Blobs got a store definition registry (defineStore/readStore) — one tested seed/merge policy for KOS, War Logs and announcements."
+          },
+          {
+            "type": "improvement",
+            "title": "War Logs: manage panel as a module",
+            "description": "Admin panel extracted from WarLogs.jsx (543 → 353 lines) into WarLogsManagePanel — a clean props interface, same pattern as KOSManagePanel."
+          },
+          {
+            "type": "improvement",
+            "title": "/api/health — store status",
+            "description": "Monitoring endpoint pings Netlify Blobs stores and reports 200/503, deploy context and ABLY_API_KEY state."
+          },
+          {
+            "type": "bugfix",
+            "title": "i18n: missing Intelligence role key",
+            "description": "Added the missing staff.roles.intelligence key to pl.json — the role no longer renders as a raw key."
+          }
+        ]
+      },
+      {
         "version": "0.0.15 Hotfix - DEV",
         "date": "Aug 23, 2026",
         "changes": [
