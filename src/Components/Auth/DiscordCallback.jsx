@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, CheckCircle2, Terminal, Cpu } from 'lucide-react';
 import LoadingScreen from '../LoadingScreen/LoadingScreen';
 import { isDevSite } from '../../utils/siteEnv';
-import { readSession } from '../../utils/session';
+import { readSession, OAUTH_STATE_KEY, saveSession, clearSession } from '../../utils/session';
 import './DiscordCallback.css';
 
 const REQUIRED_GUILD_ID = process.env.REACT_APP_GUILD_ID || "1445399610414858340";
@@ -45,6 +45,15 @@ const DiscordCallback = () => {
             const params = new URLSearchParams(authHash);
             const accessToken = params.get('access_token');
 
+            // Nonce OAuth (parametr state) — ZAWSZE konsumowany (one-time use).
+            let storedState = null;
+            try {
+                storedState = sessionStorage.getItem(OAUTH_STATE_KEY);
+                sessionStorage.removeItem(OAUTH_STATE_KEY);
+            } catch (e) {
+                /* ignore */
+            }
+
             // --- Przypadek 1: brak tokena w URL ---
             if (!accessToken) {
                 const session = readSession();
@@ -59,6 +68,16 @@ const DiscordCallback = () => {
                 }
                 setError("AUTHENTICATION_FAILED: NO_TOKEN_RECEIVED");
                 setStatus('error');
+                return;
+            }
+
+            // --- Brama CSRF: bez poprawnego state NIE weryfikujemy tokena ---
+            // Atak: ofiara wchodzi na URL z cudzym access_token (bez naszego
+            // nonce) → odrzucamy, zanim cokolwiek zapiszemy albo wywołamy API.
+            const oauthState = params.get('state');
+            if (!storedState || !oauthState || oauthState !== storedState) {
+                setStatus('error');
+                setError('AUTH_BLOCKED: OAUTH_STATE_MISMATCH');
                 return;
             }
 
@@ -105,7 +124,7 @@ const DiscordCallback = () => {
                     }
 
                     // Store session with user ID, admin flag, membership flags
-                    localStorage.setItem('ZPK_auth_session', JSON.stringify({
+                    saveSession({
                         access_token: accessToken,
                         user_id: userData.id,
                         username: userData.username || userData.global_name || null,
@@ -116,7 +135,7 @@ const DiscordCallback = () => {
                         is_dev_member: isInDevGuild,
                         is_main_member: isInMainGuild,
                         timestamp: Date.now()
-                    }));
+                    });
 
                     setStatus('success');
 
@@ -132,7 +151,7 @@ const DiscordCallback = () => {
                 } else {
                     setStatus('error');
                     setError(devSite ? t('login.error_no_dev_server') : t('login.error_no_server'));
-                    localStorage.removeItem('ZPK_auth_session');
+                    clearSession();
                 }
             } catch (err) {
                 console.error(err);

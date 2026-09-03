@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, Terminal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { loadValidSession } from '../../utils/session';
 import './Security.css';
 
 const SecurityLayer = () => {
@@ -15,13 +16,9 @@ const SecurityLayer = () => {
 
     useEffect(() => {
         const checkBypass = () => {
-            try {
-                const session = JSON.parse(localStorage.getItem('ZPK_auth_session'));
-                return session && session.user_id === AUTHORIZED_ADMIN_ID;
-            } catch (e) {
-                // Zepsuta sesja (np. ręczna edycja localStorage) — nie dajemy bypassu
-                return false;
-            }
+            // Walidowany odczyt (TTL 12h) — wygasła/niepełna sesja NIE daje bypassu.
+            const session = loadValidSession();
+            return session && session.user_id === AUTHORIZED_ADMIN_ID;
         };
 
         const handleContextMenu = (e) => {

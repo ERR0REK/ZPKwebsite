@@ -30,38 +30,15 @@ import React, {
     useMemo,
     useState
 } from 'react';
+import { SESSION_KEY, SESSION_TTL_MS, loadValidSession, clearSession } from '../utils/session';
 
-// Czas życia sesji — MUSI być spójny z pozostałymi miejscami (12h).
-export const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
-const SESSION_KEY = 'ZPK_auth_session';
+// Re-eksport — testy i konsumenci czytają TTL z SessionContext.
+export { SESSION_TTL_MS };
 
-// Czyta sesję z localStorage i natychmiast weryfikuje:
-//  - poprawny JSON + obecność user_id (stary format → usuń),
-//  - wiek sesji (TTL 12h — przeterminowana → usuń).
-// Dzięki temu kontekst NIGDY nie pokazuje przeterminowanej sesji,
-// nawet w pierwszym renderze (sedno buga: navbar pokazywał zalogowanego
-// użytkownika z wygasłą sesją dopóki ktoś nie wszedł na /kos).
-const readSession = () => {
-    try {
-        const raw = localStorage.getItem(SESSION_KEY);
-        if (!raw) return null;
-        const session = JSON.parse(raw);
-        if (!session || !session.user_id) {
-            localStorage.removeItem(SESSION_KEY);
-            return null;
-        }
-        const age = Date.now() - (session.timestamp || 0);
-        if (age > SESSION_TTL_MS) {
-            localStorage.removeItem(SESSION_KEY);
-            return null;
-        }
-        return session;
-    } catch (e) {
-        // Zepsuty JSON (np. ręczna edycja localStorage) — czyść i ignoruj.
-        try { localStorage.removeItem(SESSION_KEY); } catch (_) { /* noop */ }
-        return null;
-    }
-};
+// Walidacja sesji (user_id + TTL 12h) mieszka w utils/session.js (vault) —
+// jedna polityka ważności dla wszystkich ścieżek (SessionContext,
+// SecurityLayer, DiscordCallback). Kontekst tylko ją wywołuje i pilnuje
+// auto-logoutu na żywo (licznik 1 s).
 
 const computeTimeLeft = (session) => {
     if (!session || !session.user_id) return null;
@@ -71,7 +48,7 @@ const computeTimeLeft = (session) => {
 const SessionContext = createContext(null);
 
 export const SessionProvider = ({ children }) => {
-    const [session, setSession] = useState(readSession);
+    const [session, setSession] = useState(loadValidSession);
     const [timeLeft, setTimeLeft] = useState(null);
 
     // Licznik wygasania — co 1 s. Po przekroczeniu TTL sesja jest
@@ -84,7 +61,7 @@ export const SessionProvider = ({ children }) => {
         const update = () => {
             const remaining = computeTimeLeft(session);
             if (remaining <= 0) {
-                localStorage.removeItem(SESSION_KEY);
+                clearSession();
                 setSession(null);
             } else {
                 setTimeLeft(remaining);
@@ -100,7 +77,7 @@ export const SessionProvider = ({ children }) => {
     useEffect(() => {
         const onStorage = (e) => {
             if (e.key === SESSION_KEY || e.key === null) {
-                setSession(readSession());
+                setSession(loadValidSession());
             }
         };
         window.addEventListener('storage', onStorage);
@@ -108,7 +85,7 @@ export const SessionProvider = ({ children }) => {
     }, []);
 
     const logout = useCallback(() => {
-        localStorage.removeItem(SESSION_KEY);
+        clearSession();
         sessionStorage.removeItem('ZPK_redirect_target');
         setSession(null);
         // PELNY reload na czysty URL — inaczej (np. będąc już na #/),

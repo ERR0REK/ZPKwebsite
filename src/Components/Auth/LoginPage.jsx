@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import logo from '../../Assets/logo.png';
 import './LoginPage.css';
+import { generateOAuthState, OAUTH_STATE_KEY } from '../../utils/session';
 
 const LoginPage = ({ devMode }) => {
     const { t } = useTranslation();
@@ -20,11 +21,17 @@ const LoginPage = ({ devMode }) => {
     const DISCORD_CLIENT_ID = process.env.REACT_APP_DISCORD_CLIENT_ID || "1448793452044222586";
     const REDIRECT_URI = encodeURIComponent(window.location.origin + "/#/auth/callback");
 
-    // For implicit flow:
-    const DISCORD_AUTH_URL = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=identify%20guilds`;
-
+    // For implicit flow — z parametrem state (nonce): nonce zapisujemy w
+    // sessionStorage (ta sama karta), a DiscordCallback weryfikuje go po
+    // powrocie. Bez tego login byłby podatny na CSRF (login csrf).
     const handleLogin = () => {
-        window.location.href = DISCORD_AUTH_URL;
+        const state = generateOAuthState();
+        try {
+            sessionStorage.setItem(OAUTH_STATE_KEY, state);
+        } catch (e) {
+            /* ignore */
+        }
+        window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=identify%20guilds&state=${encodeURIComponent(state)}`;
     };
 
     return (
