@@ -99,8 +99,8 @@ const AUDIT_LIMIT = 100; // trzymamy ostatnie 100 akcji
 // adminInfo: { id, username } (z verifyAdmin)
 async function audit(action, detail, adminInfo = {}) {
   try {
-    const store = getStore({ name: AUDIT_STORE });
-    const existing = await store.get(AUDIT_KEY, { type: "json" });
+    const store = getStore({ name: AUDIT_STORE, consistency: "strong" });
+    const existing = await store.get(AUDIT_KEY, { type: "json", consistency: "strong" });
     const history = Array.isArray(existing) ? existing : [];
     const entry = {
       at: new Date().toISOString(),
