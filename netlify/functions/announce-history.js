@@ -28,7 +28,7 @@ exports.handler = async (event) => {
     let history = [];
     try {
       const store = await resolveStore(event, STORE_NAME, BLOB_KEY, []);
-      const existing = await store.get(BLOB_KEY, { type: "json" });
+      const existing = await store.get(BLOB_KEY, { type: "json", consistency: "strong" });
       if (Array.isArray(existing)) history = existing;
     } catch (blobErr) {
       // Blobs niedostępny — zwracamy pustą historię zamiast błędu,

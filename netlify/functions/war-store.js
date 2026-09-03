@@ -78,7 +78,7 @@ exports.handler = async (event) => {
     // ==================== GET ====================
     if (event.httpMethod === "GET") {
       const store = await resolveStore(event, STORE_NAME, KEY, warSeed);
-      const data = await store.get(KEY, { type: "json" });
+      const data = await store.get(KEY, { type: "json", consistency: "strong" });
       if (data == null || typeof data !== "object") {
         const seeded = normalizeLogs(require("./_lib/warSeed.json"));
         await store.setJSON(KEY, seeded);

@@ -97,7 +97,7 @@ exports.handler = async (event) => {
     // ==================== GET (odczyt dla wszystkich) ====================
     if (event.httpMethod === "GET") {
       const store = await resolveStore(event, STORE_NAME, KEY, kosSeed);
-      const data = await store.get(KEY, { type: "json" });
+      const data = await store.get(KEY, { type: "json", consistency: "strong" });
       const cloud = normalizeTargets(data);
       const seed = kosSeed;
 
