@@ -6,6 +6,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './i18n.js';
+import ErrorBoundary from './Components/Shared/ErrorBoundary';
 
 // === BLOCK INSPECT ELEMENT (CZĘŚCIOWO) ===
 // Wyłącza otwarcie DevTools F12, Ctrl+Shift+I, Ctrl+Shift+K, Ctrl+Shift+J
@@ -49,7 +50,9 @@ if (process.env.NODE_ENV === 'production') {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </React.StrictMode>
 );
 
