@@ -114,11 +114,16 @@ exports.handler = async (event) => {
         return json(400, { ok: false, error: "MISSING_ID" }, {}, event);
       }
       const { store, logs } = await getStoreAndLogs(event);
-      const target = logs.logs.find((l) => l.id === id);
-      logs.logs = logs.logs.filter((l) => l.id !== id);
+      // Porównanie po String() — klient może wysłać id jako string;
+      // bez tego strict !== robił cichy no-op (usuwanie "nie działało").
+      const target = logs.logs.find((l) => String(l.id) === String(id));
+      if (!target) {
+        return json(404, { ok: false, error: "NOT_FOUND" }, {}, event);
+      }
+      logs.logs = logs.logs.filter((l) => String(l.id) !== String(id));
       await store.setJSON(KEY, logs);
       await publishUpdate("removed", target);
-      await audit("war.remove", `id: ${id} opponent: ${target?.opponent || "?"}`, admin.user);
+      await audit("war.remove", `id: ${id} opponent: ${target.opponent || "?"}`, admin.user);
       return json(200, { ok: true, ...logs }, {}, event);
     }
 
@@ -132,9 +137,9 @@ exports.handler = async (event) => {
         return json(413, { ok: false, error: "LOG_TOO_LARGE" }, {}, event);
       }
       const { store, logs } = await getStoreAndLogs(event);
-      // Upsert: jeśli log ma ID — nadpisz;否则 dodaj nowy
+      // Upsert: jeśli log ma ID — nadpisz (String(), jak w DELETE);否则 dodaj nowy
       if (log.id) {
-        logs.logs = logs.logs.filter((l) => l.id !== log.id);
+        logs.logs = logs.logs.filter((l) => String(l.id) !== String(log.id));
       } else {
         log.id = generateId();
       }

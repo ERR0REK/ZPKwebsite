@@ -12,7 +12,9 @@ const SecurityLayer = () => {
     const [showAlert, setShowAlert] = useState(false);
     const [violationType, setViolationType] = useState('');
 
-    const AUTHORIZED_ADMIN_ID = "687701665771814939";
+    // ID admina z env (fallback jak w DiscordCallback — hardcoded tylko na wypadek braku zmiennej).
+    const AUTHORIZED_ADMIN_ID =
+      process.env.REACT_APP_SECURITY_ADMIN_ID || "687701665771814939";
 
     useEffect(() => {
         const checkBypass = () => {
