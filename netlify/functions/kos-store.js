@@ -96,10 +96,10 @@ exports.handler = async (event) => {
   try {
     // ==================== GET (odczyt dla wszystkich) ====================
     if (event.httpMethod === "GET") {
-      const store = await resolveStore(event);
+      const store = await resolveStore(event, STORE_NAME, KEY, kosSeed);
       const data = await store.get(KEY, { type: "json" });
       const cloud = normalizeTargets(data);
-      const seed = normalizeTargets(require("./_lib/kosSeed.json"));
+      const seed = kosSeed;
 
       // ZAWSZE scal brakujące cele z seeda z danymi z chmury.
       // Dzięki temu nowe osoby dodane do kosSeed.json (via kod) pojawiają się

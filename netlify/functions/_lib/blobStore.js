@@ -64,7 +64,9 @@ async function resolveStore(event, storeName, key, seedData) {
 
   try {
     const store = getStore(storeName, getStoreOptions(event));
-    // Ping —wykrywa MissingBlobsEnvironmentError lub błąd sandboxa
+    // Ping — wykrywa MissingBlobsEnvironmentError lub błąd sandboxa.
+    // WAŻNE: cache PO pingu — jeśli ping failnie, tworzymy in-memory
+    // zamiast cache'ować zepsuty store (który nigdy się nie naprawi).
     await store.get(key, { type: "json" });
     storeCache.set(storeName, store);
     return store;
