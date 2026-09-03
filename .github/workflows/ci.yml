@@ -1,0 +1,31 @@
+# CI — testy + build przy każdym pushu na develop/official i w PR-ach.
+# Netlify ma wyłączone auto-buildu — to jest siatka bezpieczeństwa przed
+# ręcznym deployem: nic zepsutego nie powinno trafić na stronę.
+
+name: CI
+
+on:
+  push:
+    branches: [develop, official]
+  pull_request:
+    branches: [develop, official]
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: CI=true npm test -- --watchAll=false
+
+      - name: Production build
+        run: CI=true npm run build
