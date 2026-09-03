@@ -180,12 +180,16 @@ const WarLogs = () => {
         const data = await res.json();
         if (res.ok && data && data.ok) {
           refreshCloud();
+          setAdminMessage("✅ Raport usunięty z chmury");
+        } else {
+          setAdminMessage(`❌ ${data?.error || "Błąd usuwania"}`);
         }
       } catch (err) {
-        // ignoruj
+        setAdminMessage("❌ Błąd sieci");
       }
     } else {
-      setLogs((prev) => prev.filter((l) => l.id !== logId));
+      setLogs((prev) => prev.filter((l) => String(l.id) !== String(logId)));
+      setAdminMessage("✅ Raport usunięty (lokalnie)");
     }
   };
 

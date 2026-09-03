@@ -159,7 +159,11 @@ exports.handler = async (event) => {
         return json(400, { ok: false, error: "MISSING_NAME" }, {}, event);
       }
       const { store, targets } = await getStoreAndTargets(event);
+      const before = targets[key].length;
       targets[key] = targets[key].filter((x) => x.name !== name);
+      if (targets[key].length === before) {
+        return json(404, { ok: false, error: "NOT_FOUND" }, {}, event);
+      }
       targets._seeded = true; // oznacz że baza była edytowana
       await store.setJSON(KEY, targets);
       await publishUpdate(type, "removed", name);
