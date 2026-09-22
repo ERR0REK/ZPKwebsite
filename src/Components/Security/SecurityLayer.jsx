@@ -7,14 +7,17 @@ import { useTranslation } from 'react-i18next';
 import { loadValidSession } from '../../utils/session';
 import './Security.css';
 
+// ID admina z env (fallback jak w DiscordCallback — hardcoded tylko na wypadek
+// braku zmiennej). Stała na POZIOMIE MODUŁU — stabilna referencja, więc useEffect
+// z pustą tablicą zależności nie traktuje jej jako missing dependency (na
+// Netlify CI=true zamienia warningi eslinta w błędy builda).
+const AUTHORIZED_ADMIN_ID =
+  process.env.REACT_APP_SECURITY_ADMIN_ID || "687701665771814939";
+
 const SecurityLayer = () => {
     const { t } = useTranslation();
     const [showAlert, setShowAlert] = useState(false);
     const [violationType, setViolationType] = useState('');
-
-    // ID admina z env (fallback jak w DiscordCallback — hardcoded tylko na wypadek braku zmiennej).
-    const AUTHORIZED_ADMIN_ID =
-      process.env.REACT_APP_SECURITY_ADMIN_ID || "687701665771814939";
 
     useEffect(() => {
         const checkBypass = () => {
