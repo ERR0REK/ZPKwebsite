@@ -123,6 +123,21 @@ const DiscordCallback = () => {
                         is_admin = false;
                     }
 
+                    // Odznaka "Członek Klanu" (tylko status w UI — ZERO uprawnień)
+                    let is_clan_member = false;
+                    try {
+                        const memberRes = await fetch('/api/verify-member', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ access_token: accessToken })
+                        });
+                        const memberData = await memberRes.json();
+                        is_clan_member = !!(memberData && memberData.ok && memberData.is_clan_member);
+                    } catch (e) {
+                        // Funkcja niedostępna → po prostu bez odznaki
+                        is_clan_member = false;
+                    }
+
                     // Store session with user ID, admin flag, membership flags
                     saveSession({
                         access_token: accessToken,
@@ -132,6 +147,7 @@ const DiscordCallback = () => {
                         // https://cdn.discordapp.com/avatars/{id}/{hash}.png
                         avatar: userData.avatar || null,
                         is_admin,
+                        is_clan_member,
                         is_dev_member: isInDevGuild,
                         is_main_member: isInMainGuild,
                         timestamp: Date.now()

@@ -16,6 +16,7 @@
     "changelog": "Changelog",
     "sessionBadge": "LOGGED IN",
     "logout": "LOGOUT",
+    "clanMemberBadge": "CLAN MEMBER",
     "realtimeOffline": "REALTIME: OFFLINE",
     "realtimeLive": "LIVE",
     "realtimeStandby": "STANDBY",

@@ -38,6 +38,12 @@ const DEFAULT_ADMIN_ROLES = [
   "1445399610414858340:1525241776665923645", // Próbny Elder
 ].join(",");
 
+// Domyślne role CZŁONKOWSKIE — TYLKO do odznaki w UI, ZERO uprawnień admina.
+// Format jak w ZPK_ADMIN_ROLE_IDS, ALE wymaga zasięgu "guildId:roleId"
+// (goła rola nie działa — sprawdzamy tylko serwery z konfiguracji).
+// Nadpisywalne zmienną ZPK_MEMBER_ROLE_IDS.
+const DEFAULT_MEMBER_ROLES = "1445399610414858340:1525241797322739914"; // Członek Klanu (oficjalny serwer)
+
 // Uprawnienie ADMINISTRATOR w Discordzie = bit 8 w polu "permissions".
 const PERMISSION_ADMINISTRATOR = 8n;
 
@@ -186,6 +192,80 @@ async function verifyAdmin(accessToken) {
   };
 }
 
+// Sprawdza rolę CZŁONKOWSKĄ (np. "Członek Klanu") u użytkownika z access_token.
+// Wyłącznie status do odznaki w UI — funkcja NIGDY nie nadaje uprawnień
+// (zwracany jest wyłącznie is_clan_member, żadnego is_admin).
+// Role z konfiguracji są zasięgu "guildId:roleId" — sprawdzamy tylko
+// serwery z listy, na których użytkownik faktycznie jest.
+async function verifyClanMember(accessToken) {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) {
+    return { ok: false, error: "BOT_NOT_CONFIGURED", is_clan_member: false };
+  }
+
+  const memberEntries = parseAdminRoleConfig(
+    process.env.ZPK_MEMBER_ROLE_IDS || DEFAULT_MEMBER_ROLES
+  );
+  if (memberEntries.length === 0) {
+    return { ok: false, error: "MEMBER_ROLES_NOT_CONFIGURED", is_clan_member: false };
+  }
+
+  // 1. Tożsamość użytkownika (OAuth)
+  const meRes = await fetch("https://discord.com/api/users/@me", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!meRes.ok) return { ok: false, error: "INVALID_TOKEN", is_clan_member: false };
+  const me = await meRes.json();
+
+  // 2. Serwery użytkownika — interesują nas tylko te z konfiguracji ról
+  const guildsRes = await fetch("https://discord.com/api/users/@me/guilds", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!guildsRes.ok) {
+    return { ok: false, error: "GUILDS_FETCH_FAILED", is_clan_member: false };
+  }
+  const guildsData = await guildsRes.json();
+  const guilds = Array.isArray(guildsData) ? guildsData : [];
+  const userGuildIds = new Set(guilds.map((g) => g.id));
+  const wantedGuildIds = [...new Set(memberEntries.map((e) => e.guildId).filter(Boolean))];
+  const presentGuilds = wantedGuildIds.filter((gid) => userGuildIds.has(gid));
+  if (presentGuilds.length === 0) {
+    return {
+      ok: true,
+      is_member: false,
+      is_clan_member: false,
+      user: { id: me.id, username: me.username || me.global_name || null },
+    };
+  }
+
+  // 3. Role przez bota (tylko na serwerach, gdzie użytkownik jest)
+  let isClanMember = false;
+  for (const gid of presentGuilds) {
+    try {
+      const memberRes = await fetch(
+        `https://discord.com/api/guilds/${gid}/members/${me.id}`,
+        { headers: { Authorization: `Bot ${botToken}` } }
+      );
+      if (!memberRes.ok) continue;
+      const member = await memberRes.json();
+      const roles = Array.isArray(member.roles) ? member.roles : [];
+      if (memberEntries.some((e) => e.guildId === gid && roles.includes(e.roleId))) {
+        isClanMember = true;
+        break;
+      }
+    } catch (e) {
+      continue; // pojedynczy serwer padł — sprawdzamy dalej / zwracamy co mamy
+    }
+  }
+
+  return {
+    ok: true,
+    is_member: presentGuilds.length > 0,
+    is_clan_member: isClanMember,
+    user: { id: me.id, username: me.username || me.global_name || null },
+  };
+}
+
 // Uploaduje zdjęcie do Catbox.moe (anonimowo, bez konta).
 // Zwalnia z problemów CORS - całe żądanie idzie po stronie serwera.
 // Uwaga: Catbox odrzuca żądania bez User-Agent, dlatego ustawiamy własny.
@@ -229,4 +309,4 @@ async function uploadToCatbox(filename, base64Data) {
   return { ok: true, url: text };
 }
 
-module.exports = { verifyAdmin, uploadToCatbox, json, corsHeaders };
+module.exports = { verifyAdmin, verifyClanMember, uploadToCatbox, json, corsHeaders };

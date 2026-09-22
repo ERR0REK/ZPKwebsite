@@ -120,6 +120,14 @@ const Navbar = () => {
                                         <UserCircle size={14} />
                                     )}
                                     <span className="nav-username">{session.username || 'OPERATIVE'}</span>
+                                    {session.is_clan_member && (
+                                        <span
+                                            className="nav-clan-badge"
+                                            title={t('nav.clanMemberBadge', 'CZŁONEK KLANU')}
+                                        >
+                                            {t('nav.clanMemberBadge', 'CZŁONEK KLANU')}
+                                        </span>
+                                    )}
                                     {timeLeft !== null && (
                                         <span className="nav-session-timer">
                                             {formatTimeLeft(timeLeftMs)}

@@ -788,3 +788,15 @@ nav {
         padding: 6px 12px;
     }
 }
+/* Odznaka "CZŁONEK KLANU" — status z /api/verify-member (zero uprawnień) */
+.nav-clan-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border: 1px solid var(--ZPK-gold);
+    border-radius: 3px;
+    color: var(--ZPK-gold);
+    background: rgba(251, 191, 36, 0.08);
+    white-space: nowrap;
+}

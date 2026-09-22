@@ -113,30 +113,59 @@ function createInMemoryStore() {
 }
 
 // ============================================================
-// 3. Resolve store — cache + ping + in-memory fallback
+// 3. Resolve store — auto-kontekst → event.blobs (dev) → in-memory
 // ============================================================
-// Store otwierany z consistency: "strong" — silna spójność obejmuje
-// wszystkie operacje, w tym list() (który nie ma własnej opcji).
+// KOLEJNOŚĆ MA ZNACZENIE (bug produkcyjny): event.blobs istnieje w
+// funkcjach Netlify ZAWSZE, nie tylko w netlify-cli dev! Stara wersja
+// preferowała go, przez co na produkcji mockowy siteID "unlinked"
+// (wartość sandboxa netlify-cli) kolidował z prawdziwym tokenem
+// ("Invalid token claims: Expected site ID unlinked, got <siteID>")
+// i CAŁY ruch po cichu szedł do in-memory: zapisy ginęły po odświeżeniu
+// strony, koledzy nie widzieli nowych wpisów.
+//
+// Poprawna sekwencja:
+//   1) getStore() z auto-kontekstem (env runtime Netlify) — produkcja,
+//   2) getStore() z event.blobs (sandbox netlify-cli, siteID "unlinked")
+//      — tylko gdy auto-kontekstu brak (MissingBlobsEnvironmentError),
+//   3) in-memory — dev bez Netlify (testy).
+async function openStore(storeName, options) {
+  const store = getStore(storeName, { ...options, consistency: "strong" });
+  // Ping — waliduje poświadczenia pierwszym żądaniem (SEED_MARKER jest
+  // neutralny — nie ładuje danych użytkownika).
+  await store.get(SEED_MARKER, { type: "json", consistency: "strong" });
+  return store;
+}
+
 async function resolveStore(event, storeName, key, seedData) {
   const cached = storeCache.get(storeName);
   if (cached) return cached;
 
-  try {
-    const store = getStore(storeName, { ...getStoreOptions(event), consistency: "strong" });
-    // Ping — wykrywa MissingBlobsEnvironmentError lub błąd sandboxa.
-    // WAŻNE: cache PO pingu — jeśli ping failnie, tworzymy in-memory
-    // zamiast cache'ować zepsuty store (który nigdy się nie naprawi).
-    await store.get(key, { type: "json", consistency: "strong" });
-    storeCache.set(storeName, store);
-    return store;
-  } catch (err) {
+  const toMemory = (reason) => {
     console.warn(
       `${storeName}: Netlify Blobs niedostępne — magazyn in-memory:`,
-      err && err.message ? err.message : err
+      reason && reason.message ? reason.message : reason
     );
     const memStore = createInMemoryStore();
     storeCache.set(storeName, memStore);
     return memStore;
+  };
+
+  // 1) Produkcja / dowolne środowisko z auto-kontekstem Blobs
+  try {
+    const store = await openStore(storeName, {});
+    storeCache.set(storeName, store);
+    return store;
+  } catch (autoErr) {
+    // 2) Lokalny dev (netlify-cli) — poświadczenia przez event.blobs.
+    //    Bez event.blobs nie ma czego próbować → od razu in-memory.
+    if (!event || !event.blobs) return toMemory(autoErr);
+    try {
+      const store = await openStore(storeName, getStoreOptions(event));
+      storeCache.set(storeName, store);
+      return store;
+    } catch (sandboxErr) {
+      return toMemory(sandboxErr);
+    }
   }
 }
 
