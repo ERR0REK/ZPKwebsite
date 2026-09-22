@@ -202,7 +202,10 @@
       "msgAddedCloud": "DODANO: {{name}} → wspólna baza (widzą wszyscy gracze).",
       "msgSavedLocal": "ZAPISANO LOKALNIE: {{name}} (chmura chwilowo niedostępna — inni gracze tego nie zobaczą).",
       "msgRemovedCloud": "USUNIĘTO: {{name}} → wspólna baza.",
-      "msgRemovedLocal": "USUNIĘTO LOKALNIE: {{name}} (chmura chwilowo niedostępna)."
+      "msgRemovedLocal": "USUNIĘTO LOKALNIE: {{name}} (chmura chwilowo niedostępna).",
+      "rehostDone": "PRZENIESIONO NA CATBOX: {{count}} obraz(ów) z Discorda (linki wieczne).",
+      "rehostFailed": "NIE UDAŁO SIĘ przenieść {{count}} obraz(ów) (link wygasł?) — zostawiono oryginalne.",
+      "pasteHint": "💡 Wklej zrzut prosto ze schowka (Ctrl+V) — wyśle się na Catbox automatycznie. Linki z Discorda przenosimy na Catbox przy dodawaniu, żeby nie wygasały."
     }
   },
   "login": {

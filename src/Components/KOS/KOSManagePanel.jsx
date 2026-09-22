@@ -49,6 +49,7 @@ const KOSManagePanel = ({
     handleRemoveTarget,
     handleResetLocal,
     handleUpload,
+    handleEvidencePaste,
     uploading,
     uploadError,
     adminMessage,
@@ -210,8 +211,10 @@ const KOSManagePanel = ({
                         rows={4}
                         value={form.evidenceText}
                         onChange={(e) => setForm((f) => ({ ...f, evidenceText: e.target.value }))}
+                        onPaste={handleEvidencePaste}
                         placeholder={t('kos.manage.evidenceHint')}
                     />
+                    <p className="paste-hint">{t('kos.manage.pasteHint')}</p>
                 </div>
 
                 {isAdmin && (

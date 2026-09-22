@@ -6,6 +6,7 @@ import WarLogModal from "./WarLogModal";
 import DecodedText from "../Shared/DecodedText";
 import WarLogsManagePanel from "./WarLogsManagePanel";
 import useCloudStore from "../../hooks/useCloudStore";
+import { isDiscordImageUrl, rehostImageUrl } from "../../utils/evidence";
 import { useSession } from "../../Context/SessionContext";
 import "./WarLogs.css";
 import { AnimatePresence, motion } from "framer-motion";
@@ -20,6 +21,9 @@ const RESULT_FILTERS = ["ALL", "WIN", "LOSS", "EASY_WIN", "DRAW"];
 // ponowny GET /api/war-store przy każdej zmianie stanu strony.
 const WAR_SEED_LOGS = Array.isArray(warLogsData.logs) ? warLogsData.logs : [];
 const WAR_NORMALIZE_FN = (res) => (Array.isArray(res.logs) ? res.logs : []);
+
+// via.placeholder.com już nie istnieje (dead link) — własny baner zastępczy
+const WAR_BANNER_FALLBACK = "https://placehold.co/1200x600/0b0b0b/fbbf24/png?text=ZPK+War+Report";
 
 
 
@@ -111,11 +115,23 @@ const WarLogs = () => {
       duration: form.duration.trim(),
       members: form.members.trim(),
       mvp: form.mvp.trim(),
-      img: form.img.trim() || "https://via.placeholder.com/1200x600?text=ZPK+War+Report",
+      img: form.img.trim() || WAR_BANNER_FALLBACK,
       videoUrl: form.videoUrl.trim(),
       enemyKD: [],
       memberKD: [],
     };
+
+    // CROSS-PLATFORM: link obrazka z Discorda wygasa po ~24h — przenieś go
+    // na Catbox (wieczny link). Nieudany rehost nie blokuje dodania raportu.
+    if (cloudReady && session?.access_token && isDiscordImageUrl(newLog.img)) {
+      setAdminMessage("⏳ Przenoszę obraz z Discorda na Catbox...");
+      const rh = await rehostImageUrl(newLog.img, session.access_token);
+      if (rh.ok) {
+        newLog.img = rh.url;
+      } else {
+        setAdminMessage(`⚠️ Nie udało się przenieść obrazu (${rh.error}) — zostawiam oryginalny link`);
+      }
+    }
 
     if (cloudReady) {
       try {
