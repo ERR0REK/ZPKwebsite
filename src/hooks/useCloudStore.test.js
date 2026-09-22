@@ -146,6 +146,64 @@ describe('useCloudStore', () => {
     });
   });
 
+  it('does NOT re-fetch on unrelated re-renders (stable fetchData)', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => CLOUD_DATA,
+    });
+    // seedData/normalizeFn tworzone inline — w starej wersji każdy rerender
+    // (np. wpisanie znaku w wyszukiwarkę) tworzył nowy fetchData i odpalał GET
+    const { result, rerender } = renderHook(
+      (props) =>
+        useCloudStore({
+          endpoint: '/api/test',
+          channel: 'test-channel',
+          seedData: props.seedData,
+          normalizeFn: (res) => ({
+            personal: Array.isArray(res.personal) ? res.personal : [],
+            factions: Array.isArray(res.factions) ? res.factions : [],
+          }),
+        }),
+      { initialProps: { seedData: SEED_DATA } }
+    );
+    await waitFor(() => {
+      expect(result.current.cloudReady).toBe(true);
+    });
+    rerender({ seedData: { personal: [{ name: 'SeedPerson' }], factions: [] } });
+    rerender({ seedData: SEED_DATA });
+    rerender({ seedData: SEED_DATA });
+    // oczekujemy dokładnie 1 GET (mount) — rerendery nie odpalają kolejnych
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps cloud data and cloudReady=true when a later refresh fails', async () => {
+    // pierwszy GET OK, kolejne (odświeżenia/realtime) padają
+    global.fetch
+      .mockImplementationOnce(() =>
+        Promise.resolve({ ok: true, json: async () => CLOUD_DATA })
+      )
+      .mockImplementation(() => Promise.reject(new Error('boom')));
+    const { result } = renderHook(() =>
+      useCloudStore({
+        endpoint: '/api/test',
+        channel: 'test-channel',
+        seedData: SEED_DATA,
+      })
+    );
+    await waitFor(() => {
+      expect(result.current.cloudReady).toBe(true);
+    });
+    act(() => {
+      result.current.refresh();
+    });
+    await waitFor(() => {
+      expect(result.current.error).toBe('boom');
+    });
+    // dane z chmury zostają, cloudReady NIE spada do false
+    expect(result.current.cloudReady).toBe(true);
+    expect(result.current.data).toEqual(CLOUD_DATA);
+  });
+
   it('refresh() triggers re-fetch', async () => {
     global.fetch.mockResolvedValue({
       ok: true,

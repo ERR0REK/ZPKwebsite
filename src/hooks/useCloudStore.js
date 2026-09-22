@@ -15,9 +15,15 @@
  *     normalizeFn: (res) => ({ personal: res.personal, factions: res.factions }),
  *     mergeFn: (cloud, seed) => mergeTargets(cloud, seed, hiddenNames),
  *   });
+ *
+ * STABILNOŚĆ (ważne): seedData/normalizeFn/mergeFn są czytane przez ref,
+ * NIE przez zależności useCallback. Dzięki temu rerender strony (np.
+ * wpisanie znaku w wyszukiwarkę) NIE tworzy nowego fetchData i NIE
+ * odpala ponownego GET-a. Wcześniej niestabilne inline-funkcje powodowały
+ * burzę requestów i fałszywe przełączanie się strony w tryb lokalny.
  */
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRealtime } from '../Realtime/RealtimeProvider';
 
 /**
@@ -42,17 +48,27 @@ const useCloudStore = ({
   const [cloudReady, setCloudReady] = useState(null); // null → checking, true/false → result
   const [error, setError] = useState(null);
   const mountedRef = useRef(true);
+  const loadedOnceRef = useRef(false); // pierwszy udany GET z chmury
 
-  // Default: identity (no transformation) — stable via useMemo
-  const normalize = useMemo(() => normalizeFn || ((res) => res), [normalizeFn]);
-  // Default: no merge (use cloud data as-is) — stable via useMemo
-  const merge = useMemo(() => mergeFn || ((cloud) => cloud), [mergeFn]);
+  // Najświeższe seedData/normalizeFn/mergeFn przez ref (pattern "latest ref").
+  // Efekt bez tablicy zależności → aktualizacja po każdym renderze, ale fetchData
+  // od nich NIE zależy, więc jego tożsamość (i efekty) pozostają stabilne.
+  const latestRef = useRef(null);
+  useEffect(() => {
+    latestRef.current = {
+      seedData,
+      normalize: normalizeFn || ((res) => res),
+      merge: mergeFn || ((cloud) => cloud),
+    };
+  });
 
   // ============================================================
-  // 1. Fetch z chmury + fallback na seed
+  // 1. Fetch z chmury + fallback na seed (tylko przy pierwszym loadzie)
   // ============================================================
   const fetchData = useCallback(async () => {
     if (!enabled || !endpoint) return;
+
+    const { seedData: seed, normalize, merge } = latestRef.current || {};
 
     try {
       const res = await fetch(endpoint);
@@ -60,25 +76,29 @@ const useCloudStore = ({
       const json = await res.json();
 
       if (!mountedRef.current) return;
+      if (!(json && json.ok)) throw new Error('bad response');
 
-      if (json && json.ok) {
-        const normalized = normalize(json);
-        setData(merge(normalized, seedData));
-        setCloudReady(true);
-        setError(null);
-      } else {
-        throw new Error('bad response');
-      }
+      loadedOnceRef.current = true;
+      setData(merge(normalize(json), seed));
+      setCloudReady(true);
+      setError(null);
     } catch (err) {
       if (!mountedRef.current) return;
-      // Fallback — dane z seeda (z kodu)
-      setData(seedData);
-      setCloudReady(false);
+
+      // Nieudane PIERWSZE pobranie → tryb lokalny (seed z kodu).
+      // Nieudane odświeżenie PO udanym loadzie NIE czyści danych i NIE
+      // przewraca cloudReady — jedna chwilowa awaria (rate limit, timeout,
+      // restart funkcji) nie może zniszczyć stanu strony ani wymusić trybu
+      // lokalnego, w którym zapisy omijają wspólną bazę.
+      if (!loadedOnceRef.current) {
+        setData(seed);
+        setCloudReady(false);
+      }
       setError(err.message || 'FETCH_FAILED');
     }
-  }, [endpoint, seedData, normalize, merge, enabled]);
+  }, [endpoint, enabled]);
 
-  // Pierwszy fetch
+  // Pierwszy fetch (fetchData jest stabilny → odpala się raz na endpoint)
   useEffect(() => {
     mountedRef.current = true;
     fetchData();

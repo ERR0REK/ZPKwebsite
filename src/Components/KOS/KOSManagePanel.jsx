@@ -51,6 +51,7 @@ const KOSManagePanel = ({
     handleUpload,
     uploading,
     uploadError,
+    adminMessage,
     getReasonText,
     onClose,
 }) => {
@@ -87,6 +88,9 @@ const KOSManagePanel = ({
                     </span>
                 </div>
             )}
+
+            {/* Komunikat po dodaniu/usunięciu celu (sukces chmura/lokalnie) */}
+            {adminMessage && <div className="kos-admin-message">{adminMessage}</div>}
 
             {!isAdmin && (
                 <div className="manage-admin-warning">

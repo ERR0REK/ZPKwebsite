@@ -198,7 +198,11 @@
       "uploading": "UPLOADING...",
       "uploadError": "Upload failed. Try again or paste the image link manually.",
       "cloudOnline": "CLOUD SYNC: ACTIVE — changes visible to all players",
-      "cloudOffline": "LOCAL MODE — changes visible only in this browser"
+      "cloudOffline": "LOCAL MODE — changes visible only in this browser",
+      "msgAddedCloud": "ADDED: {{name}} → shared database (visible to all players).",
+      "msgSavedLocal": "SAVED LOCALLY: {{name}} (cloud temporarily unavailable — other players won't see it).",
+      "msgRemovedCloud": "REMOVED: {{name}} → shared database.",
+      "msgRemovedLocal": "REMOVED LOCALLY: {{name}} (cloud temporarily unavailable)."
     }
   },
   "login": {

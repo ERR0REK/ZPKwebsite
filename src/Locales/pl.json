@@ -198,7 +198,11 @@
       "uploading": "WYSYŁANIE...",
       "uploadError": "Nie udało się wysłać zdjęcia. Spróbuj ponownie lub wklej link ręcznie.",
       "cloudOnline": "SYNCHRONIZACJA Z CHMURĄ: AKTYWNA — zmiany widzą wszyscy gracze",
-      "cloudOffline": "TRYB LOKALNY — zmiany widoczne tylko w tej przeglądarce"
+      "cloudOffline": "TRYB LOKALNY — zmiany widoczne tylko w tej przeglądarce",
+      "msgAddedCloud": "DODANO: {{name}} → wspólna baza (widzą wszyscy gracze).",
+      "msgSavedLocal": "ZAPISANO LOKALNIE: {{name}} (chmura chwilowo niedostępna — inni gracze tego nie zobaczą).",
+      "msgRemovedCloud": "USUNIĘTO: {{name}} → wspólna baza.",
+      "msgRemovedLocal": "USUNIĘTO LOKALNIE: {{name}} (chmura chwilowo niedostępna)."
     }
   },
   "login": {
