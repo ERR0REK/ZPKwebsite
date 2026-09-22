@@ -15,6 +15,12 @@ import warLogsData from "../../data/warLogs.json";
 
 const RESULT_FILTERS = ["ALL", "WIN", "LOSS", "EASY_WIN", "DRAW"];
 
+// Stabilne referencje dla useCloudStore (poziom modułu) — inline-funkcja
+// normalizeFn tworzyła nową referencję przy każdym renderze, co odpalało
+// ponowny GET /api/war-store przy każdej zmianie stanu strony.
+const WAR_SEED_LOGS = Array.isArray(warLogsData.logs) ? warLogsData.logs : [];
+const WAR_NORMALIZE_FN = (res) => (Array.isArray(res.logs) ? res.logs : []);
+
 
 
 const WarLogs = () => {
@@ -44,8 +50,8 @@ const WarLogs = () => {
   const { data: cloudLogs, cloudReady, refresh: refreshCloud } = useCloudStore({
     endpoint: "/api/war-store",
     channel: "zpk-war-status",
-    seedData: Array.isArray(warLogsData.logs) ? warLogsData.logs : [],
-    normalizeFn: (res) => Array.isArray(res.logs) ? res.logs : [],
+    seedData: WAR_SEED_LOGS,
+    normalizeFn: WAR_NORMALIZE_FN,
   });
 
   // Sync cloudLogs → local logs state (posortowane)

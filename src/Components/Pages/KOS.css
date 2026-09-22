@@ -1451,3 +1451,13 @@
         padding: 0 15px;
     }
 }
+/* Komunikat zwrotny w panelu zarządzania (dodano/usunięto cel) */
+.kos-admin-message {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 3px solid var(--ZPK-gold);
+    color: var(--text-dim);
+    margin-bottom: 12px;
+}

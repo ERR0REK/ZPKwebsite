@@ -51,6 +51,22 @@ const REASON_KEYS = [
     'reasonHate'
 ];
 
+// ============================================================================
+// ☁️ Stabilne referencje dla useCloudStore — obliczane RAZ na poziomie modułu.
+// Wcześniej seedData (nowy obiekt) i normalizeFn (nowa strzałka) powstawały
+// przy każdym renderze → hook tworzył nowe fetchData → każdy render strony
+// (wpisanie znaku w wyszukiwarkę, otwarcie panelu) odpalał ponowny GET do
+// /api/kos-store. Burza requestów + chwilowe błędy = fałszywe przełączenie
+// strony w tryb lokalny ("Zarządzaj lokalnie") i gubienie wpisów.
+// ============================================================================
+const STATIC_PERSONAL_TARGETS = Array.isArray(kosTargets.personal) ? kosTargets.personal : [];
+const STATIC_FACTION_TARGETS = Array.isArray(kosTargets.factions) ? kosTargets.factions : [];
+const KOS_CLOUD_SEED = { personal: STATIC_PERSONAL_TARGETS, factions: STATIC_FACTION_TARGETS };
+const KOS_NORMALIZE_FN = (res) => ({
+    personal: Array.isArray(res.personal) ? res.personal : [],
+    factions: Array.isArray(res.factions) ? res.factions : [],
+});
+
 const EvidenceIcon = ({ type, size = 14 }) => {
     if (type === 'youtube') return <Youtube size={size} />;
     if (type === 'discord') return <MessageCircle size={size} />;
@@ -175,6 +191,8 @@ const KOS = () => {
         evidenceText: ''
     });
 
+    const [adminMessage, setAdminMessage] = useState(''); // komunikat w panelu zarządzania
+
     const { session } = useSession();
 
     // Weryfikacja admina NA ŻYWO — KOS sprawdza rolę przez /api/verify-admin
@@ -245,8 +263,9 @@ const KOS = () => {
     //   "intel": { "leaders": "Lider1, Lider2", "allies": "Klan Sojuszniczy", "firepower": "HEAVY_ARMORED" }
     // ==================================================================
     // Zabezpieczenie przed literówką w pliku JSON (np. "personal": {})
-    const staticPersonalTargets = Array.isArray(kosTargets.personal) ? kosTargets.personal : [];
-    const staticFactionTargets = Array.isArray(kosTargets.factions) ? kosTargets.factions : [];
+    // — referencje stabilne (poziom modułu), patrz komentarz przy KOS_CLOUD_SEED.
+    const staticPersonalTargets = STATIC_PERSONAL_TARGETS;
+    const staticFactionTargets = STATIC_FACTION_TARGETS;
 
     const initialHidden = loadStored(STORAGE_HIDDEN);
     const [hiddenNames, setHiddenNames] = useState(() => initialHidden);
@@ -256,11 +275,8 @@ const KOS = () => {
     const { data: cloudData, cloudReady, refresh: refreshCloud } = useCloudStore({
         endpoint: '/api/kos-store',
         channel: 'zpk-kos-updates',
-        seedData: { personal: staticPersonalTargets, factions: staticFactionTargets },
-        normalizeFn: (res) => ({
-            personal: Array.isArray(res.personal) ? res.personal : [],
-            factions: Array.isArray(res.factions) ? res.factions : [],
-        }),
+        seedData: KOS_CLOUD_SEED,
+        normalizeFn: KOS_NORMALIZE_FN,
     });
 
     // Scal dane z chmury/seed z hiddenNames — cele usunięte przez admina nie wracają
@@ -311,6 +327,7 @@ const KOS = () => {
     const handleAddTarget = async (e) => {
         e.preventDefault();
         if (!form.name.trim()) return;
+        setAdminMessage('');
         const newName = form.name.trim();
         // Jeśli cel był wcześniej usunięty, przywróć go (usuń z ukrytych)
         setHiddenNames((prev) => prev.filter((n) => n !== newName));
@@ -355,15 +372,20 @@ const KOS = () => {
                 });
                 const data = await res.json();
                 if (res.ok && data && data.ok) {
+                    applyLocal(); // natychmiastowy feedback; refetch uzgodni z chmurą
                     refreshCloud();
+                    setAdminMessage(t('kos.manage.msgAddedCloud', { name: newName }));
                 } else {
                     applyLocal();
+                    setAdminMessage(t('kos.manage.msgSavedLocal', { name: newName }));
                 }
             } catch (err) {
                 applyLocal();
+                setAdminMessage(t('kos.manage.msgSavedLocal', { name: newName }));
             }
         } else {
             applyLocal();
+            setAdminMessage(t('kos.manage.msgSavedLocal', { name: newName }));
         }
 
         setForm({
@@ -406,11 +428,15 @@ const KOS = () => {
                 const data = await res.json();
                 if (res.ok && data && data.ok) {
                     refreshCloud();
+                    setAdminMessage(t('kos.manage.msgRemovedCloud', { name }));
                     return;
                 }
+                setAdminMessage(t('kos.manage.msgRemovedLocal', { name }));
             } catch (err) {
-                /* fallthrough do trybu lokalnego */
+                setAdminMessage(t('kos.manage.msgRemovedLocal', { name }));
             }
+        } else {
+            setAdminMessage(t('kos.manage.msgRemovedLocal', { name }));
         }
         applyLocal();
     };
@@ -1000,6 +1026,7 @@ const KOS = () => {
                             handleUpload={handleUpload}
                             uploading={uploading}
                             uploadError={uploadError}
+                            adminMessage={adminMessage}
                             getReasonText={getReasonText}
                             onClose={() => setManageOpen(false)}
                         />
