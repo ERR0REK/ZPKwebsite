@@ -202,7 +202,10 @@
       "msgAddedCloud": "ADDED: {{name}} → shared database (visible to all players).",
       "msgSavedLocal": "SAVED LOCALLY: {{name}} (cloud temporarily unavailable — other players won't see it).",
       "msgRemovedCloud": "REMOVED: {{name}} → shared database.",
-      "msgRemovedLocal": "REMOVED LOCALLY: {{name}} (cloud temporarily unavailable)."
+      "msgRemovedLocal": "REMOVED LOCALLY: {{name}} (cloud temporarily unavailable).",
+      "rehostDone": "REHOSTED TO CATBOX: {{count}} Discord image(s) (permanent links).",
+      "rehostFailed": "FAILED to rehost {{count}} image(s) (link expired?) — kept original URLs.",
+      "pasteHint": "💡 Paste a screenshot straight from the clipboard (Ctrl+V) — it uploads to Catbox automatically. Discord links are rehosted to Catbox on add so they never expire."
     }
   },
   "login": {

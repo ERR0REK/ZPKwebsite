@@ -33,6 +33,7 @@ import kosTargets from '../../data/kosTargets.json';
 import useCloudStore from '../../hooks/useCloudStore';
 import { useSession } from '../../Context/SessionContext';
 import KOSManagePanel from '../KOS/KOSManagePanel';
+import { rehostEvidenceText, onImageError } from '../../utils/evidence';
 import './KOS.css';
 
 const INITIAL_PERSONAL = 4;
@@ -331,9 +332,29 @@ const KOS = () => {
         const newName = form.name.trim();
         // Jeśli cel był wcześniej usunięty, przywróć go (usuń z ukrytych)
         setHiddenNames((prev) => prev.filter((n) => n !== newName));
+
+        // ⚠️ CROSS-PLATFORM DOWODY: linki obrazów z Discorda
+        // (cdn.discordapp.com / media.discordapp.net) mają podpis i WYGAJĄ
+        // po ~24h. Zanim zapiszemy cel, przenosimy je na Catbox (linki
+        // wieczne). Nieudany rehost nie blokuje dodania celu.
+        let evidenceText = form.evidenceText;
+        let rehostNotice = '';
+        if (cloudReady && session?.access_token) {
+            try {
+                const rh = await rehostEvidenceText(evidenceText, session.access_token);
+                if (rh.changed) {
+                    evidenceText = rh.text;
+                    const bits = [];
+                    if (rh.rehosted) bits.push(t('kos.manage.rehostDone', { count: rh.rehosted }));
+                    if (rh.failed) bits.push(t('kos.manage.rehostFailed', { count: rh.failed }));
+                    rehostNotice = bits.join(' ');
+                }
+            } catch (err) { /* rehost nie może zablokować dodania celu */ }
+        }
+
         const newTarget = {
             name: newName,
-            evidence: parseEvidenceLines(form.evidenceText)
+            evidence: parseEvidenceLines(evidenceText)
         };
         if (form.reasonMode === 'custom' && form.customReason.trim()) {
             newTarget.reason = form.customReason.trim();
@@ -374,7 +395,10 @@ const KOS = () => {
                 if (res.ok && data && data.ok) {
                     applyLocal(); // natychmiastowy feedback; refetch uzgodni z chmurą
                     refreshCloud();
-                    setAdminMessage(t('kos.manage.msgAddedCloud', { name: newName }));
+                    setAdminMessage(
+                        t('kos.manage.msgAddedCloud', { name: newName }) +
+                        (rehostNotice ? ' ' + rehostNotice : '')
+                    );
                 } else {
                     applyLocal();
                     setAdminMessage(t('kos.manage.msgSavedLocal', { name: newName }));
@@ -517,8 +541,8 @@ const KOS = () => {
         return t('kos.evidence.other');
     };
 
-    const handleUpload = async (e) => {
-        const file = e.target.files && e.target.files[0];
+    // Wspólny upload pliku (picker plików ORAZ wklejenie obrazu ze schowka)
+    const uploadEvidenceFile = async (file) => {
         if (!file) return;
         setUploading(true);
         setUploadError('');
@@ -534,7 +558,7 @@ const KOS = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     access_token: session?.access_token,
-                    filename: file.name,
+                    filename: file.name || 'dowod.png',
                     file_base64: base64
                 })
             });
@@ -551,7 +575,32 @@ const KOS = () => {
             setUploadError(err.message || 'UPLOAD_FAILED');
         } finally {
             setUploading(false);
-            e.target.value = ''; // allow re-selecting the same file
+        }
+    };
+
+    const handleUpload = (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) uploadEvidenceFile(file);
+        e.target.value = ''; // allow re-selecting the same file
+    };
+
+    // ⌨️ CROSS-PLATFORM: „Kopiuj obraz” na Discordzie wkłada do schowka
+    // same piksele (nie link). Ctrl+V w polu dowodów = automatyczny upload
+    // do Catbox i dopisanie linii image|<url>.
+    const handleEvidencePaste = (e) => {
+        const items = e.clipboardData && e.clipboardData.items;
+        if (!items) return;
+        let imageFile = null;
+        for (let i = 0; i < items.length; i++) {
+            const it = items[i];
+            if (it.kind === 'file' && it.type && it.type.startsWith('image/')) {
+                imageFile = it.getAsFile();
+                break;
+            }
+        }
+        if (imageFile) {
+            e.preventDefault();
+            uploadEvidenceFile(imageFile);
         }
     };
 
@@ -569,7 +618,7 @@ const KOS = () => {
                             className="evidence-thumb"
                             title={t('kos.evidence.images')}
                         >
-                            <img src={ev.src} alt={`evidence-${i}`} loading="lazy" />
+                            <img src={ev.src} alt={`evidence-${i}`} loading="lazy" onError={onImageError} />
                         </a>
                 ) : (
                     <a
@@ -746,7 +795,7 @@ const KOS = () => {
                                     rel="noopener noreferrer"
                                     className="evidence-gallery-item"
                                 >
-                                    <img src={ev.src} alt={`screenshot-${i}`} loading="lazy" />
+                                    <img src={ev.src} alt={`screenshot-${i}`} loading="lazy" onError={onImageError} />
                                     <div className="evidence-zoom">
                                         <Search size={16} />
                                     </div>
@@ -1024,6 +1073,7 @@ const KOS = () => {
                             handleRemoveTarget={handleRemoveTarget}
                             handleResetLocal={handleResetLocal}
                             handleUpload={handleUpload}
+                            handleEvidencePaste={handleEvidencePaste}
                             uploading={uploading}
                             uploadError={uploadError}
                             adminMessage={adminMessage}
