@@ -22,6 +22,18 @@
   status = 200
 
 # ============================================================
+# SPA fallback — BEZ TEGO odświeżenie strony na /about, /kos itd.
+# zwraca 404 (Netlify szuka pliku /about, którego nie ma).
+# status = 200 → rewrite. Zasada /api/* wyżej ma priorytet (kolejność
+# ma znaczenie), a prawdziwe pliki (favicon, logo, sitemap.xml, vendor/*)
+# są serwowane normalnie — redirect nie nadpisuje istniejących plików.
+# ============================================================
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# ============================================================
 # Nagłówki bezpieczeństwa — dla wszystkich stron (poza funkcjami)
 # ============================================================
 [[headers]]

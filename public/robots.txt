@@ -1,3 +1,8 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+# Trasy prywatne (wymagają logowania Discord) — nie do indeksowania
+Disallow: /kos
+Disallow: /war-logs
+Disallow: /auth/callback
+
+Sitemap: https://official-zpkwebsite.netlify.app/sitemap.xml

@@ -9,22 +9,34 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Official website of the Zjednoczona Polska Korona (ZPK) faction." />
+  <!-- SEO: description ~155 znaków (sitepulse: 64 było za krótkie) -->
+  <meta name="description" content="Oficjalna strona polskiego klanu Zjednoczona Polska Korona (ZPK). Historia frakcji, regulamin, kadra, lista celów KOS i raporty wojenne — dołącz do elity." />
+
+  <!-- SEO: canonical — jedyna domena kanoniczna tej strony -->
+  <link rel="canonical" href="https://official-zpkwebsite.netlify.app/" />
+
+  <!-- SEO: statyczny H1 dla crawlerów — SPA renderuje treść dopiero w JS,
+       więc bez tego w surowym HTML nie ma żadnego nagłówka (sitepulse: No H1).
+       Niewidoczny wizualnie (sr-only), React go nie usuwa (jest poza #root). -->
+  <style>
+    .seo-h1{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  </style>
 
   <!-- Open Graph (podgląd linków na Discordzie i innych platformach) -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Zjednoczona Polska Korona" />
   <meta property="og:title" content="Zjednoczona Polska Korona | Oficjalna strona frakcji" />
   <meta property="og:description" content="Oficjalna strona polskiego klanu Zjednoczona Polska Korona. Poznaj naszą historię, regulamin, kadrę i bazy KOS." />
-  <meta property="og:image" content="https://zpk.netlify.app/logo512.png" />
-  <meta property="og:url" content="https://zpk.netlify.app/" />
+  <!-- UWAGA: stara domena zpk.netlify.app zwraca 401 — nie używać w metadanych -->
+  <meta property="og:image" content="https://official-zpkwebsite.netlify.app/logo512.png" />
+  <meta property="og:url" content="https://official-zpkwebsite.netlify.app/" />
   <meta property="og:locale" content="pl_PL" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Zjednoczona Polska Korona | Oficjalna strona frakcji" />
   <meta name="twitter:description" content="Oficjalna strona polskiego klanu Zjednoczona Polska Korona. Poznaj naszą historię, regulamin, kadrę i bazy KOS." />
-  <meta name="twitter:image" content="https://zpk.netlify.app/logo512.png" />
+  <meta name="twitter:image" content="https://official-zpkwebsite.netlify.app/logo512.png" />
 
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
   <!--
@@ -50,6 +62,7 @@
 
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
+  <h1 class="seo-h1">Zjednoczona Polska Korona — oficjalna strona frakcji ZPK</h1>
   <div id="root"></div>
   <!--
       This HTML file is a template.
