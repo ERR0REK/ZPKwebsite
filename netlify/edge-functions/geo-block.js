@@ -143,6 +143,28 @@ function envGet(key) {
   return undefined;
 }
 
+function isIndexingBot(request) {
+  const ua = request.headers.get('user-agent') || '';
+  // Lista popularnych botów indeksujących - UA da się podrobić,
+  // to tylko ochrona przed przypadkowym zablokowaniem SEO.
+  const botPatterns = [
+    /googlebot/i,
+    /bingbot/i,
+    /slurp/i,
+    /duckduckbot/i,
+    /baiduspider/i,
+    /yandexbot/i,
+    /facebookexternalhit/i,
+    /twitterbot/i,
+    /linkedinbot/i,
+    /whatsapp/i,
+    /telegrambot/i,
+    /discordbot/i,
+    /slackbot/i,
+  ];
+  return botPatterns.some((re) => re.test(ua));
+}
+
 export default async (request, context) => {
   // Kill switch: lokalny dev (CONTEXT=dev ustawia netlify dev) albo
   // ręczne wyłączenie zmienną GEO_BLOCK_DISABLED=1.
@@ -152,22 +174,11 @@ export default async (request, context) => {
   const country = getCountry(request, context);
   const isDev = envGet('CONTEXT') === 'dev';
 
-  // Brak danych geo = fail-closed na produkcji, fail-open w dev.
-  // W dev (CONTEXT=dev, np. netlify dev, ngrok) przepuszczamy, by nie blokować
-  // lokalnego rozwoju i tuneli. Na produkcji (brak CONTEXT=dev) blokujemy.
-  if (!country) {
-    if (isDev) return context.next();
-    return new Response(BLOCK_PAGE_HTML, {
-      status: 451,
-      headers: {
-        'content-type': 'text/html; charset=utf-8',
-        'content-language': 'pl',
-        'x-content-type-options': 'nosniff',
-        'x-robots-tag': 'noindex',
-        'cache-control': 'no-store',
-      },
-    });
-  }
+  // Brak danych geo -> fail-open (przepuść).
+  // Dotyczy: lokalne testy, curl, monitoring, środowiska bez geolokalizacji.
+  // Na produkcji Netlify zazwyczaj dostarcza geo, ale fail-open jest bezpieczniejszy
+  // niż blokowanie legalnych użytkowników/usług.
+  if (!country) return context.next();
 
   // Boty indeksujące zostawiamy — SEO strony zostaje intact.
   if (isIndexingBot(request)) return context.next();
