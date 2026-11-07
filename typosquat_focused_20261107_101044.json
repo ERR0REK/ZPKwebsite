@@ -1,0 +1,22 @@
+{
+  "nightfallsquadron.pl": {
+    "target": "nightfallsquadron.pl",
+    "base": "nightfallsquadron",
+    "tld": "pl",
+    "total_variants": 286,
+    "variant_breakdown": {
+      "homoglyphs": 21,
+      "keyboard_typos": 75,
+      "omissions": 17,
+      "repetitions": 17,
+      "transpositions": 16,
+      "tld_variations": 15,
+      "bitsquats": 95,
+      "combosquats": 48
+    },
+    "resolving_count": 0,
+    "resolving_domains": {},
+    "ct_log_matches": {},
+    "takeover_vulnerable": {}
+  }
+}

@@ -205,6 +205,7 @@
 .card-header {
   display: flex;
   align-items: center;
+  justify-content: center; /* tytuł + ikona na środku karty */
   gap: 18px;
   margin-bottom: 25px;
   position: relative;
@@ -214,7 +215,8 @@
   content: '';
   position: absolute;
   bottom: -8px;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%); /* linia dekoracyjna wyśrodkowana */
   width: 60px;
   height: 2px;
   background: linear-gradient(90deg, var(--abt-primary), transparent);
@@ -262,6 +264,23 @@
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
   margin-top: 25px;
+}
+
+/* Notatka pod wymaganiami: dotyczy tylko klanu, nie community */
+.requirements-note {
+  margin-top: 18px;
+  padding: 14px 18px;
+  border-left: 3px solid var(--abt-primary);
+  background: rgba(239, 68, 68, 0.05);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--abt-text);
+}
+
+.requirements-note em,
+.requirements-note strong {
+  color: #fff;
 }
 
 .feature-item {

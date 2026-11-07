@@ -9,7 +9,7 @@
 
 const { verifyAdmin, json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, bodyTooLarge, audit, handleError } = require("./_lib/security");
-const { resolveStore } = require("./_lib/blobStore");
+const { resolveStore, readIdempotencyKey, writeIdempotencyKey } = require("./_lib/blobStore");
 const { publish } = require("./_lib/ably");
 
 const CHANNEL = "zpk-announcements";
@@ -26,6 +26,26 @@ const lastAnnounceAt = new Map();
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: corsHeaders(event), body: "" };
+  }
+
+  // ==================== Idempotency Key ====================
+  // Client sends 'Idempotency-Key' header (UUID per mutation).
+  // On duplicate key, return cached response instead of re-executing.
+  const idempotencyKey = event.headers?.["idempotency-key"] || event.headers?.["Idempotency-Key"];
+  if (idempotencyKey && event.httpMethod === "POST") {
+    const cached = await readIdempotencyKey(event, idempotencyKey);
+    if (cached) {
+      // Return cached response with Idempotency-Replay header
+      const replayHeaders = {
+        ...cached.response.headers,
+        "Idempotency-Replay": "true",
+      };
+      return {
+        statusCode: cached.response.statusCode,
+        headers: replayHeaders,
+        body: cached.response.body,
+      };
+    }
   }
 
   try {
@@ -99,7 +119,9 @@ exports.handler = async (event) => {
 
     await audit("announce", `${safeSeverity}: ${announcement.title}`, admin.user);
 
-    return json(200, { ok: true, announcement }, {}, event);
+    const response = json(200, { ok: true, announcement }, {}, event);
+    await writeIdempotencyKey(event, idempotencyKey, response);
+    return response;
   } catch (err) {
     return handleError(err, "announce", event);
   }

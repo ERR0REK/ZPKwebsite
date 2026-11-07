@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, CheckCircle2, Terminal, Cpu } from 'lucide-react';
 import LoadingScreen from '../LoadingScreen/LoadingScreen';
 import { isDevSite } from '../../utils/siteEnv';
-import { readSession, OAUTH_STATE_KEY, saveSession, clearSession } from '../../utils/session';
+import { readSession, OAUTH_STATE_KEY, PKCE_VERIFIER_KEY, saveSession, clearSession } from '../../utils/session';
 import './DiscordCallback.css';
 
 const REQUIRED_GUILD_ID = process.env.REACT_APP_GUILD_ID || "1445399610414858340";
@@ -31,6 +31,21 @@ const cleanAndRedirect = (target) => {
   window.location.reload();
 };
 
+// Wymienia authorization code na access_token przez Netlify Function.
+// Client secret nigdy nie trafia do frontendu — tylko do funkcji serwerowej.
+const exchangeCodeForToken = async (code, codeVerifier) => {
+  const response = await fetch('/api/oauth/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, code_verifier: codeVerifier })
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || 'TOKEN_EXCHANGE_FAILED');
+  }
+  return response.json(); // { access_token, token_type, expires_in, refresh_token, scope }
+};
+
 const DiscordCallback = () => {
     const { t } = useTranslation();
     const [error, setError] = useState(null);
@@ -38,12 +53,14 @@ const DiscordCallback = () => {
 
     useEffect(() => {
         const handleAuth = async () => {
-            // Because of HashRouter, the URL looks like #/auth/callback#access_token=...
-            // e.g. https://site/#/auth/callback#access_token=xxx&token_type=Bearer
-            const fragments = window.location.hash.split('#');
-            const authHash = fragments[fragments.length - 1];
-            const params = new URLSearchParams(authHash);
-            const accessToken = params.get('access_token');
+            // Authorization Code Flow: URL wygląda jak #/auth/callback?code=...&state=...
+            // HashRouter dodaje kod i state do hash-a, np.
+            // https://site/#/auth/callback?code=xxx&state=yyy
+            const hash = window.location.hash;
+            const queryStart = hash.indexOf('?');
+            const searchParams = queryStart >= 0 ? hash.slice(queryStart + 1) : '';
+            const params = new URLSearchParams(searchParams);
+            const code = params.get('code');
 
             // Nonce OAuth (parametr state) — ZAWSZE konsumowany (one-time use).
             let storedState = null;
@@ -54,11 +71,11 @@ const DiscordCallback = () => {
                 /* ignore */
             }
 
-            // --- Przypadek 1: brak tokena w URL ---
-            if (!accessToken) {
+            // --- Przypadek 1: brak kodu autoryzacji w URL ---
+            if (!code) {
                 const session = readSession();
                 // User jest już zalogowany (sesja w localStorage) — np. odświeżył
-                // stronę z resztkami access_token w hash albo wraca na /auth/callback.
+                // stronę albo wraca na /auth/callback.
                 // Przekieruj do celu zamiast pokazywać błąd.
                 if (session && session.user_id) {
                     const redirectTarget = sessionStorage.getItem('ZPK_redirect_target') || '/';
@@ -66,14 +83,12 @@ const DiscordCallback = () => {
                     cleanAndRedirect(redirectTarget.replace(/^#?\//, ''));
                     return;
                 }
-                setError("AUTHENTICATION_FAILED: NO_TOKEN_RECEIVED");
+                setError("AUTHENTICATION_FAILED: NO_AUTH_CODE_RECEIVED");
                 setStatus('error');
                 return;
             }
 
-            // --- Brama CSRF: bez poprawnego state NIE weryfikujemy tokena ---
-            // Atak: ofiara wchodzi na URL z cudzym access_token (bez naszego
-            // nonce) → odrzucamy, zanim cokolwiek zapiszemy albo wywołamy API.
+            // --- Brama CSRF: bez poprawnego state NIE weryfikujemy kodu ---
             const oauthState = params.get('state');
             if (!storedState || !oauthState || oauthState !== storedState) {
                 setStatus('error');
@@ -81,8 +96,25 @@ const DiscordCallback = () => {
                 return;
             }
 
-            // --- Przypadek 2: token jest — weryfikacja ---
+            // Pobierz code_verifier (PKCE) — one-time use, czyść po użyciu.
+            let codeVerifier = null;
             try {
+                codeVerifier = sessionStorage.getItem(PKCE_VERIFIER_KEY);
+                sessionStorage.removeItem(PKCE_VERIFIER_KEY);
+            } catch (e) {
+                /* ignore */
+            }
+            if (!codeVerifier) {
+                setStatus('error');
+                setError('AUTH_BLOCKED: PKCE_VERIFIER_MISSING');
+                return;
+            }
+
+            // --- Przypadek 2: kod jest — wymień na token przez /api/oauth/token ---
+            try {
+                const tokenData = await exchangeCodeForToken(code, codeVerifier);
+                const accessToken = tokenData.access_token;
+
                 // 1. Fetch user's profile to get their ID
                 const userResponse = await fetch('https://discord.com/api/users/@me', {
                     headers: { Authorization: `Bearer ${accessToken}` }

@@ -16,8 +16,19 @@ const resources = {
     }
 };
 
-// Strona jest polska — język zablokowany na PL (koniec międzynarodowości)
-const savedLanguage = 'pl';
+// Read saved language from localStorage, default to Polish
+const getSavedLanguage = () => {
+  if (typeof window !== 'undefined') {
+    try {
+      return localStorage.getItem('selectedLanguage') || localStorage.getItem('i18nextLng') || 'pl';
+    } catch (e) {
+      return 'pl';
+    }
+  }
+  return 'pl';
+};
+
+const savedLanguage = getSavedLanguage();
 
 i18n
     .use(initReactI18next)
@@ -29,5 +40,10 @@ i18n
             escapeValue: false
         }
     });
+
+// Expose i18n on window for E2E tests and external access
+if (typeof window !== 'undefined') {
+  window.i18n = i18n;
+}
 
 export default i18n;

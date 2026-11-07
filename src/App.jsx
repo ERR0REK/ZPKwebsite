@@ -6,6 +6,7 @@ import AuthGuard from './Components/Auth/AuthGuard';
 import { SessionProvider, useSession } from './Context/SessionContext';
 import DiscordCallback from './Components/Auth/DiscordCallback';
 import ScrollToTop from './Components/Shared/ScrollToTop';
+import PageTitle from './Components/Shared/PageTitle';
 import BackToTop from './Components/Shared/BackToTop';
 import PrivacyToast from './Components/Shared/PrivacyToast';
 import './Components/Shared/PrivacyToast.css';
@@ -222,6 +223,7 @@ function App() {
         {devSite && <DevBanner />}
         <Router>
           <ScrollToTop />
+          <PageTitle />
           <Suspense fallback={<RouteFallback />}>
             {devSite ? <DevRoutes /> : <ProdRoutes />}
           </Suspense>

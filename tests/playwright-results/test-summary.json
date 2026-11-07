@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-11-07T11:14:36.857Z",
+  "environment": "http://localhost:3000",
+  "summary": {
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "total": 0
+  },
+  "artifacts": {
+    "reportDir": "playwright-report",
+    "resultsFile": "playwright-results.json"
+  }
+}

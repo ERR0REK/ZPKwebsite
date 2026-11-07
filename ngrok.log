@@ -1,0 +1,29 @@
+{"t":"2026-09-25T07:46:57+0200","lvl":"info","msg":"command usage","msg":"Flag --domain has been deprecated, use --url instead"}
+{"t":"2026-09-25T07:46:57+0200","lvl":"info","msg":"no configuration paths supplied"}
+{"t":"2026-09-25T07:46:57+0200","lvl":"info","msg":"using configuration at default config path","path":"C:\\Users\\Error\\AppData\\Local\\ngrok\\ngrok.yml"}
+{"t":"2026-09-25T07:46:57+0200","lvl":"info","msg":"open config file","path":"C:\\Users\\Error\\AppData\\Local\\ngrok\\ngrok.yml","err":null}
+{"t":"2026-09-25T07:46:57+0200","lvl":"info","msg":"FIPS 140 mode","enabled":false}
+{"t":"2026-09-25T07:46:57+0200","lvl":"info","msg":"starting web service","obj":"web","addr":"127.0.0.1:4040","allow_hosts":null}
+{"t":"2026-09-25T07:46:58+0200","lvl":"info","msg":"client session established","obj":"tunnels.session"}
+{"t":"2026-09-25T07:46:58+0200","lvl":"info","msg":"tunnel session started","obj":"tunnels.session"}
+{"t":"2026-09-25T07:46:58+0200","lvl":"info","msg":"started tunnel","obj":"tunnels","name":"command_line","addr":{"Scheme":"http","Opaque":"","User":null,"Host":"localhost:8888","Path":"","Fragment":"","RawQuery":"","RawPath":"","RawFragment":"","ForceQuery":false,"OmitHost":false},"url":"https://conclude-margarita-nerd.ngrok-free.dev"}
+{"t":"2026-09-25T07:47:05+0200","lvl":"info","msg":"join connections","obj":"join","id":"31b09234b0e1","l":{"IP":"::1","Port":8888,"Zone":""},"r":{"IP":"83.26.207.83","Port":12290,"Zone":""}}
+{"t":"2026-09-25T08:10:45+0200","lvl":"info","msg":"join connections","obj":"join","id":"63b0c8e73c89","l":{"IP":"::1","Port":8888,"Zone":""},"r":{"IP":"83.26.207.83","Port":14113,"Zone":""}}
+{"t":"2026-09-25T08:10:55+0200","lvl":"info","msg":"join connections","obj":"join","id":"ddb7d199842a","l":{"IP":"::1","Port":8888,"Zone":""},"r":{"IP":"83.26.207.83","Port":14113,"Zone":""}}
+{"t":"2026-09-25T08:11:01+0200","lvl":"info","msg":"join connections","obj":"join","id":"07887708df0d","l":{"IP":"::1","Port":8888,"Zone":""},"r":{"IP":"83.26.207.83","Port":14113,"Zone":""}}
+{"t":"2026-09-25T08:11:02+0200","lvl":"info","msg":"join connections","obj":"join","id":"d963f1dc713e","l":{"IP":"::1","Port":8888,"Zone":""},"r":{"IP":"83.26.207.83","Port":14113,"Zone":""}}
+{"t":"2026-09-25T08:11:02+0200","lvl":"info","msg":"join connections","obj":"join","id":"3a63895a3112","l":{"IP":"::1","Port":8888,"Zone":""},"r":{"IP":"83.26.207.83","Port":14113,"Zone":""}}
+{"t":"2026-09-28T20:04:00+0200","lvl":"info","msg":"command usage","msg":"Flag --domain has been deprecated, use --url instead"}
+{"t":"2026-09-28T20:04:00+0200","lvl":"info","msg":"no configuration paths supplied"}
+{"t":"2026-09-28T20:04:00+0200","lvl":"info","msg":"using configuration at default config path","path":"C:\\Users\\Error\\AppData\\Local\\ngrok\\ngrok.yml"}
+{"t":"2026-09-28T20:04:00+0200","lvl":"info","msg":"open config file","path":"C:\\Users\\Error\\AppData\\Local\\ngrok\\ngrok.yml","err":null}
+{"t":"2026-09-28T20:04:00+0200","lvl":"info","msg":"FIPS 140 mode","enabled":false}
+{"t":"2026-09-28T20:04:00+0200","lvl":"info","msg":"starting web service","obj":"web","addr":"127.0.0.1:4040","allow_hosts":null}
+{"t":"2026-09-28T20:04:01+0200","lvl":"info","msg":"client session established","obj":"tunnels.session"}
+{"t":"2026-09-28T20:04:01+0200","lvl":"info","msg":"tunnel session started","obj":"tunnels.session"}
+{"t":"2026-09-28T20:04:01+0200","lvl":"info","msg":"started tunnel","obj":"tunnels","name":"command_line","addr":{"Scheme":"http","Opaque":"","User":null,"Host":"localhost:8888","Path":"","Fragment":"","RawQuery":"","RawPath":"","RawFragment":"","ForceQuery":false,"OmitHost":false},"url":"https://conclude-margarita-nerd.ngrok-free.dev"}
+{"t":"2026-09-28T20:04:08+0200","lvl":"info","msg":"join connections","obj":"join","id":"44aa847f7f89","l":{"IP":"::1","Port":8888,"Zone":""},"r":{"IP":"83.26.207.83","Port":14328,"Zone":""}}
+{"t":"2026-09-28T20:04:24+0200","lvl":"info","msg":"join connections","obj":"join","id":"ad3a046c2fa1","l":{"IP":"::1","Port":8888,"Zone":""},"r":{"IP":"83.26.207.83","Port":12317,"Zone":""}}
+{"t":"2026-09-28T20:04:35+0200","lvl":"info","msg":"join connections","obj":"join","id":"fac756554232","l":{"IP":"::1","Port":8888,"Zone":""},"r":{"IP":"83.26.207.83","Port":12332,"Zone":""}}
+{"t":"2026-09-28T20:04:36+0200","lvl":"info","msg":"join connections","obj":"join","id":"5bb85c932451","l":{"IP":"::1","Port":8888,"Zone":""},"r":{"IP":"83.26.207.83","Port":12335,"Zone":""}}
+{"t":"2026-09-28T20:05:17+0200","lvl":"info","msg":"join connections","obj":"join","id":"81ba477cd9f8","l":{"IP":"::1","Port":8888,"Zone":""},"r":{"IP":"83.26.207.83","Port":12372,"Zone":""}}

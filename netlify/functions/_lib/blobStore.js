@@ -318,6 +318,52 @@ async function readEntryStore(event, def) {
   return { store, entries };
 }
 
+// ============================================================
+// 7. Idempotency keys — zapobiega duplikatom przy retry/double-click
+// ============================================================
+// Store: "idempotency-keys"
+// Key: "idem/<idempotency_key>"
+// Value: { response: { statusCode, headers, body }, timestamp: <ms> }
+// TTL: 24h (86400000 ms) — sprawdzany przy odczycie.
+
+const IDEMPOTENCY_STORE = "idempotency-keys";
+const IDEMPOTENCY_PREFIX = "idem/";
+const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+
+async function getIdempotencyStore(event) {
+  return resolveStore(event, IDEMPOTENCY_STORE, null, null);
+}
+
+async function readIdempotencyKey(event, idempotencyKey) {
+  if (!idempotencyKey) return null;
+  const store = await getIdempotencyStore(event);
+  const key = `${IDEMPOTENCY_PREFIX}${idempotencyKey}`;
+  const entry = await store.getWithMetadata(key, { type: "json", consistency: "strong" });
+  if (!entry) return null;
+  const { data, etag } = entry;
+  // Sprawdź TTL
+  if (data.timestamp && Date.now() - data.timestamp > IDEMPOTENCY_TTL_MS) {
+    // Wygasło — usuń i zwróć null
+    await store.delete(key);
+    return null;
+  }
+  return { response: data.response, etag };
+}
+
+async function writeIdempotencyKey(event, idempotencyKey, response) {
+  if (!idempotencyKey) return;
+  const store = await getIdempotencyStore(event);
+  const key = `${IDEMPOTENCY_PREFIX}${idempotencyKey}`;
+  await store.setJSON(key, {
+    response: {
+      statusCode: response.statusCode,
+      headers: response.headers,
+      body: response.body,
+    },
+    timestamp: Date.now(),
+  });
+}
+
 module.exports = {
   getStoreOptions,
   createInMemoryStore,
@@ -330,4 +376,9 @@ module.exports = {
   writeEntry,
   removeEntry,
   readEntryStore,
+  readIdempotencyKey,
+  writeIdempotencyKey,
+  IDEMPOTENCY_STORE,
+  IDEMPOTENCY_PREFIX,
+  IDEMPOTENCY_TTL_MS,
 };

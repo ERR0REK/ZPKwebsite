@@ -1,6 +1,7 @@
 /* src/Components/Pages/KOS.jsx */
 
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../Navbar/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -122,11 +123,40 @@ const parseEvidenceLines = (text) =>
         .map((line) => {
             const [type, a, b] = line.split('|').map((s) => s.trim());
             if (!a) return null;
-            if (type === 'image') return { type: 'image', src: a };
-            if (type === 'youtube') return { type: 'youtube', url: a, title: b || '' };
-            if (type === 'medal') return { type: 'medal', url: a, title: b || '' };
-            if (type === 'discord') return { type: 'discord', url: a, title: b || '' };
-            if (type === 'other') return { type: 'other', url: a, title: b || '' };
+
+            // Validate URL: only allow https: scheme for link types
+            const isValidUrl = (url) => {
+                try {
+                    const parsed = new URL(url);
+                    return parsed.protocol === 'https:';
+                } catch {
+                    return false;
+                }
+            };
+
+            // Sanitize title with DOMPurify
+            const sanitizeTitle = (title) => DOMPurify.sanitize(title, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+
+            if (type === 'image') {
+                if (!isValidUrl(a)) return null;
+                return { type: 'image', src: a };
+            }
+            if (type === 'youtube') {
+                if (!isValidUrl(a)) return null;
+                return { type: 'youtube', url: a, title: sanitizeTitle(b || '') };
+            }
+            if (type === 'medal') {
+                if (!isValidUrl(a)) return null;
+                return { type: 'medal', url: a, title: sanitizeTitle(b || '') };
+            }
+            if (type === 'discord') {
+                if (!isValidUrl(a)) return null;
+                return { type: 'discord', url: a, title: sanitizeTitle(b || '') };
+            }
+            if (type === 'other') {
+                if (!isValidUrl(a)) return null;
+                return { type: 'other', url: a, title: sanitizeTitle(b || '') };
+            }
             return null;
         })
         .filter(Boolean);
@@ -534,11 +564,14 @@ const KOS = () => {
     };
 
     const getEvidenceTitle = (ev) => {
-        if (ev.title) return ev.title;
-        if (ev.type === 'youtube') return t('kos.evidence.youtube');
-        if (ev.type === 'medal') return t('kos.evidence.medal');
-        if (ev.type === 'discord') return t('kos.evidence.discord');
-        return t('kos.evidence.other');
+        const rawTitle = ev.title
+            ? ev.title
+            : ev.type === 'youtube' ? t('kos.evidence.youtube')
+            : ev.type === 'medal' ? t('kos.evidence.medal')
+            : ev.type === 'discord' ? t('kos.evidence.discord')
+            : t('kos.evidence.other');
+        // Sanitize for safe use in title attribute / text content
+        return DOMPurify.sanitize(rawTitle, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
     };
 
     // Wspólny upload pliku (picker plików ORAZ wklejenie obrazu ze schowka)
@@ -606,31 +639,39 @@ const KOS = () => {
 
     const renderEvidenceStrip = (target) => {
         const evidence = target.evidence || [];
+        // Defense in depth: validate URL scheme at render time
+        const isValidHttps = (url) => {
+            try { return new URL(url).protocol === 'https:'; } catch { return false; }
+        };
         return (
             <div className="evidence-strip">
                 {evidence.slice(0, 3).map((ev, i) =>
                     ev.type === 'image' ? (
+                        isValidHttps(ev.src) ? (
+                            <a
+                                key={i}
+                                href={ev.src}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="evidence-thumb"
+                                title={t('kos.evidence.images')}
+                            >
+                                <img src={ev.src} alt={`evidence-${i}`} loading="lazy" onError={onImageError} />
+                            </a>
+                        ) : null
+                ) : (
+                    isValidHttps(ev.url) ? (
                         <a
                             key={i}
-                            href={ev.src}
+                            href={ev.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="evidence-thumb"
-                            title={t('kos.evidence.images')}
+                            className={`evidence-chip ${ev.type}`}
+                            title={getEvidenceTitle(ev)}
                         >
-                            <img src={ev.src} alt={`evidence-${i}`} loading="lazy" onError={onImageError} />
+                            <EvidenceIcon type={ev.type} />
                         </a>
-                ) : (
-                    <a
-                        key={i}
-                        href={ev.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`evidence-chip ${ev.type}`}
-                        title={getEvidenceTitle(ev)}
-                    >
-                        <EvidenceIcon type={ev.type} />
-                    </a>
+                    ) : null
                 )
                 )}
                 {evidence.length > 3 && (
@@ -775,8 +816,12 @@ const KOS = () => {
 
     const renderEvidenceSection = (evidence) => {
         const evs = evidence || [];
-        const images = evs.filter((ev) => ev.type === 'image');
-        const videos = evs.filter((ev) => ev.type !== 'image');
+        // Defense in depth: validate URL scheme at render time
+        const isValidHttps = (url) => {
+            try { return new URL(url).protocol === 'https:'; } catch { return false; }
+        };
+        const images = evs.filter((ev) => ev.type === 'image' && isValidHttps(ev.src));
+        const videos = evs.filter((ev) => ev.type !== 'image' && isValidHttps(ev.url));
         return (
             <div className="evidence-section">
                 <h4 className="evidence-title">

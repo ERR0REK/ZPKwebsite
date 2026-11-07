@@ -331,6 +331,8 @@
     "requirement1": "Own a car worth 120k to 750k.",
     "requirement2": "Have at least 200-800k cash in your account.",
     "requirement3": "Be at least 16 years old.",
+    "requirementsNoteLabel": "NOTE:",
+    "requirementsNote": "The requirements above apply to joining the CLAN only. If you just want to be part of our COMMUNITY (without the clan), they do not apply to you. You can join the community and apply for the clan later if you wish.",
     "values": "Our Values",
     "valuesIntro": "Zjednoczona Polska Korona operations are based on the following fundamental values:",
     "value1Title": "RESPECT",
@@ -1452,6 +1454,52 @@
       }
     ],
     "release": [
+      {
+        "version": "1.0.1",
+        "date": "Sep 25, 2026",
+        "changes": [
+          {
+            "type": "bugfix",
+            "title": "Cloud: changes disappeared after refresh",
+            "description": "The main fix. Saves went to server memory instead of the cloud, so an added KOS target disappeared after a page refresh and for other players, and deleted entries came back. This affected KOS, War Logs and announcements. Everything now saves permanently and everyone sees the same data."
+          },
+          {
+            "type": "bugfix",
+            "title": "LIVE status instead of STANDBY",
+            "description": "Website security headers were blocking the realtime connection, so the status got stuck on STANDBY even with a good internet connection. After the fix, LIVE works on the official site the same as locally."
+          },
+          {
+            "type": "bugfix",
+            "title": "Refreshing a subpage no longer shows 404",
+            "description": "Refreshing the page on a subpage, e.g. About or KOS, ended with a 404 error. The same happened with links shared with friends. Every subpage now opens correctly."
+          },
+          {
+            "type": "bugfix",
+            "title": "No more red error screen",
+            "description": "Switching between subpages could throw a red error screen. The realtime connection was being closed at the wrong moment. Fixed at the source; the error screen now only appears for real problems."
+          },
+          {
+            "type": "improvement",
+            "title": "Better visibility on Google and Discord",
+            "description": "The site now has a meta description, a sitemap and a correct address in metadata. Discord link previews show the proper image instead of a dead domain."
+          },
+          {
+            "type": "improvement",
+            "title": "Centered headings in What is ZPK",
+            "description": "Headings in the What is the United Polish Crown section are now centered instead of aligned to the left edge."
+          },
+          {
+            "type": "feature",
+            "title": "CLAN MEMBER badge",
+            "description": "After logging in, the website checks your Discord role and shows a golden CLAN MEMBER badge next to your nickname."
+          },
+          {
+            "type": "improvement",
+            "title": "Note: requirements apply to the clan only",
+            "description": "A note appeared under the requirements saying they apply only to joining the clan. Anyone can join the community without meeting them and apply for the clan later."
+          }
+        ]
+      },
       {
         "version": "1.1.0",
         "date": "Sep 3, 2026",

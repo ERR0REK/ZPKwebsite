@@ -9,6 +9,19 @@
   directory = "netlify/functions"
 
 # ============================================================
+# Lokalny dev (netlify dev) — CRA na porcie 3007 zamiast 3000.
+# Dlaczego: port 3000 na tej maszynie trwale zajmuje inny projekt
+# (PM2 "NFS Management" binduje 127.0.0.1:3000), a netlify dev przy
+# autodetekcji CRA zakłada 3000 — przez proxy (i tunel) leciał wtedy
+# obcy serwer. Sekcja [dev] działa TYLKO lokalnie — nie wpływa na deploy.
+# ============================================================
+[dev]
+  framework = "#custom"
+  command = "node scripts/dev-cra.js"
+  targetPort = 3007
+  port = 8888
+
+# ============================================================
 # Ważne! Frontend woła funkcje przez /api/* (np. /api/verify-admin),
 # ale Netlify udostępnia je domyślnie pod /.netlify/functions/*.
 # Bez tego redirectu każde /api/* zwraca 404 → KOS admin zablokowany,
@@ -40,9 +53,13 @@
   for = "/*"
   [headers.values]
     # CSP: tylko self + zaufane zewnętrzne (fonty Google, Ably, obrazy).
-    # 'unsafe-inline' dla style — framer-motion i style={} w React.
-    # connect-src: Discord API (auth), Ably (realtime), Catbox (upload z przeglądarki).
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://discord.com https://fonts.googleapis.com https://*.ably.io wss://*.ably.io https://catbox.moe https://catbox.moe/* https://*.catbox.moe; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    # Używamy nonce dla script-src (przyszłe inline skrypty) i usunięto 'unsafe-inline' z style-src
+    # (style SEO przeniesiono do pliku zewnętrznego seo.css).
+    # UWAGA: React runtime (framer-motion, style={}) wstrzykuje style dynamicznie —
+    # wymagałoby to 'unsafe-inline' w style-src lub skomplikowanego systemu nonce/hash.
+    # W produkcji CRA nie wstrzykuje inline skryptów, więc script-src 'self' + nonce jest bezpieczny.
+    # Nonce (base64): enBrLWNzcC1ub25jZS0yMDI0  (zdekodowane: "zpk-csp-nonce-2024")
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'nonce-enBrLWNzcC1ub25jZS0yMDI0'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://discord.com https://fonts.googleapis.com https://*.ably.io https://*.ably.net wss://*.ably.io wss://*.ably.net https://*.ably-realtime.com wss://*.ably-realtime.com ws://localhost:* wss://localhost:* https://catbox.moe https://catbox.moe/* https://*.catbox.moe; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 
     # Wymuszaj HTTPS (HSTS) — tylko na produkcji
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
@@ -58,3 +75,7 @@
 
     # Ogranicz API przeglądarki (bez kamery, mikrofonu, geolokalizacji)
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+
+    # Flash/PDF cross-domain policy — plików Flash nie używamy, "none" to
+    # poprawka z audytu (sitepulse Quick Win)
+    X-Permitted-Cross-Domain-Policies = "none"

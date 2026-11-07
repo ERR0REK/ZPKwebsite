@@ -1,0 +1,60 @@
+
+> zpkwebsite@1.0.0 dev
+> netlify dev
+
+⬥ Injecting environment variable values for all scopes
+⬥ Ignored project settings env var: ABLY_API_KEY (defined in .env.local file)
+⬥ Ignored project settings env var: DISCORD_BOT_TOKEN (defined in .env.local file)
+⬥ Ignored project settings env var: REACT_APP_ABLY_SUBSCRIBE_KEY (defined in .env.development.local file)
+⬥ Ignored project settings env var: ZPK_ADMIN_ROLE_IDS (defined in .env.local file)
+⬥ Ignored project settings env var: ZPK_GUILD_IDS (defined in .env.local file)
+⬥ Ignored .env.local file env var: PORT (defined in process)
+⬥ Injected .env.local file env vars: ABLY_API_KEY, DISCORD_BOT_TOKEN, ZPK_ADMIN_ROLE_IDS, ZPK_GUILD_IDS, BROWSER, GEO_BLOCK_DISABLED
+⬥ Injected .env.development.local file env vars: REACT_APP_ABLY_SUBSCRIBE_KEY
+⬥ Injected netlify.toml file env vars: NPM_FLAGS
+⬥ Setting up local dev server
+​
+❯ Installing extensions
+   - neon
+
+⬥ Starting #custom dev server
+[33m⠋[39m Waiting for #custom dev server to be ready on port 3007
+[1G(node:13092) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[33m⠙[39m Waiting for #custom dev server to be ready on port 3007
+[1G(node:13092) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+[33m⠹[39m Waiting for #custom dev server to be ready on port 3007
+[32m✔[39m #custom dev server ready on port 3007
+⬥ Loaded function war-store in Lambda compatibility mode (https://ntl.fyi/lambda-compat)
+⬥ Loaded function verify-member in Lambda compatibility mode (https://ntl.fyi/lambda-compat)
+⬥ Loaded function announce in Lambda compatibility mode (https://ntl.fyi/lambda-compat)
+⬥ Loaded function health in Lambda compatibility mode (https://ntl.fyi/lambda-compat)
+⬥ Loaded function verify-admin in Lambda compatibility mode (https://ntl.fyi/lambda-compat)
+⬥ Loaded function upload-evidence in Lambda compatibility mode (https://ntl.fyi/lambda-compat)
+⬥ Loaded function kos-store in Lambda compatibility mode (https://ntl.fyi/lambda-compat)
+⬥ Loaded function announce-history in Lambda compatibility mode (https://ntl.fyi/lambda-compat)
+⬥ Loaded function ably-token-request in Lambda compatibility mode (https://ntl.fyi/lambda-compat)
+
+   ╭─────────────────────── ⬥  ────────────────────────╮
+   │                                                   │
+   │   Local dev server ready: http://localhost:8888   │
+   │                                                   │
+   ╰───────────────────────────────────────────────────╯
+
+Starting the development server...
+
+⬥ Loaded edge function geo-block
+Compiled successfully!
+
+You can now view zpkwebsite in the browser.
+
+  Local:            http://localhost:3007
+  On Your Network:  http://192.168.50.125:3007
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+(node:4500) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Deno.serve: request.signal aborts on successful responses (legacy behavior). To detect when a request has been fully delivered use the `completed` promise on the handler's info argument. Move cleanup to the handler's return path, or opt in to the new behavior with --unstable-no-legacy-abort. See https://docs.deno.com/go/unstable-no-legacy-abort

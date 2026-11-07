@@ -151,6 +151,10 @@ export default function About() {
                 </motion.div>
               ))}
             </div>
+            <p className="requirements-note">
+              <strong>{t('about.requirementsNoteLabel', '')}</strong>{' '}
+              {t('about.requirementsNote', '')}
+            </p>
           </div>
           <div className="card-scanner"></div>
           <div className="corner tl"></div><div className="corner tr"></div>

@@ -30,6 +30,8 @@ const {
   readEntry,
   writeEntry,
   removeEntry,
+  readIdempotencyKey,
+  writeIdempotencyKey,
 } = require("./_lib/blobStore");
 const { publish } = require("./_lib/ably");
 
@@ -97,6 +99,26 @@ exports.handler = async (event) => {
     return { statusCode: 204, headers: corsHeaders(event), body: "" };
   }
 
+  // ==================== Idempotency Key ====================
+  // Client sends 'Idempotency-Key' header (UUID per mutation).
+  // On duplicate key, return cached response instead of re-executing.
+  const idempotencyKey = event.headers?.["idempotency-key"] || event.headers?.["Idempotency-Key"];
+  if (idempotencyKey && (event.httpMethod === "POST" || event.httpMethod === "DELETE")) {
+    const cached = await readIdempotencyKey(event, idempotencyKey);
+    if (cached) {
+      // Return cached response with Idempotency-Replay header
+      const replayHeaders = {
+        ...cached.response.headers,
+        "Idempotency-Replay": "true",
+      };
+      return {
+        statusCode: cached.response.statusCode,
+        headers: replayHeaders,
+        body: cached.response.body,
+      };
+    }
+  }
+
   try {
     // ==================== GET ====================
     if (event.httpMethod === "GET") {
@@ -153,7 +175,9 @@ exports.handler = async (event) => {
       const logs = sortLogs(
         entries.filter((e) => e.key !== key).map((e) => e.data)
       );
-      return json(200, { ok: true, logs }, {}, event);
+      const response = json(200, { ok: true, logs }, {}, event);
+      await writeIdempotencyKey(event, idempotencyKey, response);
+      return response;
     }
 
     // ==================== POST ====================
@@ -204,7 +228,9 @@ exports.handler = async (event) => {
 
       const { entries } = await readEntryStore(event, WAR_ENTRIES);
       const logs = sortLogs(entries.map((e) => e.data));
-      return json(200, { ok: true, logs }, {}, event);
+      const response = json(200, { ok: true, logs }, {}, event);
+      await writeIdempotencyKey(event, idempotencyKey, response);
+      return response;
     }
 
     return json(405, { ok: false, error: "METHOD_NOT_ALLOWED" }, {}, event);

@@ -2,14 +2,15 @@
 // Wspólne funkcje pomocnicze dla funkcji Netlify.
 //
 // WYMAGANE ZMIENNE ŚRODOWISKOWE (ustaw w panelu Netlify):
-//   DISCORD_BOT_TOKEN      - token bota Discord (https://discord.com/developers/applications)
-//   ZPK_GUILD_IDS          - ID serwerów do sprawdzania, oddzielone przecinkami
-//                            (np. "1445399610414858340,1368589684858683453" =
-//                            oficjalny + dev). Domyślnie: sam oficjalny.
-//   ZPK_ADMIN_ROLE_IDS     - ID ról administracyjnych. Dwa formaty:
-//      1) goła rola:        "111,222"      → pasuje na DOWOLNYM serwerze z ZPK_GUILD_IDS
-//      2) rola przypisana:  "serwerA:111"  → pasuje TYLKO na serwerzeA
-//      Można mieszać:       "111,serwerA:222,serwerB:333"
+//   DISCORD_BOT_TOKEN       - token bota Discord (https://discord.com/developers/applications)
+//   ZPK_GUILD_IDS           - ID serwerów do sprawdzania, oddzielone przecinkami
+//                             (np. "1445399610414858340,1368589684858683453" =
+//                             oficjalny + dev).
+//   ZPK_ADMIN_ROLE_IDS      - ID ról administracyjnych. Format:
+//      guildId:roleId,guildId:roleId  → rola pasuje TYLKO na danym serwerze.
+//      Można mieszać:       "serwerA:111,serwerB:222,serwerC:333"
+//   ZPK_MEMBER_ROLE_IDS     - ID ról członkowsich (tylko do odznaki w UI).
+//                             Format: guildId:roleId,guildId:roleId
 //
 // AUTO-ADMIN (bez podawania ról): właściciel serwera (guild.owner) oraz każdy
 // z uprawnieniem ADMINISTRATOR (bit 8) na którymkolwiek z serwerów z listy
@@ -18,37 +19,25 @@
 // Bot musi być dodany na serwer oraz mieć włączony INTENT "Server Members"
 // w ustawieniach aplikacji Discord, żeby pobierać role członków.
 
-const DEFAULT_GUILD_ID = "1445399610414858340";
-
-// Domyślne role admina — oba serwery (dev + oficjalny), nadal można nadpisać
-// zmienną ZPK_ADMIN_ROLE_IDS.
-// Format: guildId:roleId — rola pasuje TYLKO na danym serwerze.
-const DEFAULT_ADMIN_ROLES = [
-  // Dev serwer (1368589684858683453)
-  "1368589684858683453:1455480143085703189", // Owner
-  "1368589684858683453:1455480145392566272", // Współwłaściciel
-  "1368589684858683453:1455480148341031076", // Technik specjalista
-  "1368589684858683453:1455480152883466351", // Elder
-  "1368589684858683453:1455480154129432680", // Próbny Elder
-  // Oficjalny serwer (1445399610414858340)
-  "1445399610414858340:1525241770336583861", // Właściciel
-  "1445399610414858340:1525241771393548328", // Współwłaściciel
-  "1445399610414858340:1525241773453217832", // Technik specjalista
-  "1445399610414858340:1525241775692972063", // Elder
-  "1445399610414858340:1525241776665923645", // Próbny Elder
-].join(",");
-
-// Domyślne role CZŁONKOWSKIE — TYLKO do odznaki w UI, ZERO uprawnień admina.
-// Format jak w ZPK_ADMIN_ROLE_IDS, ALE wymaga zasięgu "guildId:roleId"
-// (goła rola nie działa — sprawdzamy tylko serwery z konfiguracji).
-// Nadpisywalne zmienną ZPK_MEMBER_ROLE_IDS.
-const DEFAULT_MEMBER_ROLES = "1445399610414858340:1525241797322739914"; // Członek Klanu (oficjalny serwer)
-
 // Uprawnienie ADMINISTRATOR w Discordzie = bit 8 w polu "permissions".
 const PERMISSION_ADMINISTRATOR = 8n;
 
 // CORS i JSON delegujemy do security.js (allowlista domen zamiast "*").
 const { corsHeaders } = require("./security");
+
+// Walidacja zmiennych środowiskowych przy ładowaniu modułu
+if (!process.env.DISCORD_BOT_TOKEN) {
+  throw new Error("DISCORD_BOT_TOKEN environment variable is required");
+}
+if (!process.env.ZPK_GUILD_IDS) {
+  throw new Error("ZPK_GUILD_IDS environment variable is required");
+}
+if (!process.env.ZPK_ADMIN_ROLE_IDS) {
+  throw new Error("ZPK_ADMIN_ROLE_IDS environment variable is required");
+}
+if (!process.env.ZPK_MEMBER_ROLE_IDS) {
+  throw new Error("ZPK_MEMBER_ROLE_IDS environment variable is required");
+}
 
 // event jest opcjonalny — bez niego (np. serwer-to-serwer) zwracamy "*",
 // a z eventem CORS idzie przez allowlistę domen z security.js.
@@ -101,16 +90,32 @@ async function verifyAdmin(accessToken) {
   if (guildIds.length === 0) return { ok: false, error: "GUILDS_NOT_CONFIGURED", is_admin: false };
 
   // 1. Tożsamość użytkownika
-  const meRes = await fetch("https://discord.com/api/users/@me", {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+  let meRes;
+  try {
+    meRes = await fetch("https://discord.com/api/users/@me", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
   if (!meRes.ok) return { ok: false, error: "INVALID_TOKEN", is_admin: false };
   const me = await meRes.json();
 
   // 2. Serwery użytkownika (OAuth zwraca też flagę owner + uprawnienia)
-  const guildsRes = await fetch("https://discord.com/api/users/@me/guilds", {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  const controller2 = new AbortController();
+  const timeout2 = setTimeout(() => controller2.abort(), 5000);
+  let guildsRes;
+  try {
+    guildsRes = await fetch("https://discord.com/api/users/@me/guilds", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      signal: controller2.signal,
+    });
+  } finally {
+    clearTimeout(timeout2);
+  }
   if (!guildsRes.ok) {
     return { ok: true, is_member: false, is_admin: false, error: "GUILDS_FETCH_FAILED" };
   }
@@ -153,10 +158,17 @@ async function verifyAdmin(accessToken) {
   const memberGuilds = [];
   let roleErrors = [];
   for (const g of checkedGuilds) {
-    const memberRes = await fetch(
-      `https://discord.com/api/guilds/${g.id}/members/${me.id}`,
-      { headers: { Authorization: `Bot ${botToken}` } }
-    );
+    const controller3 = new AbortController();
+    const timeout3 = setTimeout(() => controller3.abort(), 5000);
+    let memberRes;
+    try {
+      memberRes = await fetch(
+        `https://discord.com/api/guilds/${g.id}/members/${me.id}`,
+        { headers: { Authorization: `Bot ${botToken}` }, signal: controller3.signal }
+      );
+    } finally {
+      clearTimeout(timeout3);
+    }
     if (!memberRes.ok) {
       roleErrors.push(g.id);
       continue;
@@ -211,20 +223,36 @@ async function verifyClanMember(accessToken) {
   }
 
   // 1. Tożsamość użytkownika (OAuth)
-  const meRes = await fetch("https://discord.com/api/users/@me", {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-  if (!meRes.ok) return { ok: false, error: "INVALID_TOKEN", is_clan_member: false };
-  const me = await meRes.json();
+  const controller4 = new AbortController();
+  const timeout4 = setTimeout(() => controller4.abort(), 5000);
+  let meRes2;
+  try {
+    meRes2 = await fetch("https://discord.com/api/users/@me", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      signal: controller4.signal,
+    });
+  } finally {
+    clearTimeout(timeout4);
+  }
+  if (!meRes2.ok) return { ok: false, error: "INVALID_TOKEN", is_clan_member: false };
+  const me = await meRes2.json();
 
   // 2. Serwery użytkownika — interesują nas tylko te z konfiguracji ról
-  const guildsRes = await fetch("https://discord.com/api/users/@me/guilds", {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-  if (!guildsRes.ok) {
+  const controller5 = new AbortController();
+  const timeout5 = setTimeout(() => controller5.abort(), 5000);
+  let guildsRes2;
+  try {
+    guildsRes2 = await fetch("https://discord.com/api/users/@me/guilds", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      signal: controller5.signal,
+    });
+  } finally {
+    clearTimeout(timeout5);
+  }
+  if (!guildsRes2.ok) {
     return { ok: false, error: "GUILDS_FETCH_FAILED", is_clan_member: false };
   }
-  const guildsData = await guildsRes.json();
+  const guildsData = await guildsRes2.json();
   const guilds = Array.isArray(guildsData) ? guildsData : [];
   const userGuildIds = new Set(guilds.map((g) => g.id));
   const wantedGuildIds = [...new Set(memberEntries.map((e) => e.guildId).filter(Boolean))];
@@ -241,10 +269,13 @@ async function verifyClanMember(accessToken) {
   // 3. Role przez bota (tylko na serwerach, gdzie użytkownik jest)
   let isClanMember = false;
   for (const gid of presentGuilds) {
+    const controller6 = new AbortController();
+    const timeout6 = setTimeout(() => controller6.abort(), 5000);
+    let memberRes;
     try {
-      const memberRes = await fetch(
+      memberRes = await fetch(
         `https://discord.com/api/guilds/${gid}/members/${me.id}`,
-        { headers: { Authorization: `Bot ${botToken}` } }
+        { headers: { Authorization: `Bot ${botToken}` }, signal: controller6.signal }
       );
       if (!memberRes.ok) continue;
       const member = await memberRes.json();
@@ -255,6 +286,8 @@ async function verifyClanMember(accessToken) {
       }
     } catch (e) {
       continue; // pojedynczy serwer padł — sprawdzamy dalej / zwracamy co mamy
+    } finally {
+      clearTimeout(timeout6);
     }
   }
 
@@ -293,14 +326,22 @@ async function uploadToCatbox(filename, base64Data) {
   );
   const footer = Buffer.from(`\r\n--${boundary}--\r\n`);
 
-  const res = await fetch("https://catbox.moe/user/api.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": `multipart/form-data; boundary=${boundary}`,
-      "User-Agent": "ZPK-Site/1.0 (Netlify Function; https://zpk.netlify.app)",
-    },
-    body: Buffer.concat([header, buffer, footer]),
-  });
+  const controller7 = new AbortController();
+  const timeout7 = setTimeout(() => controller7.abort(), 5000);
+  let res;
+  try {
+    res = await fetch("https://catbox.moe/user/api.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": `multipart/form-data; boundary=${boundary}`,
+        "User-Agent": "ZPK-Site/1.0 (Netlify Function; https://zpk.netlify.app)",
+      },
+      body: Buffer.concat([header, buffer, footer]),
+      signal: controller7.signal,
+    });
+  } finally {
+    clearTimeout(timeout7);
+  }
 
   const text = (await res.text()).trim();
   if (!res.ok || !text.startsWith("http")) {

@@ -13,6 +13,7 @@
     "baseline-browser-mapping": "^2.11.13",
     "browserslist": "^4.28.8",
     "caniuse-lite": "^1.0.30001809",
+    "dompurify": "^3.4.17",
     "framer-motion": "^12.23.25",
     "i18next": "^25.7.2",
     "lucide-react": "^0.556.0",
@@ -26,8 +27,15 @@
   "scripts": {
     "start": "react-scripts start",
     "dev": "netlify dev",
+    "tunnel": "scripts\\start-tunnel.cmd",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:e2e": "playwright test",
+    "test:e2e:local": "TEST_ENV=local playwright test",
+    "test:e2e:prod": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -56,6 +64,8 @@
     ]
   },
   "devDependencies": {
-    "netlify-cli": "^27.1.1"
+    "@playwright/test": "^1.65.0",
+    "netlify-cli": "^27.1.1",
+    "playwright": "^1.65.0"
   }
 }

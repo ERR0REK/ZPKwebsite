@@ -1,0 +1,245 @@
+rules:
+  # React hooks exhaustive-deps violations
+  - id: react-hooks-exhaustive-deps
+    pattern-either:
+      - pattern: |
+          useEffect($X, $Y)
+      - pattern: |
+          useCallback($X, $Y)
+      - pattern: |
+          useMemo($X, $Y)
+    message: "Potential exhaustive-deps violation - check dependency array"
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: correctness
+      cwe: "CWE-755"
+
+  # Stale closure in useEffect
+  - id: react-stale-closure
+    pattern-either:
+      - pattern: |
+          useEffect(() => {
+            ...
+            $VAR
+            ...
+          }, [])
+      - pattern: |
+          useCallback(() => {
+            ...
+            $VAR
+            ...
+          }, [])
+    message: "Potential stale closure - variable used in effect/callback but not in dependency array"
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: correctness
+      cwe: "CWE-755"
+
+  # XSS via dangerouslySetInnerHTML
+  - id: react-xss-dangerously-set-inner-html
+    pattern: 'dangerouslySetInnerHTML={{ __html: $X }}'
+    message: "Potential XSS via dangerouslySetInnerHTML with user-controlled input"
+    languages: [javascript, typescript]
+    severity: ERROR
+    metadata:
+      category: security
+      cwe: "CWE-79"
+
+  # XSS via innerHTML assignment
+  - id: react-xss-inner-html
+    pattern: '$X.innerHTML = $Y'
+    message: "Potential XSS via direct innerHTML assignment"
+    languages: [javascript, typescript]
+    severity: ERROR
+    metadata:
+      category: security
+      cwe: "CWE-79"
+
+  # Insecure random - Math.random for tokens
+  - id: insecure-random-math-random
+    pattern-either:
+      - pattern: Math.random()
+      - pattern: Math.random
+    message: "Insecure random - Math.random() is not cryptographically secure"
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-338"
+
+  # Path traversal - user input in file path
+  - id: path-traversal-user-input
+    pattern-either:
+      - pattern: |
+          fs.readFile($X, ...)
+      - pattern: |
+          fs.writeFile($X, ...)
+      - pattern: |
+          require($X)
+      - pattern: |
+          import($X)
+    metavariable-regex:
+      metavariable: $X
+      regex: ".*\\..*"
+    message: "Potential path traversal - user input used in file path"
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-22"
+
+  # Auth bypass - missing session validation
+  - id: auth-bypass-missing-validation
+    pattern-either:
+      - pattern: |
+          if (!$SESSION) { ... }
+      - pattern: |
+          if (!session) { ... }
+    message: "Potential auth bypass - session check may be insufficient"
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-306"
+
+  # CSP bypass - inline styles
+  - id: csp-bypass-inline-style
+    pattern: 'style={{ $X }}'
+    message: "Inline styles may violate CSP - consider using CSS classes"
+    languages: [javascript, typescript]
+    severity: INFO
+    metadata:
+      category: security
+      cwe: "CWE-116"
+
+  # CSP bypass - inline event handlers
+  - id: csp-bypass-inline-handler
+    pattern: 'on$X={$Y}'
+    message: "Inline event handlers may violate CSP"
+    languages: [javascript, typescript]
+    severity: INFO
+    metadata:
+      category: security
+      cwe: "CWE-116"
+
+  # XSS in parseEvidenceLines - user input in URL
+  - id: xss-evidence-parse
+    pattern: |
+      const parseEvidenceLines = ($TEXT) => {
+        ...
+        return ...
+      }
+    message: "Review parseEvidenceLines for XSS - user input used in URLs"
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-79"
+
+  # Hardcoded secrets/tokens
+  - id: hardcoded-secret
+    pattern-either:
+      - pattern: "process.env.$KEY"
+      - pattern: |
+          const $KEY = "$VALUE"
+    metavariable-regex:
+      metavariable: $KEY
+      regex: "(?i)(secret|token|key|password|api)"
+    message: "Potential hardcoded secret or token"
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-798"
+
+  # Missing CSP nonce/hash for scripts
+  - id: missing-csp-nonce
+    pattern: |
+      <script $X>
+    message: "Script tag without nonce/hash may violate CSP"
+    languages: [html, javascript, typescript]
+    severity: INFO
+    metadata:
+      category: security
+      cwe: "CWE-116"
+
+  # useEffect with empty deps but using external variables
+  - id: useeffect-empty-deps-external
+    pattern: |
+      useEffect(() => {
+        ...
+        $EXT_VAR
+        ...
+      }, [])
+    message: "useEffect with empty dependency array uses external variable - potential stale closure"
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: correctness
+      cwe: "CWE-755"
+
+  # Missing input validation on user-controlled data
+  - id: missing-input-validation
+    pattern-either:
+      - pattern: |
+          fetch($URL, { body: JSON.stringify($DATA), ... })
+      - pattern: |
+          fetch($URL, { body: $DATA, ... })
+    metavariable-regex:
+      metavariable: $DATA
+      regex: ".*user.*|.*input.*|.*form.*|.*req.*|.*body.*"
+    message: "Potential missing input validation before sending user data"
+    languages: [javascript, typescript]
+    severity: INFO
+    metadata:
+      category: security
+      cwe: "CWE-20"
+
+  # SSRF - fetch with user-controlled URL
+  - id: ssrf-fetch-user-url
+    pattern: |
+      fetch($URL, ...)
+    metavariable-regex:
+      metavariable: $URL
+      regex: ".*user.*|.*input.*|.*param.*|.*query.*"
+    message: "Potential SSRF - user-controlled URL in fetch"
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-918"
+
+  # Eval-like functions
+  - id: dangerous-eval
+    pattern-either:
+      - pattern: eval($X)
+      - pattern: Function($X)
+      - pattern: setTimeout($X, ...)
+      - pattern: setInterval($X, ...)
+    message: "Dangerous eval-like function with dynamic code"
+    languages: [javascript, typescript]
+    severity: ERROR
+    metadata:
+      category: security
+      cwe: "CWE-95"
+
+  # Prototype pollution
+  - id: prototype-pollution
+    pattern-either:
+      - pattern: |
+          Object.assign($TARGET, $SOURCE)
+      - pattern: |
+          $TARGET.__proto__ = $SOURCE
+      - pattern: |
+          Object.setPrototypeOf($TARGET, $SOURCE)
+    metavariable-regex:
+      metavariable: $SOURCE
+      regex: ".*user.*|.*input.*|.*req.*|.*body.*"
+    message: "Potential prototype pollution with user-controlled input"
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-1321"

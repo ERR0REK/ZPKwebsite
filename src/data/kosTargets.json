@@ -15,5 +15,18 @@
       "reason": "Targetował naszych sojuszników + puszczał swojich znaj na nas (że było 1v2-3) "
     }
   ],
-  "factions": []
+  "factions": [
+    {
+      "name": "TestFaction",
+      "intel": {
+        "leaders": "TestLeader1, TestLeader2",
+        "allies": "AllyFaction",
+        "firepower": "HEAVY_ARMORED"
+      },
+      "reason": "Test faction for E2E tests",
+      "evidence": [
+        { "type": "image", "src": "/kos/test-faction.png" }
+      ]
+    }
+  ]
 }

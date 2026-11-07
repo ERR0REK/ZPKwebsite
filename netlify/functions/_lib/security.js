@@ -9,6 +9,7 @@
 //   5. Bezpieczne komunikaty błędów (zero stack trace'ów w odpowiedziach)
 
 const { getStore } = require("@netlify/blobs");
+const crypto = require("crypto");
 
 // ============================================================
 // 1. CORS — tylko dozwolone domeny
@@ -96,6 +97,57 @@ const AUDIT_STORE = "zpk-audit";
 const AUDIT_KEY = "actions";
 const AUDIT_LIMIT = 100; // trzymamy ostatnie 100 akcji
 
+// HMAC secret for audit log integrity (32+ bytes base64, set in Netlify env vars)
+function getAuditHmacSecret() {
+  const secret = process.env.AUDIT_HMAC_SECRET;
+  if (!secret) {
+    throw new Error("AUDIT_HMAC_SECRET not configured in environment");
+  }
+  const buf = Buffer.from(secret, "base64");
+  if (buf.length < 32) {
+    throw new Error("AUDIT_HMAC_SECRET must be at least 32 bytes (base64 decoded)");
+  }
+  return buf;
+}
+
+// Generate HMAC-SHA256 for an audit entry
+function signAuditEntry(entry) {
+  const secret = getAuditHmacSecret();
+  // Create a deterministic string representation (exclude hmac field if present)
+  const { hmac, ...entryWithoutHmac } = entry;
+  const payload = JSON.stringify(entryWithoutHmac, Object.keys(entryWithoutHmac).sort());
+  return crypto.createHmac("sha256", secret).update(payload).digest("base64");
+}
+
+// Verify HMAC-SHA256 of an audit entry
+function verifyAuditEntry(entry) {
+  if (!entry.hmac) return false;
+  const expectedHmac = signAuditEntry(entry);
+  // Constant-time comparison
+  return crypto.timingSafeEqual(Buffer.from(entry.hmac), Buffer.from(expectedHmac));
+}
+
+// Verify integrity of entire audit log
+async function verifyAuditLog() {
+  try {
+    const store = getStore({ name: AUDIT_STORE, consistency: "strong" });
+    const history = await store.get(AUDIT_KEY, { type: "json", consistency: "strong" });
+    if (!Array.isArray(history)) return { valid: true, entries: [] };
+    const results = history.map((entry, idx) => ({
+      index: idx,
+      valid: verifyAuditEntry(entry),
+      entry,
+    }));
+    return {
+      valid: results.every((r) => r.valid),
+      entries: results,
+    };
+  } catch (err) {
+    console.warn("audit log verification failed:", err.message);
+    return { valid: false, entries: [], error: err.message };
+  }
+}
+
 // adminInfo: { id, username } (z verifyAdmin)
 async function audit(action, detail, adminInfo = {}) {
   try {
@@ -109,6 +161,8 @@ async function audit(action, detail, adminInfo = {}) {
       admin_id: adminInfo.id || "unknown",
       admin_username: adminInfo.username || "unknown",
     };
+    // Sign the entry with HMAC for integrity
+    entry.hmac = signAuditEntry(entry);
     await store.setJSON(AUDIT_KEY, [entry, ...history].slice(0, AUDIT_LIMIT));
   } catch (err) {
     // Audit to bonus — nie może wywalić głównej akcji.
@@ -138,4 +192,7 @@ module.exports = {
   audit,
   handleError,
   ALLOWED_ORIGINS,
+  signAuditEntry,
+  verifyAuditEntry,
+  verifyAuditLog,
 };

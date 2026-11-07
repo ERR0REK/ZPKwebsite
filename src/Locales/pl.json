@@ -331,6 +331,8 @@
     "requirement1": "Posiadać samochód o wartości 120k do 750k.",
     "requirement2": "Mieć przynajmniej 200-800k kasy na koncie.",
     "requirement3": "Mieć 16 lat.",
+    "requirementsNoteLabel": "UWAGA:",
+    "requirementsNote": "Powyższe wymagania dotyczą wyłącznie dołączenia do KLANU. Jeśli chcesz należeć tylko do naszej COMMUNITY (bez klanu), wymogi te Cię nie obowiązują. Możesz dołączyć do community, a do klanu zgłosić się później, kiedy zechcesz.",
     "values": "Nasze wartości",
     "valuesIntro": "Działania Zjednoczonej Polskiej Korony opierają się na następujących fundamentalnych wartościach:",
     "value1Title": "SZACUNEK",
@@ -1468,6 +1470,52 @@
       }
     ],
     "release": [
+      {
+        "version": "1.0.1",
+        "date": "25 wrz 2026",
+        "changes": [
+          {
+            "type": "bugfix",
+            "title": "Chmura: zmiany znikały po odświeżeniu",
+            "description": "Najważniejsza naprawa. Zapisy trafiały tylko do pamięci serwera zamiast do chmury, więc dodany cel w KOS znikał po odświeżeniu i u innych graczy, a usunięte wpisy wracały. Dotyczyło to KOS, War Logs i ogłoszeń. Teraz wszystko zapisuje się na stałe i każdy widzi te same dane."
+          },
+          {
+            "type": "bugfix",
+            "title": "Status LIVE zamiast STANDBY",
+            "description": "Zabezpieczenia strony blokowały połączenie czasu rzeczywistego, więc status utykał na STANDBY nawet przy dobrym internecie. Po poprawce LIVE działa na oficjalnej stronie tak samo jak lokalnie."
+          },
+          {
+            "type": "bugfix",
+            "title": "Odświeżenie podstrony już nie daje 404",
+            "description": "Odświeżenie strony na podstronie, np. O nas albo KOS, kończyło się błędem 404. To samo dotyczyło linków wysłanych znajomym. Teraz każda podstrona otwiera się poprawnie."
+          },
+          {
+            "type": "bugfix",
+            "title": "Koniec czerwonego ekranu błędów",
+            "description": "Przechodzenie między podstronami potrafiło wyrzucić czerwony ekran z błędem. Powodem było zamykanie połączenia czasu rzeczywistego w złym momencie. Naprawione u źródła, ekran błędów pokazuje się teraz tylko przy prawdziwych problemach."
+          },
+          {
+            "type": "improvement",
+            "title": "Lepsza widoczność w Google i na Discordzie",
+            "description": "Strona ma teraz opis, mapę podstron (sitemap) i poprawny adres w metadanych. Podgląd linku na Discordzie pokazuje właściwy obrazek zamiast nieistniejącej domeny."
+          },
+          {
+            "type": "improvement",
+            "title": "Wyśrodkowane tytuły w Czym jest ZPK",
+            "description": "Nagłówki w sekcji Czym jest Zjednoczona Polska Korona są teraz na środku, a nie przy lewej krawędzi."
+          },
+          {
+            "type": "feature",
+            "title": "Odznaka CZŁONEK KLANU",
+            "description": "Po zalogowaniu strona sprawdza rolę na Discordzie i pokazuje złotą odznakę CZŁONEK KLANU przy nicku."
+          },
+          {
+            "type": "improvement",
+            "title": "Notka: wymagania dotyczą tylko klanu",
+            "description": "Pod wymaganiami pojawiła się informacja, że dotyczą one wyłącznie dołączenia do klanu. Do community każdy może dołączyć bez spełniania wymogów, a do klanu zgłosić się później."
+          }
+        ]
+      },
       {
         "version": "1.1.0",
         "date": "3 wrz 2026",

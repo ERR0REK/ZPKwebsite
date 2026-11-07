@@ -757,9 +757,35 @@
 
 /* --- PRINT STYLESHEET --- */
 @media print {
+  /* NUKLEARNY RESET — bez tego ciemny motyw wycieka do druku:
+   * przegladarka przy druku zrzuca tla, a tekst zostaje BIALY
+   * => bialo na bialym, nic nie widac (bug z podgladu wydruku).
+   * Kazdy element regulaminu drukuje sie czarno na bialo,
+   * a reguly ponizej nadaja wyglad tylko wybranym elementom. */
+  .regulations-page,
+  .regulations-page * {
+    background: transparent !important;
+    color: #000 !important;
+    /* text-gradient ustawia -webkit-text-fill-color: transparent —
+     * samego color nie nadpisze (tekst bylby nadal niewidoczny w druku) */
+    -webkit-text-fill-color: currentColor !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform: none !important;
+  }
+
   .navbar, .reg-overlay, .reg-scanlines, .reg-back-to-top,
   .reg-qol-buttons, .reg-legal-links, .card-scanner, .corner,
   .warning-corner, .warning-hud-line, .reg-warning-icon-bg {
+    display: none !important;
+  }
+
+  /* Gwiazdki tla sa pseudo-elementem (::before) — selektor * ich nie lapie */
+  .regulations-page::before,
+  .regulations-page::after {
     display: none !important;
   }
 
@@ -793,6 +819,9 @@
     break-inside: avoid;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    /* Firefox: zezwol na wydruk jasnego tla karty (domyslnie zrzuca tla) */
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
   .reg-rule-item {

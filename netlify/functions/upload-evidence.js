@@ -11,6 +11,7 @@
 
 const { verifyAdmin, uploadToCatbox, json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, bodyTooLarge, audit, handleError } = require("./_lib/security");
+const { readIdempotencyKey, writeIdempotencyKey } = require("./_lib/blobStore");
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10MB
 
@@ -100,6 +101,26 @@ exports.handler = async (event) => {
     };
   }
 
+  // ==================== Idempotency Key ====================
+  // Client sends 'Idempotency-Key' header (UUID per mutation).
+  // On duplicate key, return cached response instead of re-executing.
+  const idempotencyKey = event.headers?.["idempotency-key"] || event.headers?.["Idempotency-Key"];
+  if (idempotencyKey && event.httpMethod === "POST") {
+    const cached = await readIdempotencyKey(event, idempotencyKey);
+    if (cached) {
+      // Return cached response with Idempotency-Replay header
+      const replayHeaders = {
+        ...cached.response.headers,
+        "Idempotency-Replay": "true",
+      };
+      return {
+        statusCode: cached.response.statusCode,
+        headers: replayHeaders,
+        body: cached.response.body,
+      };
+    }
+  }
+
   try {
     // Rate limit — 15 zapytań/min na IP (uploady są rzadkie i ciężkie)
     const rl = rateLimit(event, 15);
@@ -140,7 +161,9 @@ exports.handler = async (event) => {
         return json(result.status, result.body, {}, event);
       }
       await audit("evidence.rehost", result.safeName || "rehost", admin.user);
-      return json(200, result.body, {}, event);
+      const response = json(200, result.body, {}, event);
+      await writeIdempotencyKey(event, idempotencyKey, response);
+      return response;
     }
 
     // 2B. UPLOAD PLIKU — limit rozmiaru (Catbox: max 200MB, ale rozsądnie 10MB)
@@ -158,7 +181,9 @@ exports.handler = async (event) => {
 
     await audit("evidence.upload", safeName, admin.user);
 
-    return json(200, { ok: true, url: upload.url }, {}, event);
+    const response = json(200, { ok: true, url: upload.url }, {}, event);
+    await writeIdempotencyKey(event, idempotencyKey, response);
+    return response;
   } catch (err) {
     return handleError(err, "upload-evidence", event);
   }

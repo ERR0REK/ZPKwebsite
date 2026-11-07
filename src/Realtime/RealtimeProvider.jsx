@@ -182,7 +182,28 @@ export function RealtimeProvider({ children }) {
                 c.connection.off('disconnected', onOffline);
                 c.connection.off('suspended', onOffline);
                 c.connection.off('failed', onFailed);
-                c.close();
+                // ably-js v2: close() w trakcie CONNECTING (np. StrictMode
+                // double-mount zamyka 1. instancję, zanim auth się dokończy)
+                // odrzuca wewnętrzną Promise ("Connection closed") → unhandled
+                // rejection → czerwony overlay CRA. try/catch nie łapie tego
+                // (asynchroniczne), więc zamykamy dopiero, gdy połączenie
+                // osiągnie stabilny stan.
+                const closeNow = () => {
+                    try {
+                        c.close();
+                    } catch (err) {
+                        ablyLog && console.warn('[Realtime] close() — połączenie już martwe:', String(err).slice(0, 60));
+                    }
+                };
+                const st = c.connection.state;
+                if (st === 'connecting') {
+                    c.connection.once('connected', closeNow);
+                    c.connection.once('disconnected', closeNow);
+                    c.connection.once('failed', closeNow);
+                    c.connection.once('suspended', closeNow);
+                } else {
+                    closeNow();
+                }
             };
         };
 
