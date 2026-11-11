@@ -3,7 +3,7 @@
  * Globalne zarządzanie sesją (ZPK_auth_session) z rotacją tokenów.
  *
  * PROBLEM (bug zgłoszony przez użytkownika):
- *  Wygaśnięcie sesji (TTL 12h) było sprawdzane TYLKO w AuthGuard —
+ *  Wygaśnięcie sesji (TTL 15 min) było sprawdzane TYLKO w AuthGuard —
  *  czyli dopiero po wejściu na /kos lub /war-logs. Na pozostałych
  *  stronach (np. strona główna) użytkownik z wygasłą sesją nadal
  *  wyglądał na zalogowanego (badge z avatarem), aż do kliknięcia

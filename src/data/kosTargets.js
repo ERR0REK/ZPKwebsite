@@ -1,0 +1,82 @@
+// src/data/kosTargets.js
+// Główna baza celów KOS — obrazy są importowane, by Webpack
+// skopiował je do buildu (build/kos/) i nadał stabilne hashe.
+// Po zmianie tego pliku: git commit + push → Netlify przebuduje stronę.
+
+import kerainffImg from '../Assets/kos/kerainff-dowod.png';
+import moutichiImg from '../Assets/kos/f1468504-d6eb-4e86-a8d4-0a253b4f12eb.png';
+
+const kosTargets = {
+  personal: [
+    {
+      name: "Kerainff",
+      robloxLink: "https://www.roblox.com/pl/users/639119403/profile?friendshipSourceType=PlayerSearch",
+      reason: "Gloryfikował ludobójstwo którzy banderowcy mordowali Polaków na Wołyniu (Nie tylko Polaków, lecz także: Czechów, Rosjaninów i Żydów (Swoich też, ale tych których pomagali Polakom i innych))",
+      evidence: [
+        { type: "image", src: kerainffImg },
+        { type: "discord", url: "https://discord.com/channels/1434421694440800369/1491865518859358309/1533639797539606719", title: "Link do wiadomości która gloryfikuje ludobójstwo." }
+      ]
+    },
+    {
+      name: "ggxEyx10",
+      robloxLink: "https://www.roblox.com/users/10423935190/profile",
+      reason: "Targetował naszych sojuszników + puszczał swojich znaj na nas (że było 1v2-3)"
+    },
+    {
+      name: "MOUTICHi_i",
+      robloxLink: "https://www.roblox.com/users/3335098023/profile",
+      reason: "Otóż ta osoba atakowała bez przerwy naszego członka ZPK. Oraz oskarża tą osobę za byciem `mad`, problem jest tylko w tym ze on sam jest mad, ponieważ on pisze z capslockiem",
+      evidence: [
+        { type: "image", src: moutichiImg }
+      ]
+    },
+    {
+      name: "AOR4Ts_VicorScorpio",
+      robloxLink: "https://www.roblox.com/users/369489525/profile",
+      reason: "Atakowal naszego czlonka ZPK @pixal_999 bez calkowitego powodu oraz campil w mansionie tam gdzie sie robi boss fight."
+    },
+    {
+      name: "MrSullie",
+      robloxLink: "https://www.roblox.com/users/10163818172/profile",
+      reason: "Pomagal AOR4Ts_VicorScorpio w campieniu oraz zabijaniu."
+    },
+    {
+      name: "W4RLORD_S1NGH77",
+      robloxLink: "https://www.roblox.com/users/7414391251/profile",
+      reason: "Pomagal rowniez AOR4Ts_VicorScorpio oraz MrSullie w campieniu oraz zabijaniu również"
+    },
+    {
+      name: "LTS_Sabal",
+      robloxLink: "https://www.roblox.com/users/10505880291/profile",
+      reason: "Pomagal również AOR4Ts_VicorScorpio, MrSullie oraz W4RLORD_SINGHHH77 w campieniu oraz zabijaniu również"
+    },
+    {
+      name: "MachineHead",
+      robloxLink: "https://www.roblox.com/users/2833230846/profile",
+      reason: "Powód: Targetowal naszych czlonkow @pixal_999 oraz @nubxinq1337 bez powodu"
+    },
+    {
+      name: "Dawndada",
+      robloxLink: "https://www.roblox.com/users/2223338006/profile",
+      reason: "Taki sam powod co u MachineHead"
+    },
+    {
+      name: "REAPER_RAVEN",
+      robloxLink: "https://www.roblox.com/users/2615669243/profile?friendshipSourceType=PlayerSearch",
+      reason: "Również taki powód lecz on dużo pomagal temu jebancowi korzystajac z spamu z rpgem oraz grenade launcherem."
+    },
+    {
+      name: "Yeaaahh",
+      robloxLink: "https://www.roblox.com/users/4875536699/profile",
+      reason: "Również campil w helce wraz z Reaper_ravenem i machineheadem"
+    },
+    {
+      name: "Mew",
+      robloxLink: "https://www.roblox.com/users/434057021/profile",
+      reason: "Zacząl nawalac do @pixal_999 bez powodu jakiegos"
+    }
+  ],
+  factions: []
+};
+
+export default kosTargets;

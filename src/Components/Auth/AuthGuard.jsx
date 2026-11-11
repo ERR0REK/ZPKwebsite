@@ -3,7 +3,7 @@
  * Ochrona stron wymagających logowania (KOS, WAR LOGS).
  *
  * Sesja pochodzi z SessionContext — tam jest już zwalidowana pod kątem
- * TTL 12h (przeterminowana/niepoprawna = null). Dzięki temu:
+ * TTL 15 min (przeterminowana/niepoprawna = null). Dzięki temu:
  *  - przeterminowana sesja NIGDY nie dostanie dostępu (nawet gdyby
  *    użytkownik cały czas siedział na stronie /kos),
  *  - po wygaśnięciu sesji podczas przeglądania chronionej strony

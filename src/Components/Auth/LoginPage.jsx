@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import logo from '../../Assets/logo.png';
 import './LoginPage.css';
-import { generateOAuthState, OAUTH_STATE_KEY, generateCodeVerifier, generateCodeChallenge, PKCE_VERIFIER_KEY } from '../../utils/session';
 
 const LoginPage = ({ devMode }) => {
     const { t } = useTranslation();
@@ -21,21 +20,10 @@ const LoginPage = ({ devMode }) => {
     const DISCORD_CLIENT_ID = process.env.REACT_APP_DISCORD_CLIENT_ID || "1448793452044222586";
     const REDIRECT_URI = encodeURIComponent(window.location.origin + "/#/auth/callback");
 
-    // Authorization Code Flow + PKCE (RFC 7636) — bezpieczniejszy niż Implicit Flow.
-    // code_verifier generujemy i zapisujemy w sessionStorage (ta sama karta),
-    // code_challenge wysyłamy do Discorda. Po powrocie DiscordCallback
-    // wyciąga code_verifier i wymienia `code` na token przez /api/oauth/token.
-    const handleLogin = async () => {
-        const state = generateOAuthState();
-        const codeVerifier = generateCodeVerifier();
-        const codeChallenge = await generateCodeChallenge(codeVerifier);
-        try {
-            sessionStorage.setItem(OAUTH_STATE_KEY, state);
-            sessionStorage.setItem(PKCE_VERIFIER_KEY, codeVerifier);
-        } catch (e) {
-            /* ignore */
-        }
-        window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify%20guilds&state=${encodeURIComponent(state)}&code_challenge=${encodeURIComponent(codeChallenge)}&code_challenge_method=S256`;
+    // Implicit Flow — token w hashu URL po przekierowaniu z Discorda.
+    // Prostsze niż PKCE, nie wymaga backend endpointu do wymiany code na token.
+    const handleLogin = () => {
+        window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=identify%20guilds`;
     };
 
     return (

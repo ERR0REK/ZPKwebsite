@@ -1,7 +1,7 @@
 /* src/Context/SessionContext.test.jsx
  *
  * Testy najważniejszego zachowania SessionContext:
- *  - przeterminowana sesja (TTL 12h) jest czyszczona przy starcie,
+ *  - przeterminowana sesja (TTL 15 min) jest czyszczona przy starcie,
  *  - wygaśnięcie sesji W TRAKCIE przeglądania strony wywłogowuje
  *    automatycznie (bez reloadu),
  *  - logout() czyści sesję i przeładowuje na czysty URL.
@@ -36,7 +36,7 @@ afterEach(() => {
   sessionStorage.clear();
 });
 
-test('przeterminowana sesja (TTL 12h) jest czyszczona przy starcie — brak dostępu', () => {
+test('przeterminowana sesja (TTL 15 min) jest czyszczona przy starcie — brak dostępu', () => {
   localStorage.setItem(
     SESSION_KEY,
     JSON.stringify(makeSession({ timestamp: Date.now() - SESSION_TTL_MS - 1000 }))

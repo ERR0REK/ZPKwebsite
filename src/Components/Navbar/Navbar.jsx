@@ -20,7 +20,7 @@ const getAvatarUrl = (session) => {
 const Navbar = () => {
     const { t } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    // Sesja + licznik wygasania płyną z SessionContext — gdy TTL 12h
+    // Sesja + licznik wygasania płyną z SessionContext — gdy TTL 15 min
     // dobiegnie końca, provider czyści sesję i badge automatycznie znika
     // (użytkownik przestaje być zalogowany bez przeładowania strony).
     const { session, timeLeft, logout } = useSession();

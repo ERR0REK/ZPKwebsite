@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import Navbar from '../Navbar/Navbar';
 import { useSession } from '../../Context/SessionContext';
-import { generateOAuthState, OAUTH_STATE_KEY } from '../../utils/session';
 import '../Changelog/Changelog.css';
 
 export default function Changelog() {
@@ -46,23 +45,14 @@ export default function Changelog() {
 
   const currentVersions = activeCategory === 'dev' ? devVersions : releaseVersions;
 
-  // Zalogowanie przez Discorda (ten sam flow co LoginPage) — po powrocie
+  // Zalogowanie przez Discorda (Implicit Flow) — po powrocie
   // z OAuth sesja ma is_dev_member i zakładka DEV się odblokowuje.
-  // WAŻNE: nonce state jest wymagany przez bramę CSRF w DiscordCallback —
-  // bez niego login z tej strony kończyłby się AUTH_BLOCKED.
   const handleDiscordLogin = () => {
     const DISCORD_CLIENT_ID = process.env.REACT_APP_DISCORD_CLIENT_ID || '1448793452044222586';
     const REDIRECT_URI = encodeURIComponent(window.location.origin + '/#/auth/callback');
-    const state = generateOAuthState();
-    try {
-      sessionStorage.setItem(OAUTH_STATE_KEY, state);
-    } catch (e) {
-      /* ignore */
-    }
     window.location.href =
       `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}` +
-      `&redirect_uri=${REDIRECT_URI}&response_type=token&scope=identify%20guilds` +
-      `&state=${encodeURIComponent(state)}`;
+      `&redirect_uri=${REDIRECT_URI}&response_type=token&scope=identify%20guilds`;
   };
 
   const getIcon = (type) => {

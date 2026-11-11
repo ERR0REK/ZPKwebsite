@@ -141,7 +141,8 @@
       "all": "WSZYSTKO",
       "personal": "OSOBY",
       "faction": "KLAN",
-      "factions": "KLAN"
+      "factions": "KLAN",
+      "activity": "AKTYWNOŚĆ"
     },
     "reasons": {
       "reasonMissing": "Powód nieokreślony.",
@@ -206,7 +207,15 @@
       "msgRemovedLocal": "USUNIĘTO LOKALNIE: {{name}} (chmura chwilowo niedostępna).",
       "rehostDone": "PRZENIESIONO NA CATBOX: {{count}} obraz(ów) z Discorda (linki wieczne).",
       "rehostFailed": "NIE UDAŁO SIĘ przenieść {{count}} obraz(ów) (link wygasł?) — zostawiono oryginalne.",
-      "pasteHint": "💡 Wklej zrzut prosto ze schowka (Ctrl+V) — wyśle się na Catbox automatycznie. Linki z Discorda przenosimy na Catbox przy dodawaniu, żeby nie wygasały."
+      "pasteHint": "💡 Wklej zrzut prosto ze schowka (Ctrl+V) — wyśle się na Catbox automatycznie. Linki z Discorda przenosimy na Catbox przy dodawaniu, żeby nie wygasały.",
+      "activityTitle": "AKTYWNOŚĆ FRAKCJI",
+      "refresh": "ODŚWIEŻ",
+      "loadingActivity": "ŁADOWANIE AKTYWNOŚCI...",
+      "activityEmpty": "Brak zarejestrowanej aktywności.",
+      "activityAdded": "DODANO",
+      "activityRemoved": "USUNIĘTO",
+      "activityBy": "PRZEZ: {{admin}}",
+      "activityEvidence": "DOWODY: {{count}}"
     }
   },
   "login": {
@@ -431,7 +440,7 @@
           "title": "Jakie dane zbieramy",
           "body": [
             "Logując się przez Discorda, otrzymujemy: Twój identyfikator (user ID), nazwę użytkownika oraz informację, czy należysz do serwera ZPK.",
-            "Sesja logowania (token OAuth) jest przechowywana wyłącznie w Twojej przeglądarce (localStorage) i wygasa automatycznie po 12 godzinach.",
+            "Sesja logowania (token OAuth) jest przechowywana wyłącznie w Twojej przeglądarce (localStorage) i wygasa automatycznie po 15 minutach.",
             "Serwer hostingowy (Netlify) oraz warstwa bezpieczeństwa strony mogą rejestrować adres IP i podstawowe informacje o ruchu w celach ochronnych i diagnostycznych.",
             "Jeśli jesteś administratorem, sprawdzamy Twoje role na serwerze Discord w celu weryfikacji uprawnień (tylko fakt posiadania roli administracyjnej — nie zapisujemy pełnej listy ról)."
           ]

@@ -4,11 +4,7 @@
  * gdy hash zawiera access_token). Przekierowanie robi przez window.location,
  * żeby App.jsx mógł poprawnie przełączyć się na główny Router.
  *
- * Naprawione:
- *  - "NO_TOKEN_RECEIVED" po poprawnym logowaniu — gdy sesja już istnieje
- *    w localStorage, przekierowujemy zamiast pokazywać błąd.
- *  - Po sukcesie następuje PELNE odświeżenie strony z czystym URL —
- *    App czyta hash bez tokena i wchodzi do głównego routera.
+ * Implicit Flow: Discord przekierowuje z #access_token=...&token_type=...&expires_in=...&scope=...
  */
 
 import React, { useEffect, useState } from 'react';
@@ -17,7 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, CheckCircle2, Terminal, Cpu } from 'lucide-react';
 import LoadingScreen from '../LoadingScreen/LoadingScreen';
 import { isDevSite } from '../../utils/siteEnv';
-import { readSession, OAUTH_STATE_KEY, PKCE_VERIFIER_KEY, saveSession, clearSession } from '../../utils/session';
+import { readSession, saveSession, clearSession } from '../../utils/session';
 import './DiscordCallback.css';
 
 const REQUIRED_GUILD_ID = process.env.REACT_APP_GUILD_ID || "1445399610414858340";
@@ -31,21 +27,6 @@ const cleanAndRedirect = (target) => {
   window.location.reload();
 };
 
-// Wymienia authorization code na access_token przez Netlify Function.
-// Client secret nigdy nie trafia do frontendu — tylko do funkcji serwerowej.
-const exchangeCodeForToken = async (code, codeVerifier) => {
-  const response = await fetch('/api/oauth/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code, code_verifier: codeVerifier })
-  });
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || 'TOKEN_EXCHANGE_FAILED');
-  }
-  return response.json(); // { access_token, token_type, expires_in, refresh_token, scope }
-};
-
 const DiscordCallback = () => {
     const { t } = useTranslation();
     const [error, setError] = useState(null);
@@ -53,68 +34,39 @@ const DiscordCallback = () => {
 
     useEffect(() => {
         const handleAuth = async () => {
-            // Authorization Code Flow: URL wygląda jak #/auth/callback?code=...&state=...
-            // HashRouter dodaje kod i state do hash-a, np.
-            // https://site/#/auth/callback?code=xxx&state=yyy
+            // Implicit Flow: URL wygląda jak #access_token=...&token_type=...&expires_in=...&scope=...
             const hash = window.location.hash;
-            const queryStart = hash.indexOf('?');
-            const searchParams = queryStart >= 0 ? hash.slice(queryStart + 1) : '';
-            const params = new URLSearchParams(searchParams);
-            const code = params.get('code');
-
-            // Nonce OAuth (parametr state) — ZAWSZE konsumowany (one-time use).
-            let storedState = null;
-            try {
-                storedState = sessionStorage.getItem(OAUTH_STATE_KEY);
-                sessionStorage.removeItem(OAUTH_STATE_KEY);
-            } catch (e) {
-                /* ignore */
-            }
-
-            // --- Przypadek 1: brak kodu autoryzacji w URL ---
-            if (!code) {
+            if (!hash || hash === '#/auth/callback') {
                 const session = readSession();
                 // User jest już zalogowany (sesja w localStorage) — np. odświeżył
                 // stronę albo wraca na /auth/callback.
-                // Przekieruj do celu zamiast pokazywać błąd.
                 if (session && session.user_id) {
                     const redirectTarget = sessionStorage.getItem('ZPK_redirect_target') || '/';
                     sessionStorage.removeItem('ZPK_redirect_target');
                     cleanAndRedirect(redirectTarget.replace(/^#?\//, ''));
                     return;
                 }
-                setError("AUTHENTICATION_FAILED: NO_AUTH_CODE_RECEIVED");
+                setError("AUTHENTICATION_FAILED: NO_TOKEN_IN_HASH");
                 setStatus('error');
                 return;
             }
 
-            // --- Brama CSRF: bez poprawnego state NIE weryfikujemy kodu ---
-            const oauthState = params.get('state');
-            if (!storedState || !oauthState || oauthState !== storedState) {
+            // Parsuj parametry z hasha (po #)
+            const fragment = hash.startsWith('#') ? hash.slice(1) : hash;
+            const params = new URLSearchParams(fragment);
+            const accessToken = params.get('access_token');
+            const tokenType = params.get('token_type');
+            const expiresIn = params.get('expires_in');
+            const scope = params.get('scope');
+
+            if (!accessToken) {
+                setError("AUTHENTICATION_FAILED: NO_ACCESS_TOKEN");
                 setStatus('error');
-                setError('AUTH_BLOCKED: OAUTH_STATE_MISMATCH');
                 return;
             }
 
-            // Pobierz code_verifier (PKCE) — one-time use, czyść po użyciu.
-            let codeVerifier = null;
+            // --- Weryfikacja użytkownika z access_token ---
             try {
-                codeVerifier = sessionStorage.getItem(PKCE_VERIFIER_KEY);
-                sessionStorage.removeItem(PKCE_VERIFIER_KEY);
-            } catch (e) {
-                /* ignore */
-            }
-            if (!codeVerifier) {
-                setStatus('error');
-                setError('AUTH_BLOCKED: PKCE_VERIFIER_MISSING');
-                return;
-            }
-
-            // --- Przypadek 2: kod jest — wymień na token przez /api/oauth/token ---
-            try {
-                const tokenData = await exchangeCodeForToken(code, codeVerifier);
-                const accessToken = tokenData.access_token;
-
                 // 1. Fetch user's profile to get their ID
                 const userResponse = await fetch('https://discord.com/api/users/@me', {
                     headers: { Authorization: `Bearer ${accessToken}` }
@@ -173,6 +125,9 @@ const DiscordCallback = () => {
                     // Store session with user ID, admin flag, membership flags
                     saveSession({
                         access_token: accessToken,
+                        token_type: tokenType || 'Bearer',
+                        expires_in: expiresIn ? parseInt(expiresIn, 10) : 604800,
+                        scope: scope || 'identify guilds',
                         user_id: userData.id,
                         username: userData.username || userData.global_name || null,
                         // Hash avatara z Discorda — do zbudowania URL-a CDN:

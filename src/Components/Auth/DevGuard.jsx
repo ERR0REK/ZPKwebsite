@@ -4,7 +4,7 @@
  * UWAGA: aktywna implementacja DevGuarda znajduje się w App.jsx
  * (inline). Ten plik jest utrzymywany jako spójna kopia na wypadek
  * ponownego użycia — korzysta z SessionContext, więc wygasła sesja
- * (TTL 12h) automatycznie prowadzi do LoginPage.
+ * (TTL 15 min) automatycznie prowadzi do LoginPage.
  *
  * Cała strona dev jest dostępna TYLKO dla użytkowników, którzy:
  *   1) zalogowali się przez Discorda ORAZ
@@ -18,7 +18,7 @@ import { useSession } from '../../Context/SessionContext';
 
 const DevGuard = ({ children }) => {
     const location = useLocation();
-    // Sesja z kontekstu jest już zwalidowana pod TTL 12h.
+    // Sesja z kontekstu jest już zwalidowana pod TTL 15 min.
     const { session } = useSession();
     const isAuthenticated = !!(session && session.user_id && session.is_dev_member === true);
 

@@ -141,7 +141,8 @@
       "all": "ALL",
       "personal": "PERSONAL",
       "faction": "CLAN",
-      "factions": "CLAN"
+      "factions": "CLAN",
+      "activity": "ACTIVITY"
     },
     "reasons": {
       "reasonMissing": "Reason not specified.",
@@ -206,7 +207,15 @@
       "msgRemovedLocal": "REMOVED LOCALLY: {{name}} (cloud temporarily unavailable).",
       "rehostDone": "REHOSTED TO CATBOX: {{count}} Discord image(s) (permanent links).",
       "rehostFailed": "FAILED to rehost {{count}} image(s) (link expired?) — kept original URLs.",
-      "pasteHint": "💡 Paste a screenshot straight from the clipboard (Ctrl+V) — it uploads to Catbox automatically. Discord links are rehosted to Catbox on add so they never expire."
+      "pasteHint": "💡 Paste a screenshot straight from the clipboard (Ctrl+V) — it uploads to Catbox automatically. Discord links are rehosted to Catbox on add so they never expire.",
+      "activityTitle": "FACTION ACTIVITY",
+      "refresh": "REFRESH",
+      "loadingActivity": "LOADING ACTIVITY...",
+      "activityEmpty": "No activity recorded.",
+      "activityAdded": "ADDED",
+      "activityRemoved": "REMOVED",
+      "activityBy": "BY: {{admin}}",
+      "activityEvidence": "EVIDENCE: {{count}}"
     }
   },
   "login": {
@@ -431,7 +440,7 @@
           "title": "What data we collect",
           "body": [
             "When logging in through Discord we receive: your user ID, username, and whether you belong to the ZPK server.",
-            "The login session (OAuth token) is stored only in your browser (localStorage) and expires automatically after 12 hours.",
+            "The login session (OAuth token) is stored only in your browser (localStorage) and expires automatically after 15 minutes.",
             "The hosting server (Netlify) and the site's security layer may log IP addresses and basic traffic information for protective and diagnostic purposes.",
             "If you are an administrator, we check your roles on the Discord server to verify permissions (only the fact that you hold an admin role — we do not store the full role list)."
           ]

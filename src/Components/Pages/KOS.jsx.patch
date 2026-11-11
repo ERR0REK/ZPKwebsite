@@ -1,0 +1,26 @@
+// Pobieranie logu aktywności KOS
+    const fetchActivityLog = useCallback(async () => {
+        if (!session?.access_token) return;
+        setLoadingActivity(true);
+        try {
+            const res = await fetch('/api/kos-activity', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const data = await res.json();
+            if (res.ok && data.ok && data.activities) {
+                setActivityLog(data.activities);
+            }
+        } catch (err) {
+            console.error('Failed to fetch activity log:', err);
+        } finally {
+            setLoadingActivity(false);
+        }
+    }, [session]);
+
+    // Odświeżaj log aktywności gdy cloudReady się zmieni lub po dodaniu/usunięciu celu
+    useEffect(() => {
+        if (cloudReady) {
+            fetchActivityLog();
+        }
+    }, [cloudReady, fetchActivityLog]);

@@ -13,7 +13,7 @@
  * - Wskaźnik trybu (cloud / local)
  */
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
@@ -55,8 +55,30 @@ const KOSManagePanel = ({
     adminMessage,
     getReasonText,
     onClose,
+    activityLog = [],
+    loadingActivity = false,
+    fetchActivityLog,
 }) => {
     const { t } = useTranslation();
+    const intervalRef = useRef(null);
+
+    // Auto-refresh activity log when tab is active
+    useEffect(() => {
+        if (manageTab === 'activity') {
+            // Initial fetch
+            fetchActivityLog();
+            // Poll every 30 seconds
+            intervalRef.current = setInterval(() => {
+                fetchActivityLog();
+            }, 30000);
+        }
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        };
+    }, [manageTab, fetchActivityLog]);
 
     const targets = manageTab === 'personal' ? personalTargets : factionTargets;
 
@@ -101,7 +123,7 @@ const KOSManagePanel = ({
             )}
 
             <div className="manage-tabs">
-                {['personal', 'faction'].map((tab) => (
+                {['personal', 'faction', 'activity'].map((tab) => (
                     <button
                         key={tab}
                         className={`manage-tab ${manageTab === tab ? 'active' : ''}`}
@@ -112,168 +134,228 @@ const KOSManagePanel = ({
                 ))}
             </div>
 
-            <form className="manage-form" onSubmit={handleAddTarget}>
-                <div className="manage-field">
-                    <label>{t('kos.manage.nameLabel')}</label>
-                    <input
-                        type="text"
-                        value={form.name}
-                        onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                        placeholder={t('kos.manage.namePlaceholder')}
-                        required
-                    />
-                </div>
-
-                <div className="manage-field">
-                    <label>{t('kos.manage.reasonLabel')}</label>
-                    <div className="reason-mode-tabs">
-                        <button
-                            type="button"
-                            className={`reason-mode-tab ${form.reasonMode === 'preset' ? 'active' : ''}`}
-                            onClick={() => setForm((f) => ({ ...f, reasonMode: 'preset' }))}
-                        >
-                            {t('kos.manage.reasonPreset')}
-                        </button>
-                        <button
-                            type="button"
-                            className={`reason-mode-tab ${form.reasonMode === 'custom' ? 'active' : ''}`}
-                            onClick={() => setForm((f) => ({ ...f, reasonMode: 'custom' }))}
-                        >
-                            {t('kos.manage.reasonCustom')}
-                        </button>
-                    </div>
-                    {form.reasonMode === 'preset' ? (
-                        <select
-                            value={form.reasonKey}
-                            onChange={(e) => setForm((f) => ({ ...f, reasonKey: e.target.value }))}
-                        >
-                            {REASON_KEYS.map((key) => (
-                                <option key={key} value={key}>
-                                    {t(`kos.reasons.${key}`)}
-                                </option>
-                            ))}
-                        </select>
-                    ) : (
-                        <input
-                            type="text"
-                            value={form.customReason}
-                            onChange={(e) => setForm((f) => ({ ...f, customReason: e.target.value }))}
-                            placeholder={t('kos.manage.customReasonPlaceholder')}
-                        />
-                    )}
-                </div>
-
-                {manageTab === 'personal' ? (
-                    <div className="manage-field">
-                        <label>{t('kos.manage.robloxLinkLabel')}</label>
-                        <input
-                            type="url"
-                            value={form.robloxLink}
-                            onChange={(e) => setForm((f) => ({ ...f, robloxLink: e.target.value }))}
-                            placeholder="https://www.roblox.com/users/123456/profile"
-                        />
-                    </div>
-                ) : (
-                    <div className="manage-field-row">
+            {/* Formularz i lista celów — tylko dla zakładek personal/faction */}
+            {manageTab !== 'activity' && (
+                <>
+                    <form className="manage-form" onSubmit={handleAddTarget}>
                         <div className="manage-field">
-                            <label>{t('kos.intel.factionLeaders')}</label>
+                            <label>{t('kos.manage.nameLabel')}</label>
                             <input
                                 type="text"
-                                value={form.leaders}
-                                onChange={(e) => setForm((f) => ({ ...f, leaders: e.target.value }))}
-                                placeholder="Lider1, Lider2"
+                                value={form.name}
+                                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                                placeholder={t('kos.manage.namePlaceholder')}
+                                required
                             />
                         </div>
-                        <div className="manage-field">
-                            <label>{t('kos.intel.allies')}</label>
-                            <input
-                                type="text"
-                                value={form.allies}
-                                onChange={(e) => setForm((f) => ({ ...f, allies: e.target.value }))}
-                                placeholder="Klan Sojuszniczy"
-                            />
-                        </div>
-                        <div className="manage-field">
-                            <label>{t('kos.intel.firepower')}</label>
-                            <input
-                                type="text"
-                                value={form.firepower}
-                                onChange={(e) => setForm((f) => ({ ...f, firepower: e.target.value }))}
-                                placeholder="HEAVY_ARMORED"
-                            />
-                        </div>
-                    </div>
-                )}
 
-                <div className="manage-field">
-                    <label>{t('kos.manage.evidenceLabel')}</label>
-                    <textarea
-                        rows={4}
-                        value={form.evidenceText}
-                        onChange={(e) => setForm((f) => ({ ...f, evidenceText: e.target.value }))}
-                        onPaste={handleEvidencePaste}
-                        placeholder={t('kos.manage.evidenceHint')}
-                    />
-                    <p className="paste-hint">{t('kos.manage.pasteHint')}</p>
-                </div>
-
-                {isAdmin && (
-                    <div className="upload-box">
-                        <label className="upload-btn">
-                            {uploading ? (
-                                <Loader2 size={14} className="spin" />
+                        <div className="manage-field">
+                            <label>{t('kos.manage.reasonLabel')}</label>
+                            <div className="reason-mode-tabs">
+                                <button
+                                    type="button"
+                                    className={`reason-mode-tab ${form.reasonMode === 'preset' ? 'active' : ''}`}
+                                    onClick={() => setForm((f) => ({ ...f, reasonMode: 'preset' }))}
+                                >
+                                    {t('kos.manage.reasonPreset')}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`reason-mode-tab ${form.reasonMode === 'custom' ? 'active' : ''}`}
+                                    onClick={() => setForm((f) => ({ ...f, reasonMode: 'custom' }))}
+                                >
+                                    {t('kos.manage.reasonCustom')}
+                                </button>
+                            </div>
+                            {form.reasonMode === 'preset' ? (
+                                <select
+                                    value={form.reasonKey}
+                                    onChange={(e) => setForm((f) => ({ ...f, reasonKey: e.target.value }))}
+                                >
+                                    {REASON_KEYS.map((key) => (
+                                        <option key={key} value={key}>
+                                            {t(`kos.reasons.${key}`)}
+                                        </option>
+                                    ))}
+                                </select>
                             ) : (
-                                <Upload size={14} />
+                                <input
+                                    type="text"
+                                    value={form.customReason}
+                                    onChange={(e) => setForm((f) => ({ ...f, customReason: e.target.value }))}
+                                    placeholder={t('kos.manage.customReasonPlaceholder')}
+                                />
                             )}
-                            <span>
-                                {uploading ? t('kos.manage.uploading') : t('kos.manage.uploadBtn')}
-                            </span>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleUpload}
-                                disabled={uploading}
+                        </div>
+
+                        {manageTab === 'personal' ? (
+                            <div className="manage-field">
+                                <label>{t('kos.manage.robloxLinkLabel')}</label>
+                                <input
+                                    type="url"
+                                    value={form.robloxLink}
+                                    onChange={(e) => setForm((f) => ({ ...f, robloxLink: e.target.value }))}
+                                    placeholder="https://www.roblox.com/users/123456/profile"
+                                />
+                            </div>
+                        ) : (
+                            <div className="manage-field-row">
+                                <div className="manage-field">
+                                    <label>{t('kos.intel.factionLeaders')}</label>
+                                    <input
+                                        type="text"
+                                        value={form.leaders}
+                                        onChange={(e) => setForm((f) => ({ ...f, leaders: e.target.value }))}
+                                        placeholder="Lider1, Lider2"
+                                    />
+                                </div>
+                                <div className="manage-field">
+                                    <label>{t('kos.intel.allies')}</label>
+                                    <input
+                                        type="text"
+                                        value={form.allies}
+                                        onChange={(e) => setForm((f) => ({ ...f, allies: e.target.value }))}
+                                        placeholder="Klan Sojuszniczy"
+                                    />
+                                </div>
+                                <div className="manage-field">
+                                    <label>{t('kos.intel.firepower')}</label>
+                                    <input
+                                        type="text"
+                                        value={form.firepower}
+                                        onChange={(e) => setForm((f) => ({ ...f, firepower: e.target.value }))}
+                                        placeholder="HEAVY_ARMORED"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="manage-field">
+                            <label>{t('kos.manage.evidenceLabel')}</label>
+                            <textarea
+                                rows={4}
+                                value={form.evidenceText}
+                                onChange={(e) => setForm((f) => ({ ...f, evidenceText: e.target.value }))}
+                                onPaste={handleEvidencePaste}
+                                placeholder={t('kos.manage.evidenceHint')}
                             />
-                        </label>
-                        {uploadError && (
-                            <span className="upload-error">{t('kos.manage.uploadError')}</span>
+                            <p className="paste-hint">{t('kos.manage.pasteHint')}</p>
+                        </div>
+
+                        {isAdmin && (
+                            <div className="upload-box">
+                                <label className="upload-btn">
+                                    {uploading ? (
+                                        <Loader2 size={14} className="spin" />
+                                    ) : (
+                                        <Upload size={14} />
+                                    )}
+                                    <span>
+                                        {uploading ? t('kos.manage.uploading') : t('kos.manage.uploadBtn')}
+                                    </span>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleUpload}
+                                        disabled={uploading}
+                                    />
+                                </label>
+                                {uploadError && (
+                                    <span className="upload-error">{t('kos.manage.uploadError')}</span>
+                                )}
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            className="manage-add-btn"
+                            disabled={form.reasonMode === 'custom' && !form.customReason.trim()}
+                        >
+                            <Plus size={14} />
+                            <span>{t('kos.manage.addBtn')}</span>
+                        </button>
+                    </form>
+
+                    <div className="manage-list">
+                        <h4 className="manage-list-title">{t('kos.manage.listTitle')}</h4>
+                        {targets.length === 0 ? (
+                            <p className="manage-empty">{t('kos.manage.empty')}</p>
+                        ) : (
+                            targets.map((target) => (
+                                <div key={target.name} className="manage-item">
+                                    <span className="manage-item-name">{target.name}</span>
+                                    <span className="manage-item-reason">{getReasonText(target)}</span>
+                                    <button
+                                        type="button"
+                                        className="manage-remove-btn"
+                                        onClick={() => handleRemoveTarget(target.name)}
+                                        title={t('kos.manage.remove')}
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                </div>
+                            ))
                         )}
                     </div>
-                )}
+                </>
+            )}
 
-                <button
-                    type="submit"
-                    className="manage-add-btn"
-                    disabled={form.reasonMode === 'custom' && !form.customReason.trim()}
-                >
-                    <Plus size={14} />
-                    <span>{t('kos.manage.addBtn')}</span>
-                </button>
-            </form>
-
-            <div className="manage-list">
-                <h4 className="manage-list-title">{t('kos.manage.listTitle')}</h4>
-                {targets.length === 0 ? (
-                    <p className="manage-empty">{t('kos.manage.empty')}</p>
-                ) : (
-                    targets.map((target) => (
-                        <div key={target.name} className="manage-item">
-                            <span className="manage-item-name">{target.name}</span>
-                            <span className="manage-item-reason">{getReasonText(target)}</span>
-                            <button
-                                type="button"
-                                className="manage-remove-btn"
-                                onClick={() => handleRemoveTarget(target.name)}
-                                title={t('kos.manage.remove')}
-                            >
-                                <Trash2 size={14} />
-                            </button>
+            {/* Zakładka Aktywność — log operacji adminów */}
+            {manageTab === 'activity' && (
+                <div className="activity-log">
+                    <div className="activity-log-header">
+                        <h4 className="manage-list-title">{t('kos.manage.activityTitle')}</h4>
+                        <button
+                            type="button"
+                            className="activity-refresh-btn"
+                            onClick={fetchActivityLog}
+                            disabled={loadingActivity}
+                            title={t('kos.manage.refresh')}
+                        >
+                            {loadingActivity ? <Loader2 size={14} className="spin" /> : <Database size={14} />}
+                        </button>
+                    </div>
+                    {loadingActivity ? (
+                        <div className="activity-loading">
+                            <Loader2 size={24} className="spin" />
+                            <span>{t('kos.manage.loadingActivity')}</span>
                         </div>
-                    ))
-                )}
-            </div>
+                    ) : activityLog.length === 0 ? (
+                        <p className="manage-empty">{t('kos.manage.activityEmpty')}</p>
+                    ) : (
+                        <div className="activity-list">
+                            {activityLog.map((entry) => (
+                                <div key={entry.id} className="activity-item">
+                                    <div className="activity-main">
+                                        <span className={`activity-action activity-action--${entry.action}`}>
+                                            {entry.action === 'add' ? t('kos.manage.activityAdded') : t('kos.manage.activityRemoved')}
+                                        </span>
+                                        <span className="activity-target">{entry.targetName}</span>
+                                        <span className="activity-type">
+                                            {entry.targetType === 'personal' ? t('kos.filters.personal') : t('kos.filters.faction')}
+                                        </span>
+                                    </div>
+                                    <div className="activity-meta">
+                                        <span className="activity-admin">
+                                            {t('kos.manage.activityBy', { admin: entry.adminUsername })}
+                                        </span>
+                                        <span className="activity-time">
+                                            {new Date(entry.timestamp).toLocaleString('pl-PL')}
+                                        </span>
+                                        {entry.details?.evidenceCount && (
+                                            <span className="activity-evidence">
+                                                {t('kos.manage.activityEvidence', { count: entry.details.evidenceCount })}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
-            {cloudReady !== true && (
+            {cloudReady !== true && manageTab !== 'activity' && (
                 <button type="button" className="manage-reset-btn" onClick={handleResetLocal}>
                     {t('kos.manage.resetBtn')}
                 </button>
@@ -292,3 +374,5 @@ const KOSManagePanel = ({
 };
 
 export default KOSManagePanel;
+
+

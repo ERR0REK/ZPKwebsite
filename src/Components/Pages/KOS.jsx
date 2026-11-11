@@ -1,6 +1,6 @@
 /* src/Components/Pages/KOS.jsx */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import DOMPurify from 'dompurify';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../Navbar/Navbar';
@@ -30,7 +30,7 @@ import {
     ArrowUpDown
 } from 'lucide-react';
 import DecodedText from '../Shared/DecodedText';
-import kosTargets from '../../data/kosTargets.json';
+import kosTargets from '../../data/kosTargets.js';
 import useCloudStore from '../../hooks/useCloudStore';
 import { useSession } from '../../Context/SessionContext';
 import KOSManagePanel from '../KOS/KOSManagePanel';
@@ -223,6 +223,8 @@ const KOS = () => {
     });
 
     const [adminMessage, setAdminMessage] = useState(''); // komunikat w panelu zarządzania
+    const [activityLog, setActivityLog] = useState([]); // log aktywności KOS
+    const [loadingActivity, setLoadingActivity] = useState(false);
 
     const { session } = useSession();
 
@@ -260,6 +262,27 @@ const KOS = () => {
         return () => { cancelled = true; };
     }, [session]);
 
+    // Pobieranie logu aktywności KOS
+    const fetchActivityLog = useCallback(async () => {
+        if (!session?.access_token) return;
+        setLoadingActivity(true);
+        try {
+            const res = await fetch('/api/kos-activity', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const data = await res.json();
+            if (res.ok && data.ok && data.activities) {
+                setActivityLog(data.activities);
+            }
+        } catch (err) {
+            console.error('Failed to fetch activity log:', err);
+        } finally {
+            setLoadingActivity(false);
+        }
+    }, [session]);
+
+    
     // ==================================================================
     // 📌 CELE PODSTAWOWE (FALLBACK) — EDYTUJ JE W src/data/kosTargets.json
     //
@@ -308,7 +331,18 @@ const KOS = () => {
         channel: 'zpk-kos-updates',
         seedData: KOS_CLOUD_SEED,
         normalizeFn: KOS_NORMALIZE_FN,
+        mergeFn: (cloud, seed) => ({
+            personal: mergeTargets(cloud.personal || [], seed.personal || [], hiddenNames),
+            factions: mergeTargets(cloud.factions || [], seed.factions || [], hiddenNames),
+        }),
     });
+
+    // Odświeżaj log aktywności gdy cloudReady się zmieni na true
+    useEffect(() => {
+        if (cloudReady) {
+            fetchActivityLog();
+        }
+    }, [cloudReady, fetchActivityLog]);
 
     // Scal dane z chmury/seed z hiddenNames — cele usunięte przez admina nie wracają
     const [personalTargets, setPersonalTargets] = useState(() =>
@@ -319,15 +353,12 @@ const KOS = () => {
     );
 
     // Aktualizuj cele gdy cloudData się zmieni (fetch/refresh/realtime)
+    // cloudData już zawiera scalone dane (chmura + seed + hiddenNames)
     useEffect(() => {
         if (!cloudData) return;
-        setPersonalTargets(
-            mergeTargets(cloudData.personal || [], [], hiddenNames)
-        );
-        setFactionTargets(
-            mergeTargets(cloudData.factions || [], [], hiddenNames)
-        );
-    }, [cloudData, hiddenNames]);
+        setPersonalTargets(cloudData.personal || []);
+        setFactionTargets(cloudData.factions || []);
+    }, [cloudData]);
 
     // Zapis do localStorage (fallback offline)
     useEffect(() => {
@@ -429,6 +460,21 @@ const KOS = () => {
                         t('kos.manage.msgAddedCloud', { name: newName }) +
                         (rehostNotice ? ' ' + rehostNotice : '')
                     );
+                    // 📝 Log aktywności: dodano cel
+                    try {
+                        await fetch('/api/kos-activity', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                access_token: session?.access_token,
+                                action: 'add',
+                                targetName: newName,
+                                targetType: section,
+                                details: { reasonKey: form.reasonKey, customReason: form.customReason, evidenceCount: newTarget.evidence?.length || 0 }
+                            })
+                        });
+                        fetchActivityLog(); // odśwież log
+                    } catch (err) { /* log failure nie blokuje dodawania */ }
                 } else {
                     applyLocal();
                     setAdminMessage(t('kos.manage.msgSavedLocal', { name: newName }));
@@ -483,6 +529,21 @@ const KOS = () => {
                 if (res.ok && data && data.ok) {
                     refreshCloud();
                     setAdminMessage(t('kos.manage.msgRemovedCloud', { name }));
+                    // 📝 Log aktywności: usunięto cel
+                    try {
+                        await fetch('/api/kos-activity', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                access_token: session?.access_token,
+                                action: 'remove',
+                                targetName: name,
+                                targetType: section,
+                                details: {}
+                            })
+                        });
+                        fetchActivityLog(); // odśwież log
+                    } catch (err) { /* log failure nie blokuje usuwania */ }
                     return;
                 }
                 setAdminMessage(t('kos.manage.msgRemovedLocal', { name }));
@@ -639,31 +700,42 @@ const KOS = () => {
 
     const renderEvidenceStrip = (target) => {
         const evidence = target.evidence || [];
-        // Defense in depth: validate URL scheme at render time
-        const isValidHttps = (url) => {
-            try { return new URL(url).protocol === 'https:'; } catch { return false; }
+        // Resolve relative paths to absolute URLs (for seed data with /kos/... paths)
+        const resolveUrl = (url) => {
+            if (!url) return '';
+            try {
+                new URL(url); // absolute URL (https://...)
+                return url;
+            } catch {
+                // Relative path - prepend origin
+                return `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
+            }
+        };
+        // Allow https: (production) and http: (localhost dev)
+        const isValidUrl = (url) => {
+            try { const p = new URL(url).protocol; return p === 'https:' || p === 'http:'; } catch { return false; }
         };
         return (
             <div className="evidence-strip">
                 {evidence.slice(0, 3).map((ev, i) =>
                     ev.type === 'image' ? (
-                        isValidHttps(ev.src) ? (
+                        isValidUrl(resolveUrl(ev.src)) ? (
                             <a
                                 key={i}
-                                href={ev.src}
+                                href={resolveUrl(ev.src)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="evidence-thumb"
                                 title={t('kos.evidence.images')}
                             >
-                                <img src={ev.src} alt={`evidence-${i}`} loading="lazy" onError={onImageError} />
+                                <img src={resolveUrl(ev.src)} alt={`evidence-${i}`} loading="lazy" onError={onImageError} />
                             </a>
                         ) : null
                 ) : (
-                    isValidHttps(ev.url) ? (
+                    isValidUrl(resolveUrl(ev.url)) ? (
                         <a
                             key={i}
-                            href={ev.url}
+                            href={resolveUrl(ev.url)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={`evidence-chip ${ev.type}`}
@@ -816,12 +888,23 @@ const KOS = () => {
 
     const renderEvidenceSection = (evidence) => {
         const evs = evidence || [];
-        // Defense in depth: validate URL scheme at render time
-        const isValidHttps = (url) => {
-            try { return new URL(url).protocol === 'https:'; } catch { return false; }
+        // Resolve relative paths to absolute URLs (for seed data with /kos/... paths)
+        const resolveUrl = (url) => {
+            if (!url) return '';
+            try {
+                new URL(url); // absolute URL (https://...)
+                return url;
+            } catch {
+                // Relative path - prepend origin
+                return `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
+            }
         };
-        const images = evs.filter((ev) => ev.type === 'image' && isValidHttps(ev.src));
-        const videos = evs.filter((ev) => ev.type !== 'image' && isValidHttps(ev.url));
+        // Allow https: (production) and http: (localhost dev)
+        const isValidUrl = (url) => {
+            try { const p = new URL(url).protocol; return p === 'https:' || p === 'http:'; } catch { return false; }
+        };
+        const images = evs.filter((ev) => ev.type === 'image' && isValidUrl(resolveUrl(ev.src)));
+        const videos = evs.filter((ev) => ev.type !== 'image' && isValidUrl(resolveUrl(ev.url)));
         return (
             <div className="evidence-section">
                 <h4 className="evidence-title">
@@ -832,20 +915,23 @@ const KOS = () => {
                     <>
                         <span className="evidence-label">{t('kos.evidence.images')}</span>
                         <div className="evidence-gallery">
-                            {images.map((ev, i) => (
-                                <a
-                                    key={i}
-                                    href={ev.src}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="evidence-gallery-item"
-                                >
-                                    <img src={ev.src} alt={`screenshot-${i}`} loading="lazy" onError={onImageError} />
-                                    <div className="evidence-zoom">
-                                        <Search size={16} />
-                                    </div>
-                                </a>
-                            ))}
+                            {images.map((ev, i) => {
+                                const src = resolveUrl(ev.src);
+                                return (
+                                    <a
+                                        key={i}
+                                        href={src}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="evidence-gallery-item"
+                                    >
+                                        <img src={src} alt={`screenshot-${i}`} loading="lazy" onError={onImageError} />
+                                        <div className="evidence-zoom">
+                                            <Search size={16} />
+                                        </div>
+                                    </a>
+                                );
+                            })}
                         </div>
                     </>
                 )}
@@ -853,19 +939,22 @@ const KOS = () => {
                     <>
                         <span className="evidence-label">{t('kos.evidence.recordings')}</span>
                         <div className="evidence-videos">
-                            {videos.map((ev, i) => (
-                                <a
-                                    key={i}
-                                    href={ev.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={`evidence-video ${ev.type}`}
-                                >
-                                    <EvidenceIcon type={ev.type} size={16} />
-                                    <span>{getEvidenceTitle(ev)}</span>
-                                    <ExternalLink size={12} />
-                                </a>
-                            ))}
+                            {videos.map((ev, i) => {
+                                const url = resolveUrl(ev.url);
+                                return (
+                                    <a
+                                        key={i}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`evidence-video ${ev.type}`}
+                                    >
+                                        <EvidenceIcon type={ev.type} size={16} />
+                                        <span>{getEvidenceTitle(ev)}</span>
+                                        <ExternalLink size={12} />
+                                    </a>
+                                );
+                            })}
                         </div>
                     </>
                 )}
@@ -1124,6 +1213,9 @@ const KOS = () => {
                             adminMessage={adminMessage}
                             getReasonText={getReasonText}
                             onClose={() => setManageOpen(false)}
+                            activityLog={activityLog}
+                            loadingActivity={loadingActivity}
+                            fetchActivityLog={fetchActivityLog}
                         />
                     </motion.div>
                 )}
@@ -1140,3 +1232,9 @@ const KOS = () => {
 };
 
 export default KOS;
+
+
+
+
+
+

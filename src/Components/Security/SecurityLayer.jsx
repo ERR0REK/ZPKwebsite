@@ -21,7 +21,7 @@ const SecurityLayer = () => {
 
     useEffect(() => {
         const checkBypass = () => {
-            // Walidowany odczyt (TTL 12h) — wygasła/niepełna sesja NIE daje bypassu.
+            // Walidowany odczyt (TTL 15 min) — wygasła/niepełna sesja NIE daje bypassu.
             const session = loadValidSession();
             return session && session.user_id === AUTHORIZED_ADMIN_ID;
         };

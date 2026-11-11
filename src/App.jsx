@@ -106,7 +106,7 @@ const LazyLoginPage = React.lazy(() => import('./Components/Auth/LoginPage'));
 // lub children, bez zagnieżdżania Routes (React Router v7 compatibility).
 const DevGuard = ({ children }) => {
   // Sesja pochodzi z SessionProvider — jest tam już zwalidowana pod kątem
-  // TTL 12h (przeterminowana = null), więc na stronie dev wygasła sesja
+  // TTL 15 min (przeterminowana = null), więc na stronie dev wygasła sesja
   // automatycznie wyświetli LoginPage, zamiast wpuszczać jak wcześniej.
   const { session } = useSession();
   const [loadError, setLoadError] = useState(false);
