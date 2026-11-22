@@ -52,6 +52,7 @@ export const saveSession = (session) => {
 export const clearSession = () => {
   try {
     localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem('zpk_discord_user_id');
   } catch (e) {
     /* ignore */
   }

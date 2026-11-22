@@ -1,11 +1,13 @@
 /* src/Realtime/RealtimeProvider.jsx
  * Warstwa real-time (Ably) — bez AI, czyste WebSockety.
+ * Używa @ably/pubsub-device (v3) przez UMD global window.AblyPubSub.
  *
  * 🔐 TOKEN AUTH (bezpieczny wzorzec Ably + Netlify):
  *  - Frontend NIE dostaje żadnego klucza Ably do bundla.
- *  - Łączy się przez authUrl → funkcja /api/ably-token-request
+ *  - Łączy się przez authCallback → funkcja /api/ably-token-request
  *    generuje krótkożyjący token (TTL 1h, tylko subscribe) z klucza ROOT,
  *    który nigdy nie opuszcza backendu.
+ *  - Token zawiera clientId (Discord user ID) — wymagane na kontach MAU.
  *  - Fallback: na localhost (dev bez wdrożonej funkcji) używamy klucza
  *    subscribe-only z .env.local. Jeśli token auth padnie na produkcji,
  *    a klucz subscribe jest dostępny — łączymy się nim.
@@ -25,11 +27,9 @@ import React, {
 } from 'react';
 import ToastContainer from '../Components/Toasts/ToastContainer';
 
-// Ably jest ładowane jako gotowy plik UMD (public/vendor/ably.min.js)
-// przez <script> w index.html — omija to kompilację Babel w CRA, która
-// wywalałaby build (brak @babel/plugin-transform-classes w node_modules).
-// W przeglądarce SDK jest dostępne jako global window.Ably.
-const getAblySDK = () => (typeof window !== 'undefined' ? window.Ably : undefined);
+// Ably v3 UMD ładuje się przez <script> w index.html jako window.AblyPubSub
+// Omija to kompilację Babel w CRA (brak @babel/plugin-transform-classes).
+const getAblySDK = () => (typeof window !== 'undefined' ? window.AblyPubSub : undefined);
 
 const RealtimeContext = createContext(null);
 
@@ -52,6 +52,14 @@ export const CHANNELS = {
     discord: 'zpk-discord-stats'
 };
 
+// Kanały, które obsługują historię (pomijamy presence i discord)
+const HISTORY_CHANNELS = [
+    CHANNELS.announcements,
+    CHANNELS.activity,
+    CHANNELS.kos,
+    CHANNELS.war
+];
+
 // Localhost = dev bez wdrożonej funkcji token → używamy klucza subscribe.
 const isLocalhost = () =>
     typeof window !== 'undefined' &&
@@ -70,7 +78,9 @@ export function RealtimeProvider({ children }) {
     const [status, setStatus] = useState('off'); // off | connecting | online | error
     const [lastError, setLastError] = useState(null); // powód braku połączenia (diagnostyka)
     const [toasts, setToasts] = useState([]);
+    const [presenceMembers, setPresenceMembers] = useState([]);
     const clientRef = useRef(null);
+    const presenceRef = useRef(null);
     const pendingRef = useRef(new Map()); // kanał -> Set(handlerów oczekujących na połączenie)
 
     const dismissToast = useCallback((id) => {
@@ -102,10 +112,40 @@ export function RealtimeProvider({ children }) {
         return () => channel.unsubscribe(callback);
     }, []);
 
+    // Pobiera aktualnych członków presence (zwraca tablicę)
+    const getPresence = useCallback(() => {
+        return presenceMembers;
+    }, [presenceMembers]);
+
+    // Funkcja do aktualizacji danych presence (username, avatar)
+    const updatePresence = useCallback(async (userData) => {
+        if (!presenceRef.current) return;
+        try {
+            await presenceRef.current.presence.update(userData);
+        } catch (err) {
+            console.warn('[Realtime] Presence update failed:', err);
+        }
+    }, []);
+
+    // Pobierz clientId z localStorage (Discord user ID) lub wygeneruj anon
+    const getClientId = useCallback(() => {
+        if (typeof window === 'undefined') return null;
+        // Spróbuj pobrać z localStorage (ustawiane po logowaniu Discord)
+        const stored = localStorage.getItem('zpk_discord_user_id');
+        if (stored) return `user-${stored}`;
+        // Fallback: anon ID trzymany w sessionStorage
+        let anonId = sessionStorage.getItem('zpk_anon_client_id');
+        if (!anonId) {
+            anonId = `anon-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+            sessionStorage.setItem('zpk_anon_client_id', anonId);
+        }
+        return anonId;
+    }, []);
+
     // Połączenie z Ably — TOKEN AUTH na produkcji, klucz na localhost.
     useEffect(() => {
         const AblySDK = getAblySDK();
-        if (!AblySDK || !AblySDK.Realtime) {
+        if (!AblySDK || !AblySDK.createClient) {
             // SDK się nie załadował — strona działa normalnie, bez realtime.
             setStatus('off');
             setLastError('SDK_MISSING');
@@ -121,7 +161,8 @@ export function RealtimeProvider({ children }) {
             detach();
             let c;
             try {
-                c = new AblySDK.Realtime({ echoMessages: false, log: ablyLog, ...options });
+                // v3: createClient zamiast new Realtime()
+                c = AblySDK.createClient({ echoMessages: false, log: ablyLog, ...options });
             } catch (err) {
                 console.warn('[Realtime] init failed:', err);
                 setStatus('error');
@@ -130,9 +171,76 @@ export function RealtimeProvider({ children }) {
             clientRef.current = c;
             setStatus('connecting');
 
-            const onConnected = () => {
+            const onConnected = async () => {
                 setStatus('online');
                 setLastError(null);
+
+                // --- PRESENCE ---
+                try {
+                    const presenceChannel = c.channels.get(CHANNELS.presence);
+                    presenceRef.current = presenceChannel;
+
+                    // Dane klienta do presence (clientId pochodzi z tokena)
+                    const clientData = {
+                        clientId: c.auth.clientId || `client-${Date.now()}`,
+                        timestamp: Date.now()
+                    };
+
+                    // Wejście w presence
+                    await presenceChannel.presence.enter(clientData);
+
+                    // Subskrypcja zdarzeń presence
+                    const handleEnter = (member) => {
+                        setPresenceMembers((prev) => {
+                            const exists = prev.some((m) => m.clientId === member.clientId);
+                            if (exists) return prev;
+                            return [...prev, { clientId: member.clientId, data: member.data, timestamp: Date.now() }];
+                        });
+                    };
+
+                    const handleLeave = (member) => {
+                        setPresenceMembers((prev) =>
+                            prev.filter((m) => m.clientId !== member.clientId)
+                        );
+                    };
+
+                    const handleUpdate = (member) => {
+                        setPresenceMembers((prev) =>
+                            prev.map((m) =>
+                                m.clientId === member.clientId ? { ...m, data: member.data, timestamp: Date.now() } : m
+                            )
+                        );
+                    };
+
+                    presenceChannel.presence.subscribe('enter', handleEnter);
+                    presenceChannel.presence.subscribe('leave', handleLeave);
+                    presenceChannel.presence.subscribe('update', handleUpdate);
+
+                    // Pobierz aktualnych członków
+                    const members = await presenceChannel.presence.get();
+                    setPresenceMembers(
+                        members.map((m) => ({
+                            clientId: m.clientId,
+                            data: m.data,
+                            timestamp: Date.now()
+                        }))
+                    );
+                } catch (err) {
+                    console.warn('[Realtime] Presence init failed:', err);
+                }
+
+                // --- HISTORY ---
+                for (const channelName of HISTORY_CHANNELS) {
+                    try {
+                        const channel = c.channels.get(channelName);
+                        const history = await channel.history({ limit: 50, untilAttach: true });
+                        // Replay w kolejności chronologicznej (od najstarszych)
+                        history.items.reverse().forEach((msg) => channel.emit(msg.name, msg));
+                    } catch (err) {
+                        console.warn(`[Realtime] History fetch failed for ${channelName}:`, err);
+                    }
+                }
+
                 // dołącz oczekujące handlery
                 pendingRef.current.forEach((handlers, name) => {
                     const channel = c.channels.get(name);
@@ -140,8 +248,9 @@ export function RealtimeProvider({ children }) {
                 });
                 pendingRef.current = new Map();
             };
-            // Token auth fallback: jika token auth gagal (ORB, CORS, sieć),
-            // spróbuj ponownie kluczem subscribe-only. Wykonujemy max 2 próby
+
+            // Token auth fallback: jeśli token auth nie zadziała (ORB, CORS, sieć),
+            // spróbuj ponownie kluczem subscribe-only. Max 2 próby
             // żeby uniknąć pętli (token auth → fail → key → fail → loop).
             let fallbackAttempts = 0;
             const MAX_FALLBACK = 2;
@@ -182,27 +291,22 @@ export function RealtimeProvider({ children }) {
                 c.connection.off('disconnected', onOffline);
                 c.connection.off('suspended', onOffline);
                 c.connection.off('failed', onFailed);
-                // ably-js v2: close() w trakcie CONNECTING (np. StrictMode
-                // double-mount zamyka 1. instancję, zanim auth się dokończy)
-                // odrzuca wewnętrzną Promise ("Connection closed") → unhandled
-                // rejection → czerwony overlay CRA. try/catch nie łapie tego
-                // (asynchroniczne), więc zamykamy dopiero, gdy połączenie
-                // osiągnie stabilny stan.
-                const closeNow = () => {
+
+                // Cleanup presence
+                if (presenceRef.current) {
                     try {
-                        c.close();
+                        presenceRef.current.presence.leave();
                     } catch (err) {
-                        ablyLog && console.warn('[Realtime] close() — połączenie już martwe:', String(err).slice(0, 60));
+                        console.warn('[Realtime] Presence leave failed:', err);
                     }
-                };
-                const st = c.connection.state;
-                if (st === 'connecting') {
-                    c.connection.once('connected', closeNow);
-                    c.connection.once('disconnected', closeNow);
-                    c.connection.once('failed', closeNow);
-                    c.connection.once('suspended', closeNow);
-                } else {
-                    closeNow();
+                    presenceRef.current = null;
+                }
+
+                // v3: close() jest bezpieczne, SDK sam zarządza promise
+                try {
+                    c.close();
+                } catch (err) {
+                    ablyLog && console.warn('[Realtime] close() — połączenie już martwe:', String(err).slice(0, 60));
                 }
             };
         };
@@ -215,16 +319,21 @@ export function RealtimeProvider({ children }) {
                 setLastError('NO_SUB_KEY_LOCAL');
             }
         } else {
-            // Produkcja — token auth przez authCallback (fetch) zamiast authUrl (XHR).
-            // authUrl powoduje ORB (Opaque Response Blocking) w Chrome — XHR do /api/*
-            // jest blokowany, a Ably SDK v2 nie ma wbudowanego fixa.
+            // Produkcja — token auth przez authCallback (fetch) z clientId.
             // authCallback używa własnego fetch(), który nie podlega ORB.
+            const clientId = getClientId();
             connect({
                 authCallback: async (tokenParams, callback) => {
                     try {
+                        // Prześlij clientId do backendu — wymagane na MAU
+                        const params = { ...tokenParams, recover: 'last', clientId };
                         const res = await fetch(TOKEN_AUTH_URL, {
-                            method: 'GET',
-                            headers: { 'Accept': 'application/json' }
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(params)
                         });
                         if (!res.ok) {
                             callback(new Error(`Token auth failed: ${res.status}`));
@@ -245,8 +354,9 @@ export function RealtimeProvider({ children }) {
             // Czyść oczekujące handlery — inaczej w dev (StrictMode double-mount)
             // mogą zostać zduplikowane po ponownym połączeniu.
             pendingRef.current = new Map();
+            setPresenceMembers([]);
         };
-    }, []);
+    }, [getClientId]);
 
     // Automatyczne toasty z kanałów ogłoszeń i aktywności
     useEffect(() => {
@@ -302,9 +412,12 @@ export function RealtimeProvider({ children }) {
             lastError,
             subscribe,
             pushToast,
-            dismissToast
+            dismissToast,
+            presenceMembers,
+            getPresence,
+            updatePresence
         }),
-        [status, lastError, subscribe, pushToast, dismissToast]
+        [status, lastError, subscribe, pushToast, dismissToast, presenceMembers, getPresence, updatePresence]
     );
 
     return (

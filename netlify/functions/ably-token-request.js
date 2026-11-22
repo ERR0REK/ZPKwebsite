@@ -8,12 +8,13 @@
 // Token ma ograniczone uprawnienia: tylko SUBSCRIBE na kanałach frakcji.
 // Nawet gdyby ktoś przechwycił token — wygasa po godzinie i nie może
 // publikować.
+// Token zawiera clientId (Discord user ID) — wymagane na kontach MAU.
 //
-// Wywołanie: GET /api/ably-token-request (Ably SDK robi to automatycznie)
+// Wywołanie: POST /api/ably-token-request (authCallback z frontendu)
+//   - body: { clientId?: string, capability?: object, ttl?: number }
 //   - zwraca JSON z Token Request (obiekt z keyName, ttl, capability, mac)
-//   - wspiera JSONP (parametr ?callback=) — fallback SDK w przeglądarce
 
-const Ably = require("ably");
+const { createHttpClient } = require("@ably/pubsub-server");
 const { json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, handleError } = require("./_lib/security");
 
@@ -30,6 +31,15 @@ const SUBSCRIBE_CHANNELS = [
 const TTL_MS = 60 * 60 * 1000; // token ważny 1 godzinę (krótkożyjący)
 const RATE_LIMIT = 240; // klient wznawia połączenie co chwilę — wysoki limit
 
+// Domyślna capability — subscribe na wiadomościach, presence tylko na zpk-presence.
+// (Wejście w presence wymaga capability "presence", bez tego 40160.)
+const DEFAULT_CAPABILITY = Object.fromEntries(
+  SUBSCRIBE_CHANNELS.map((ch) => [
+    ch,
+    ch === "zpk-presence" ? ["subscribe", "presence"] : ["subscribe"],
+  ])
+);
+
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: corsHeaders(event), body: "" };
@@ -45,30 +55,27 @@ exports.handler = async (event) => {
       return json(500, { ok: false, error: "ABLY_NOT_CONFIGURED" }, {}, event);
     }
 
-    // Capability — mapa kanał → dozwolone operacje. Tylko subscribe!
-    const capability = {};
-    SUBSCRIBE_CHANNELS.forEach((ch) => {
-      capability[ch] = ["subscribe"];
-    });
-
-    // Rest-client z kluczem ROOT — generuje podpisany Token Request.
-    const client = new Ably.Rest({ key: process.env.ABLY_API_KEY });
-    const tokenRequest = await client.auth.createTokenRequest({
-      ttl: TTL_MS,
-      capability
-    });
-
-    // JSONP fallback (Ably SDK używa ?callback= gdy XHR zawiedzie)
-    const callback =
-      event.queryStringParameters && event.queryStringParameters.callback;
-    if (callback) {
-      const body = `${callback}(${JSON.stringify(tokenRequest)})`;
-      return {
-        statusCode: 200,
-        headers: { "Content-Type": "application/javascript", ...corsHeaders(event) },
-        body
-      };
+    let body = {};
+    try {
+      body = JSON.parse(event.body || "{}");
+    } catch {
+      // ignore, użyjemy domyślnych
     }
+
+    // Capability i TTL ustala serwer — klient nie może ich rozszerzyć (np. o publish).
+    // clientId to tylko tożsamość presence: Discord user ID albo anonim.
+    const finalClientId =
+      typeof body.clientId === "string" && /^[\w-]{1,64}$/.test(body.clientId)
+        ? body.clientId
+        : `anon-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    // HTTP client z kluczem ROOT — generuje podpisany Token Request.
+    const http = createHttpClient({ key: process.env.ABLY_API_KEY });
+    const tokenRequest = await http.auth.createTokenRequest({
+      ttl: TTL_MS,
+      capability: DEFAULT_CAPABILITY,
+      clientId: finalClientId
+    });
 
     return json(200, tokenRequest, {}, event);
   } catch (err) {

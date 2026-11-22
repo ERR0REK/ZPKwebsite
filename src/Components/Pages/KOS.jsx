@@ -33,7 +33,9 @@ import DecodedText from '../Shared/DecodedText';
 import kosTargets from '../../data/kosTargets.js';
 import useCloudStore from '../../hooks/useCloudStore';
 import { useSession } from '../../Context/SessionContext';
+import { useRealtime } from '../../Realtime/RealtimeProvider';
 import KOSManagePanel from '../KOS/KOSManagePanel';
+import PresenceIndicator from '../KOS/PresenceIndicator';
 import { rehostEvidenceText, onImageError } from '../../utils/evidence';
 import './KOS.css';
 
@@ -261,6 +263,18 @@ const KOS = () => {
         })();
         return () => { cancelled = true; };
     }, [session]);
+
+    // Sync session data to Ably presence so other users see username/avatar
+    const { isOnline, updatePresence } = useRealtime();
+    useEffect(() => {
+        if (!isOnline || !session?.user_id || !updatePresence) return;
+        const userData = {
+            username: session.username,
+            avatar: session.avatar,
+            userId: session.user_id
+        };
+        updatePresence(userData);
+    }, [isOnline, session, updatePresence]);
 
     // Pobieranie logu aktywności KOS
     const fetchActivityLog = useCallback(async () => {
@@ -997,6 +1011,7 @@ const KOS = () => {
                             <span className="stat-label">{t('kos.stats.monitored')}</span>
                             <span className="stat-value">{monitoredFactions}</span>
                         </div>
+                        <PresenceIndicator />
                     </div>
 
                     <div className="search-and-filters">

@@ -1480,8 +1480,70 @@
     ],
     "release": [
       {
-        "version": "1.0.1",
+        "version": "1.1.1",
+        "date": "22 lis 2026",
+        "changes": [
+          {
+            "type": "feature",
+            "title": "Migracja Ably v2 → v3",
+            "description": "Nowy SDK (@ably/pubsub-device/server), token auth, stateless HTTP publish, usunięty legacy pakiet. Gotowe do rozliczeń MAU."
+          },
+          {
+            "type": "feature",
+            "title": "clientId z Discord (MAU)",
+            "description": "Discord user ID jako clientId w tokenie – wymagane na kontach MAU. Automatyczne ustawianie przy logowaniu, czyszczenie przy wylogowaniu."
+          },
+          {
+            "type": "bugfix",
+            "title": "Presence z awatarami na KOS",
+            "description": "Pokazuje awatary/nickname'y użytkowników online zamiast samych ID."
+          },
+          {
+            "type": "improvement",
+            "title": "Poprawiona kolejność wersji w changelogu",
+            "description": "Wersje stabilne: 1.1.0 → 1.0.1 → 1.0.0 (semver)."
+          },
+          {
+            "type": "improvement",
+            "title": "Fallback ORB/STANDBY",
+            "description": "Automatyczny fallback token→subscribe key, strona działa bez realtime bez crashy."
+          }
+        ]
+      },
+      {
+        "version": "1.1.0",
         "date": "25 wrz 2026",
+        "changes": [
+          {
+            "type": "security",
+            "title": "Logowanie przez Discord z ochroną anty-CSRF",
+            "description": "Parametr state (nonce) w OAuth — wklejony URL z cudzym tokenem nie loguje. Sesja w jednym module z walidacją TTL 12h na wszystkich ścieżkach."
+          },
+          {
+            "type": "feature",
+            "title": "ErrorBoundary — koniec białych ekranów",
+            "description": "Błędy pokazują czytelny ekran z przeładowaniem, a stara karta po deployu odświeża się automatycznie."
+          },
+          {
+            "type": "feature",
+            "title": "/api/health — monitoring magazynu",
+            "description": "Endpoint do monitoringu: ping Netlify Blobs, status 200/503, kontekst deploya i stan klucza Ably."
+          },
+          {
+            "type": "improvement",
+            "title": "Architektura backendu",
+            "description": "Adapter Ably zamiast trzech kopii publikacji oraz rejestr definicji store'ów Netlify Blobs — jedna, przetestowana polityka seedu/merge."
+          },
+          {
+            "type": "improvement",
+            "title": "Panel zarządzania War Logs jako moduł",
+            "description": "Wydzielony WarLogsManagePanel (wzorzec KOSManagePanel) — czystszy kod strony i szybszy rozwój paneli admina."
+          }
+        ]
+      },
+      {
+        "version": "1.0.1",
+        "date": "3 wrz 2026",
         "changes": [
           {
             "type": "bugfix",
@@ -1522,37 +1584,6 @@
             "type": "improvement",
             "title": "Notka: wymagania dotyczą tylko klanu",
             "description": "Pod wymaganiami pojawiła się informacja, że dotyczą one wyłącznie dołączenia do klanu. Do community każdy może dołączyć bez spełniania wymogów, a do klanu zgłosić się później."
-          }
-        ]
-      },
-      {
-        "version": "1.1.0",
-        "date": "3 wrz 2026",
-        "changes": [
-          {
-            "type": "security",
-            "title": "Logowanie przez Discord z ochroną anty-CSRF",
-            "description": "Parametr state (nonce) w OAuth — wklejony URL z cudzym tokenem nie loguje. Sesja w jednym module z walidacją TTL 12h na wszystkich ścieżkach."
-          },
-          {
-            "type": "feature",
-            "title": "ErrorBoundary — koniec białych ekranów",
-            "description": "Błędy pokazują czytelny ekran z przeładowaniem, a stara karta po deployu odświeża się automatycznie."
-          },
-          {
-            "type": "feature",
-            "title": "/api/health — monitoring magazynu",
-            "description": "Endpoint do monitoringu: ping Netlify Blobs, status 200/503, kontekst deploya i stan klucza Ably."
-          },
-          {
-            "type": "improvement",
-            "title": "Architektura backendu",
-            "description": "Adapter Ably zamiast trzech kopii publikacji oraz rejestr definicji store'ów Netlify Blobs — jedna, przetestowana polityka seedu/merge."
-          },
-          {
-            "type": "improvement",
-            "title": "Panel zarządzania War Logs jako moduł",
-            "description": "Wydzielony WarLogsManagePanel (wzorzec KOSManagePanel) — czystszy kod strony i szybszy rozwój paneli admina."
           }
         ]
       },

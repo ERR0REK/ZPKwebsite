@@ -47,12 +47,11 @@
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-  <!-- Ably Realtime (UMD build) — ładowany jako gotowy plik, żeby omijać kompilację Babel przez CRA -->
-  <!-- Ably SDK (UMD). Bez defer: musi załadować się synchronicznie PRZED bundle'em,
-       żeby window.Ably istniało zanim React się zamontuje (inaczej race condition).
+  <!-- Ably Pub/Sub v3 (CDN build) — gotowy plik, omija kompilację Babel w CRA.
+       Bez defer: window.AblyPubSub musi istnieć zanim React się zamontuje.
        Nonce zgodne z CSP header (script-src 'nonce-enBrLWNzcC1ub25jZS0yMDI0'). -->
   <script src="%PUBLIC_URL%/vendor/ably.min.js" nonce="enBrLWNzcC1ub25jZS0yMDI0"></script>
-  <!--
+    <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
       Only files inside the `public` folder can be referenced from the HTML.

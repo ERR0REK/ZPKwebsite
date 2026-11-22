@@ -140,6 +140,10 @@ const DiscordCallback = () => {
                         timestamp: Date.now()
                     });
 
+                    // Also save Discord user ID separately for RealtimeProvider (MAU billing requirement)
+                    // RealtimeProvider reads localStorage.getItem('zpk_discord_user_id') for clientId
+                    localStorage.setItem('zpk_discord_user_id', userData.id);
+
                     setStatus('success');
 
                     // Retrieve the redirect target or default to home

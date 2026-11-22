@@ -1464,8 +1464,70 @@
     ],
     "release": [
       {
-        "version": "1.0.1",
+        "version": "1.1.1",
+        "date": "Nov 22, 2026",
+        "changes": [
+          {
+            "type": "feature",
+            "title": "Ably v2 → v3 Migration",
+            "description": "New SDK (@ably/pubsub-device/server), token auth, stateless HTTP publish, legacy package removed. MAU-ready."
+          },
+          {
+            "type": "feature",
+            "title": "Discord clientId for MAU",
+            "description": "Discord user ID as clientId in token — required for MAU accounts. Auto-set on login, cleared on logout."
+          },
+          {
+            "type": "bugfix",
+            "title": "Presence with avatars on KOS",
+            "description": "Shows user avatars/nicknames online instead of just clientIds."
+          },
+          {
+            "type": "improvement",
+            "title": "Fixed release version order in changelog",
+            "description": "Stable versions: 1.1.0 → 1.0.1 → 1.0.0 (semver)."
+          },
+          {
+            "type": "improvement",
+            "title": "ORB/STANDBY connection fallback",
+            "description": "Auto fallback token→subscribe key, page works without realtime, no crashes."
+          }
+        ]
+      },
+      {
+        "version": "1.1.0",
         "date": "Sep 25, 2026",
+        "changes": [
+          {
+            "type": "security",
+            "title": "Discord login with anti-CSRF protection",
+            "description": "OAuth state (nonce) parameter — a pasted URL with someone else's token cannot log you in. Session lives in one module with 12h TTL validation on every path."
+          },
+          {
+            "type": "feature",
+            "title": "ErrorBoundary — no more white screens",
+            "description": "Errors show a readable screen with a reload button; an old tab after a deploy reloads automatically."
+          },
+          {
+            "type": "feature",
+            "title": "/api/health — store monitoring",
+            "description": "Monitoring endpoint: Netlify Blobs ping, 200/503 status, deploy context and Ably key state."
+          },
+          {
+            "type": "improvement",
+            "title": "Backend architecture",
+            "description": "Ably adapter replaces three copies of publishing; Netlify Blobs got a store definition registry — one tested seed/merge policy."
+          },
+          {
+            "type": "improvement",
+            "title": "War Logs manage panel as a module",
+            "description": "Extracted WarLogsManagePanel (KOSManagePanel pattern) — cleaner page code and faster admin panel development."
+          }
+        ]
+      },
+      {
+        "version": "1.0.1",
+        "date": "Sep 3, 2026",
         "changes": [
           {
             "type": "bugfix",
@@ -1506,37 +1568,6 @@
             "type": "improvement",
             "title": "Note: requirements apply to the clan only",
             "description": "A note appeared under the requirements saying they apply only to joining the clan. Anyone can join the community without meeting them and apply for the clan later."
-          }
-        ]
-      },
-      {
-        "version": "1.1.0",
-        "date": "Sep 3, 2026",
-        "changes": [
-          {
-            "type": "security",
-            "title": "Discord login with anti-CSRF protection",
-            "description": "OAuth state (nonce) parameter — a pasted URL with someone else's token cannot log you in. Session lives in one module with 12h TTL validation on every path."
-          },
-          {
-            "type": "feature",
-            "title": "ErrorBoundary — no more white screens",
-            "description": "Errors show a readable screen with a reload button; an old tab after a deploy reloads automatically."
-          },
-          {
-            "type": "feature",
-            "title": "/api/health — store monitoring",
-            "description": "Monitoring endpoint: Netlify Blobs ping, 200/503 status, deploy context and Ably key state."
-          },
-          {
-            "type": "improvement",
-            "title": "Backend architecture",
-            "description": "Ably adapter replaces three copies of publishing; Netlify Blobs got a store definition registry — one tested seed/merge policy."
-          },
-          {
-            "type": "improvement",
-            "title": "War Logs manage panel as a module",
-            "description": "Extracted WarLogsManagePanel (KOSManagePanel pattern) — cleaner page code and faster admin panel development."
           }
         ]
       },

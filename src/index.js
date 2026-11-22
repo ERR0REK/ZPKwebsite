@@ -40,11 +40,8 @@ if (process.env.NODE_ENV === 'production') {
     }
   });
 
-  // Wyłącz inspect element na prawe kliknięcie (context menu)
-  document.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    return false;
-  });
+  // Prawy przycisk myszy celowo NIE jest blokowany — blokada context menu
+  // psuła kopiowanie tekstu i linków, a przed DevTools i tak nie chroni.
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

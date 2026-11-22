@@ -1,6 +1,6 @@
 // src/Components/Security/SecurityLayer.jsx
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, Terminal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +18,7 @@ const SecurityLayer = () => {
     const { t } = useTranslation();
     const [showAlert, setShowAlert] = useState(false);
     const [violationType, setViolationType] = useState('');
+    const alertTimer = useRef(null);
 
     useEffect(() => {
         const checkBypass = () => {
@@ -26,14 +27,13 @@ const SecurityLayer = () => {
             return session && session.user_id === AUTHORIZED_ADMIN_ID;
         };
 
-        const handleContextMenu = (e) => {
-            if (checkBypass()) return;
-            e.preventDefault();
-            triggerAlert('UNAUTHORIZED_ACCESS_CONTEXT_MENU');
-        };
-
+        // Prawy przycisk myszy nie jest blokowany: blokada context menu
+        // wywoływała fałszywe alarmy przy zwykłym kopiowaniu tekstu/obrazka
+        // (i nie chroni przed niczym — DevTools otwiera się z klawiatury).
         const handleKeyDown = (e) => {
             if (checkBypass()) return;
+            // Przytrzymany klawisz nie powtarza alarmu w kółko.
+            if (e.repeat) return;
             // Block F12
             if (e.keyCode === 123) {
                 e.preventDefault();
@@ -59,15 +59,17 @@ const SecurityLayer = () => {
         const triggerAlert = (type) => {
             setViolationType(type);
             setShowAlert(true);
-            setTimeout(() => setShowAlert(false), 3000);
+            // Jeden timer na raz — bez tego szybkie naciśnięcia zostawiały
+            // kilka setTimeoutów i overlay gasł/wracał losowo.
+            if (alertTimer.current) clearTimeout(alertTimer.current);
+            alertTimer.current = setTimeout(() => setShowAlert(false), 3000);
         };
 
-        window.addEventListener('contextmenu', handleContextMenu);
         window.addEventListener('keydown', handleKeyDown);
 
         return () => {
-            window.removeEventListener('contextmenu', handleContextMenu);
             window.removeEventListener('keydown', handleKeyDown);
+            if (alertTimer.current) clearTimeout(alertTimer.current);
         };
     }, []);
 
