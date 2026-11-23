@@ -42,7 +42,7 @@ const Terms = () => {
 
         <div className="legal-updated">
           <Cpu size={14} />
-          <span>{t('legal.updatedAt', 'OSTATNIA AKTUALIZACJA')}: 2026-08-14</span>
+          <span>{t('legal.updatedAt', 'OSTATNIA AKTUALIZACJA')}: 2026-11-23</span>
         </div>
 
         <div className="legal-sections">
