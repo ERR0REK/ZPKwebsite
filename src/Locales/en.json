@@ -433,7 +433,7 @@
       "title": "PRIVACY POLICY",
       "subtitle": "What data we collect, why, and how you can delete it",
       "safeTitle": "WHAT IS NEVER COLLECTED",
-      "safeBody": "This site does NOT collect your password, email address, or payment data. Discord login uses the secure OAuth standard — Discord never shares your password with us.",
+      "safeBody": "This site does NOT collect your password, email address, or payment data. Discord login uses the secure OAuth standard — Discord never shares your password with us. The site does NOT retrieve, store, or have access to your Discord tokens (access token, refresh token) — the OAuth token goes only to your browser (localStorage) and is used solely to authorize your requests on this site.",
       "notice": "You have the right to log out at any time and request deletion of your data — message the administration on Discord.",
       "sections": [
         {

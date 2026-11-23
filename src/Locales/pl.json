@@ -433,7 +433,7 @@
       "title": "POLITYKA PRYWATNOŚCI",
       "subtitle": "Jakie dane zbieramy, dlaczego i jak możesz je usunąć",
       "safeTitle": "CO NIGDY NIE JEST ZBIERANE",
-      "safeBody": "Ta strona NIE zbiera Twojego hasła, adresu e-mail ani danych płatniczych. Logowanie przez Discorda używa bezpiecznego standardu OAuth — Discord nigdy nie udostępnia nam Twojego hasła.",
+      "safeBody": "Ta strona NIE zbiera Twojego hasła, adresu e-mail ani danych płatniczych. Logowanie przez Discorda używa bezpiecznego standardu OAuth — Discord nigdy nie udostępnia nam Twojego hasła. Strona NIE pobiera, NIE przechowuje i NIE ma dostępu do Twoich tokenów Discord (access token, refresh token) — token OAuth trafia tylko do Twojej przeglądarki (localStorage) i służy wyłącznie do autoryzacji Twoich requestów na tej stronie.",
       "notice": "Masz prawo w każdej chwili wylogować się i poprosić o usunięcie swoich danych — napisz do administracji na Discordzie.",
       "sections": [
         {
