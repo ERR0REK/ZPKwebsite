@@ -57,7 +57,7 @@
     # style-src ma 'unsafe-inline' bo React runtime (framer-motion, style={}) wstrzykuje style dynamicznie.
     # W produkcji CRA nie wstrzykuje inline skryptów, więc script-src 'self' + nonce jest bezpieczny.
     # Nonce (base64): enBrLWNzcC1ub25jZS0yMDI0  (zdekodowane: "zpk-csp-nonce-2024")
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'nonce-enBrLWNzcC1ub25jZS0yMDI0'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://discord.com https://fonts.googleapis.com https://*.ably.io https://*.ably.net wss://*.ably.io wss://*.ably.net https://*.ably-realtime.com wss://*.ably-realtime.com ws://localhost:* wss://localhost:* https://catbox.moe https://catbox.moe/* https://*.catbox.moe https://ingesteer.services-prod.nsvcs.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'nonce-enBrLWNzcC1ub25jZS0yMDI0'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://discord.com https://fonts.googleapis.com https://*.ably.io https://*.ably.net wss://*.ably.io wss://*.ably.net https://*.ably-realtime.com wss://*.ably-realtime.com ws://localhost:* wss://localhost:* https://catbox.moe https://catbox.moe/* https://*.catbox.moe https://*.nsvcs.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 
     # Wymuszaj HTTPS (HSTS) — tylko na produkcji
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
