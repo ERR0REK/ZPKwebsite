@@ -77,8 +77,10 @@ const WarLogsManagePanel = ({
             <form className="warlogs-admin-form" onSubmit={handleAddLog}>
               <div className="warlogs-form-row">
                 <div className="warlogs-form-group">
-                  <label>PRZECIWNIK *</label>
+                  <label htmlFor="warlog-opponent">PRZECIWNIK *</label>
                   <input
+                    id="warlog-opponent"
+                    name="opponent"
                     type="text"
                     value={form.opponent}
                     onChange={(e) =>
@@ -89,8 +91,10 @@ const WarLogsManagePanel = ({
                   />
                 </div>
                 <div className="warlogs-form-group">
-                  <label>DATA</label>
+                  <label htmlFor="warlog-date">DATA</label>
                   <input
+                    id="warlog-date"
+                    name="date"
                     type="date"
                     value={form.date}
                     onChange={(e) =>
@@ -99,8 +103,10 @@ const WarLogsManagePanel = ({
                   />
                 </div>
                 <div className="warlogs-form-group">
-                  <label>WYNIK</label>
+                  <label htmlFor="warlog-result">WYNIK</label>
                   <select
+                    id="warlog-result"
+                    name="result"
                     value={form.result}
                     onChange={(e) =>
                       setForm({ ...form, result: e.target.value })
@@ -117,8 +123,10 @@ const WarLogsManagePanel = ({
 
               <div className="warlogs-form-row">
                 <div className="warlogs-form-group">
-                  <label>CZAS TRWANIA</label>
+                  <label htmlFor="warlog-duration">CZAS TRWANIA</label>
                   <input
+                    id="warlog-duration"
+                    name="duration"
                     type="text"
                     value={form.duration}
                     onChange={(e) =>
@@ -128,8 +136,10 @@ const WarLogsManagePanel = ({
                   />
                 </div>
                 <div className="warlogs-form-group">
-                  <label>POWÓD</label>
+                  <label htmlFor="warlog-reason">POWÓD</label>
                   <input
+                    id="warlog-reason"
+                    name="reason"
                     type="text"
                     value={form.reason}
                     onChange={(e) =>
@@ -142,8 +152,10 @@ const WarLogsManagePanel = ({
 
               <div className="warlogs-form-row">
                 <div className="warlogs-form-group flex-2">
-                  <label>CZŁONKOWIE (przez przecinek)</label>
+                  <label htmlFor="warlog-members">CZŁONKOWIE (przez przecinek)</label>
                   <input
+                    id="warlog-members"
+                    name="members"
                     type="text"
                     value={form.members}
                     onChange={(e) =>
@@ -153,8 +165,10 @@ const WarLogsManagePanel = ({
                   />
                 </div>
                 <div className="warlogs-form-group">
-                  <label>MVP</label>
+                  <label htmlFor="warlog-mvp">MVP</label>
                   <input
+                    id="warlog-mvp"
+                    name="mvp"
                     type="text"
                     value={form.mvp}
                     onChange={(e) =>
@@ -167,8 +181,10 @@ const WarLogsManagePanel = ({
 
               <div className="warlogs-form-row">
                 <div className="warlogs-form-group flex-2">
-                  <label>URL OBRAZKA (opcjonalnie)</label>
+                  <label htmlFor="warlog-img">URL OBRAZKA (opcjonalnie)</label>
                   <input
+                    id="warlog-img"
+                    name="img"
                     type="text"
                     value={form.img}
                     onChange={(e) =>
@@ -178,8 +194,10 @@ const WarLogsManagePanel = ({
                   />
                 </div>
                 <div className="warlogs-form-group flex-2">
-                  <label>LINK DO NAGRANIA (YouTube / Medal.tv / Discord)</label>
+                  <label htmlFor="warlog-video">LINK DO NAGRANIA (YouTube / Medal.tv / Discord)</label>
                   <input
+                    id="warlog-video"
+                    name="videoUrl"
                     type="text"
                     value={form.videoUrl}
                     onChange={(e) =>
@@ -193,8 +211,10 @@ const WarLogsManagePanel = ({
               {/* KD Statistics */}
               <div className="warlogs-form-row">
                 <div className="warlogs-form-group flex-2">
-                  <label>KD WROGÓW (JSON lub po jednym w linii: nick|kills|deaths)</label>
+                  <label htmlFor="warlog-enemyKD">KD WROGÓW (JSON lub po jednym w linii: nick|kills|deaths)</label>
                   <textarea
+                    id="warlog-enemyKD"
+                    name="enemyKD"
                     value={form.enemyKD || ""}
                     onChange={(e) =>
                       setForm({ ...form, enemyKD: e.target.value })
@@ -205,8 +225,10 @@ const WarLogsManagePanel = ({
                   />
                 </div>
                 <div className="warlogs-form-group flex-2">
-                  <label>KD CZŁONKÓW (JSON lub po jednym w linii: nick|kills|deaths)</label>
+                  <label htmlFor="warlog-memberKD">KD CZŁONKÓW (JSON lub po jednym w linii: nick|kills|deaths)</label>
                   <textarea
+                    id="warlog-memberKD"
+                    name="memberKD"
                     value={form.memberKD || ""}
                     onChange={(e) =>
                       setForm({ ...form, memberKD: e.target.value })

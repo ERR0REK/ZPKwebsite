@@ -140,6 +140,8 @@ const AnnounceBell = () => {
           {isAdmin && composing && (
             <form className="bell-form" onSubmit={handleSend}>
               <input
+                id="announce-title"
+                name="title"
                 type="text"
                 className="bell-input"
                 placeholder={t('nav.bell.titlePlaceholder', 'TYTUŁ (opcjonalnie)')}
@@ -148,6 +150,8 @@ const AnnounceBell = () => {
                 maxLength={80}
               />
               <textarea
+                id="announce-message"
+                name="message"
                 className="bell-textarea"
                 placeholder={t('nav.bell.messagePlaceholder', 'TREŚĆ OGŁOSZENIA...')}
                 value={form.message}
@@ -158,6 +162,8 @@ const AnnounceBell = () => {
               />
               <div className="bell-form-row">
                 <select
+                  id="announce-severity"
+                  name="severity"
                   className="bell-severity"
                   value={form.severity}
                   onChange={(e) => setForm((f) => ({ ...f, severity: e.target.value }))}

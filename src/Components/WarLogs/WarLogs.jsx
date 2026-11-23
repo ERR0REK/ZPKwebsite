@@ -342,6 +342,8 @@ const WarLogs = () => {
           <div className="warlogs-search">
             <Search size={15} className="warlogs-search-icon" />
             <input
+              id="warlogs-search"
+              name="search"
               type="text"
               placeholder={t(
                 "warLogs.searchPlaceholder",

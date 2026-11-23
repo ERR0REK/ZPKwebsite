@@ -139,8 +139,10 @@ const KOSManagePanel = ({
                 <>
                     <form className="manage-form" onSubmit={handleAddTarget}>
                         <div className="manage-field">
-                            <label>{t('kos.manage.nameLabel')}</label>
+                            <label htmlFor="kos-target-name">{t('kos.manage.nameLabel')}</label>
                             <input
+                                id="kos-target-name"
+                                name="targetName"
                                 type="text"
                                 value={form.name}
                                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
@@ -169,6 +171,8 @@ const KOSManagePanel = ({
                             </div>
                             {form.reasonMode === 'preset' ? (
                                 <select
+                                    id="kos-target-reason"
+                                    name="reasonKey"
                                     value={form.reasonKey}
                                     onChange={(e) => setForm((f) => ({ ...f, reasonKey: e.target.value }))}
                                 >
@@ -180,6 +184,8 @@ const KOSManagePanel = ({
                                 </select>
                             ) : (
                                 <input
+                                    id="kos-target-custom-reason"
+                                    name="customReason"
                                     type="text"
                                     value={form.customReason}
                                     onChange={(e) => setForm((f) => ({ ...f, customReason: e.target.value }))}
@@ -190,8 +196,10 @@ const KOSManagePanel = ({
 
                         {manageTab === 'personal' ? (
                             <div className="manage-field">
-                                <label>{t('kos.manage.robloxLinkLabel')}</label>
+                                <label htmlFor="kos-target-roblox">{t('kos.manage.robloxLinkLabel')}</label>
                                 <input
+                                    id="kos-target-roblox"
+                                    name="robloxLink"
                                     type="url"
                                     value={form.robloxLink}
                                     onChange={(e) => setForm((f) => ({ ...f, robloxLink: e.target.value }))}
@@ -201,8 +209,10 @@ const KOSManagePanel = ({
                         ) : (
                             <div className="manage-field-row">
                                 <div className="manage-field">
-                                    <label>{t('kos.intel.factionLeaders')}</label>
+                                    <label htmlFor="kos-target-leaders">{t('kos.intel.factionLeaders')}</label>
                                     <input
+                                        id="kos-target-leaders"
+                                        name="leaders"
                                         type="text"
                                         value={form.leaders}
                                         onChange={(e) => setForm((f) => ({ ...f, leaders: e.target.value }))}
@@ -210,8 +220,10 @@ const KOSManagePanel = ({
                                     />
                                 </div>
                                 <div className="manage-field">
-                                    <label>{t('kos.intel.allies')}</label>
+                                    <label htmlFor="kos-target-allies">{t('kos.intel.allies')}</label>
                                     <input
+                                        id="kos-target-allies"
+                                        name="allies"
                                         type="text"
                                         value={form.allies}
                                         onChange={(e) => setForm((f) => ({ ...f, allies: e.target.value }))}
@@ -219,8 +231,10 @@ const KOSManagePanel = ({
                                     />
                                 </div>
                                 <div className="manage-field">
-                                    <label>{t('kos.intel.firepower')}</label>
+                                    <label htmlFor="kos-target-firepower">{t('kos.intel.firepower')}</label>
                                     <input
+                                        id="kos-target-firepower"
+                                        name="firepower"
                                         type="text"
                                         value={form.firepower}
                                         onChange={(e) => setForm((f) => ({ ...f, firepower: e.target.value }))}
@@ -231,8 +245,10 @@ const KOSManagePanel = ({
                         )}
 
                         <div className="manage-field">
-                            <label>{t('kos.manage.evidenceLabel')}</label>
+                            <label htmlFor="kos-target-evidence">{t('kos.manage.evidenceLabel')}</label>
                             <textarea
+                                id="kos-target-evidence"
+                                name="evidence"
                                 rows={4}
                                 value={form.evidenceText}
                                 onChange={(e) => setForm((f) => ({ ...f, evidenceText: e.target.value }))}
@@ -254,6 +270,8 @@ const KOSManagePanel = ({
                                         {uploading ? t('kos.manage.uploading') : t('kos.manage.uploadBtn')}
                                     </span>
                                     <input
+                                        id="kos-target-upload"
+                                        name="evidenceFile"
                                         type="file"
                                         accept="image/*"
                                         onChange={handleUpload}

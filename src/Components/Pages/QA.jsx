@@ -179,6 +179,8 @@ export default function Qa() {
           <div className="qa-search">
             <Search size={14} />
             <input
+              id="qa-search"
+              name="search"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

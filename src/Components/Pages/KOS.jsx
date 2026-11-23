@@ -1018,6 +1018,8 @@ const KOS = () => {
                         <div className="search-box">
                             <Search size={18} className="search-icon" />
                             <input
+                                id="kos-search"
+                                name="search"
                                 type="text"
                                 placeholder={t('kos.search')}
                                 value={searchTerm}
