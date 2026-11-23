@@ -33,8 +33,7 @@ import React, {
     useCallback,
     useEffect,
     useMemo,
-    useState,
-    useRef
+    useState
 } from 'react';
 import {
     SESSION_KEY,
