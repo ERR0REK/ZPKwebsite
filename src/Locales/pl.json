@@ -69,7 +69,8 @@
       "factionAdded": "KLAN DODANY DO KOS",
       "warReport": "RAPORT WOJENNY",
       "announcement": "OGŁOSZENIE",
-      "empty": "BRAK AKTYWNOŚCI — SYSTEM W STANDBY"
+      "empty": "BRAK AKTYWNOŚCI — SYSTEM W STANDBY",
+      "loading": "POBIERANIE AKTYWNOŚCI Z CHMURY..."
     }
   },
   "loadingScreen": {
@@ -1479,6 +1480,27 @@
       }
     ],
     "release": [
+      {
+        "version": "1.1.1 hotfix",
+        "date": "23 lis 2026",
+        "changes": [
+          {
+            "type": "bugfix",
+            "title": "KOS: usunięte cele nie wracają po odświeżeniu",
+            "description": "Naprawiono logikę seedu w blobStore.js — flaga _seeded chroni przed ponownym dołązaniem usuniętych celów z seeda przy każdym GET. Dodane przez chmurę cele zostają na zawsze."
+          },
+          {
+            "type": "feature",
+            "title": "War Logs: pola KD w panelu zarządzania chmurą",
+            "description": "Dodano textarea dla enemyKD i memberKD (format JSON lub pipe-separated). Parsowanie w WarLogs.jsx — statystyki wrogów i członków frakcji widoczne w modale raportu."
+          },
+          {
+            "type": "improvement",
+            "title": "ActivityFeed: synchronizacja z chmurą na starcie",
+            "description": "Feed pobiera live dane z /api/kos-store i /api/war-store przy montowaniu, potem subskrybuje realtime. Pokazuje prawdziwe timestampy z War Logs zamiast 'teraz'."
+          }
+        ]
+      },
       {
         "version": "1.1.1",
         "date": "22 lis 2026",

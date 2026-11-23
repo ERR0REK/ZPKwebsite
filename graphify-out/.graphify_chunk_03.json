@@ -1,0 +1,23 @@
+{
+  "nodes": [
+    {
+      "id": "IMAGE:public/logo192.png",
+      "type": "IMAGE",
+      "label": "ZPK Website Logo (192x192 PNG)",
+      "properties": {
+        "filename": "logo192.png",
+        "format": "PNG",
+        "dimensions": "192x192",
+        "file_size_bytes": 25347,
+        "source_file": "public/logo192.png",
+        "source_location": "visual",
+        "visual_description": "Application logo/icon for ZPK website, 192x192 pixel PNG format"
+      }
+    }
+  ],
+  "edges": [],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": 1.0
+}

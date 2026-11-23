@@ -1,0 +1,25 @@
+D:\pliki\projekty\ZPKwebsite\Developing War Tycoon Website.md
+D:\pliki\projekty\ZPKwebsite\README.md
+D:\pliki\projekty\ZPKwebsite\Refining Nightfall Squadron Website.md
+D:\pliki\projekty\ZPKwebsite\output.txt
+D:\pliki\projekty\ZPKwebsite\public\index.html
+D:\pliki\projekty\ZPKwebsite\public\robots.txt
+D:\pliki\projekty\ZPKwebsite\scripts\ngrok-domain.txt
+D:\pliki\projekty\ZPKwebsite\public\kos\f1468504-d6eb-4e86-a8d4-0a253b4f12eb.png
+D:\pliki\projekty\ZPKwebsite\public\kos\kerainff-dowod.png
+D:\pliki\projekty\ZPKwebsite\public\logo192.png
+D:\pliki\projekty\ZPKwebsite\public\logo512.png
+D:\pliki\projekty\ZPKwebsite\src\Assets\976320.jpg
+D:\pliki\projekty\ZPKwebsite\src\Assets\StaffMembersPFP\ERR0N1XPFP.webp
+D:\pliki\projekty\ZPKwebsite\src\Assets\StaffMembersPFP\PolakexePFP.png
+D:\pliki\projekty\ZPKwebsite\src\Assets\kos\Zrzut ekranu 2026-08-03 045621.png
+D:\pliki\projekty\ZPKwebsite\src\Assets\kos\f1468504-d6eb-4e86-a8d4-0a253b4f12eb.png
+D:\pliki\projekty\ZPKwebsite\src\Assets\kos\kerainff-dowod.png
+D:\pliki\projekty\ZPKwebsite\src\Assets\logo.png
+D:\pliki\projekty\ZPKwebsite\test-results\kos-KOS-Page-Admin-Panel-s-141e0-w-faction-target-with-intel-chromium\test-failed-1.png
+D:\pliki\projekty\ZPKwebsite\test-results\kos-KOS-Page-Admin-Panel-s-1bf0e-clipboard-in-evidence-field-chromium\test-failed-1.png
+D:\pliki\projekty\ZPKwebsite\test-results\kos-KOS-Page-Admin-Panel-s-1c8ea-n-personal-and-faction-tabs-chromium\test-failed-1.png
+D:\pliki\projekty\ZPKwebsite\test-results\kos-KOS-Page-Admin-Panel-s-48ced-ord-images-to-Catbox-on-add-chromium\test-failed-1.png
+D:\pliki\projekty\ZPKwebsite\test-results\kos-KOS-Page-Admin-Panel-s-ae593-anel-on-manage-button-click-chromium\test-failed-1.png
+D:\pliki\projekty\ZPKwebsite\test-results\kos-KOS-Page-Admin-Panel-should-add-new-personal-target-chromium\test-failed-1.png
+D:\pliki\projekty\ZPKwebsite\test-results\kos-KOS-Page-Admin-Panel-should-remove-target-chromium\test-failed-1.png

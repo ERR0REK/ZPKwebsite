@@ -18,7 +18,7 @@ const { createHttpClient } = require("@ably/pubsub-server");
 const { json, corsHeaders } = require("./_lib/discord");
 const { rateLimit, handleError } = require("./_lib/security");
 
-// Kanały, do których frontend może się podłączać (tylko do słuchania).
+// Kanały, do których frontend może się podłączać.
 const SUBSCRIBE_CHANNELS = [
   "zpk-announcements",
   "zpk-activity",
@@ -28,15 +28,27 @@ const SUBSCRIBE_CHANNELS = [
   "zpk-discord-stats"
 ];
 
-const TTL_MS = 60 * 60 * 1000; // token ważny 1 godzinę (krótkożyjący)
-const RATE_LIMIT = 240; // klient wznawia połączenie co chwilę — wysoki limit
+// Kanały, które obsługują historię (replay wiadomości po połączeniu).
+const HISTORY_CHANNELS = [
+  "zpk-announcements",
+  "zpk-activity",
+  "zpk-kos-updates",
+  "zpk-war-status"
+];
 
-// Domyślna capability — subscribe na wiadomościach, presence tylko na zpk-presence.
-// (Wejście w presence wymaga capability "presence", bez tego 40160.)
+const TTL_MS = 60 * 60 * 1000; // token ważny 1 godzinę (krótkożyjący)
+const RATE_LIMIT = 240; // klient wznwia połączenie co chwilę — wysoki limit
+
+// Domyślna capability — subscribe na wiadomościach, presence tylko na zpk-presence,
+// history na kanałach z HISTORY_CHANNELS.
 const DEFAULT_CAPABILITY = Object.fromEntries(
   SUBSCRIBE_CHANNELS.map((ch) => [
     ch,
-    ch === "zpk-presence" ? ["subscribe", "presence"] : ["subscribe"],
+    HISTORY_CHANNELS.includes(ch)
+      ? (ch === "zpk-presence" ? ["subscribe", "presence", "history"] : ["subscribe", "history"])
+      : ch === "zpk-presence"
+      ? ["subscribe", "presence"]
+      : ["subscribe"],
   ])
 );
 

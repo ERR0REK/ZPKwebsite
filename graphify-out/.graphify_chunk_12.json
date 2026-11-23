@@ -1,0 +1,32 @@
+{
+  "nodes": [
+    {
+      "id": "node_001",
+      "type": "IMAGE",
+      "label": "Test screenshot: KOS Admin Panel - faction target with intel",
+      "properties": {
+        "filename": "test-failed-1.png",
+        "format": "PNG",
+        "file_size_bytes": 52709,
+        "source_file": "test-results/kos-KOS-Page-Admin-Panel-s-141e0-w-faction-target-with-intel-chromium/test-failed-1.png",
+        "source_location": "visual",
+        "visual_description": "Playwright test failure screenshot showing KOS Admin Panel with faction target and intel fields - test: 'should add faction target with intel'"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "node_001",
+      "target": "kos_admin_panel_test",
+      "type": "PART_OF",
+      "properties": {
+        "context": "KOS Admin Panel E2E tests",
+        "test_name": "should add faction target with intel"
+      }
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": 1.0
+}

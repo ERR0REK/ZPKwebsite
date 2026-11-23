@@ -294,21 +294,17 @@ async function readEntryStore(event, def) {
   let keys = await listEntries(store, prefix);
   console.log('[readEntryStore] keys after list:', keys);
 
-  // 3. Seed-once: wpisy startowe tylko przy pierwszym uruchomieniu
+  // 3. Seed-once: wpisy startowe TYLKO przy pierwszym uruchomieniu (marker _meta/seeded).
+  // Po pierwszej inicjalizacji seed NIE jest dodawany ponownie — dzięki temu
+  // cele/raporty skasowane przez adminów NIE wracają po odświeżeniu.
   if (seed) {
     const markerGet = await store.get(SEED_MARKER, { type: "json", consistency: "strong" });
     const markerMeta = await store.getMetadata(SEED_MARKER, { consistency: "strong" });
     const markerExists = markerGet || (markerMeta && markerMeta.etag);
-    // Sprawdź też czy wpisy seed istnieją fizycznie
-    const seedEntries = toEntries(seed);
-    const present = new Set(keys);
-    const missing = seedEntries.filter((e) => !present.has(e.key));
-    if (!markerExists || missing.length > 0) {
-      if (missing.length > 0) {
-        for (const e of missing) {
-          await writeEntry(store, e.key, e.data, { onlyIfNew: true });
-        }
-        keys = await listEntries(store, prefix);
+    if (!markerExists) {
+      const seedEntries = toEntries(seed);
+      for (const e of seedEntries) {
+        await writeEntry(store, e.key, e.data, { onlyIfNew: true });
       }
       await writeEntry(store, SEED_MARKER, { at: new Date().toISOString() }, { onlyIfNew: true });
     }

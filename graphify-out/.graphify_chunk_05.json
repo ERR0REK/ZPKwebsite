@@ -1,0 +1,21 @@
+{
+  "nodes": [
+    {
+      "id": "image_976320",
+      "type": "IMAGE",
+      "label": "Image file: 976320.jpg (unable to analyze - model cannot process image input)",
+      "properties": {
+        "filename": "976320.jpg",
+        "format": "jpg",
+        "source_file": "D:\\pliki\\projekty\\ZPKwebsite\\src\\Assets\\976320.jpg",
+        "source_location": "visual",
+        "visual_description": "Image content could not be analyzed - model does not support image input"
+      }
+    }
+  ],
+  "edges": [],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": 0
+}

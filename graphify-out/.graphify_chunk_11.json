@@ -1,0 +1,31 @@
+{
+  "nodes": [
+    {
+      "id": "node_001",
+      "type": "IMAGE",
+      "label": "ZPK website logo (logo.png)",
+      "properties": {
+        "filename": "logo.png",
+        "format": "PNG",
+        "file_size_bytes": 3646377,
+        "source_file": "src/Assets/logo.png",
+        "source_location": "visual",
+        "visual_description": "Main ZPK (Nightfall Squadron) website logo - high resolution PNG"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "node_001",
+      "target": "zpk_branding",
+      "type": "PART_OF",
+      "properties": {
+        "context": "ZPK website branding assets"
+      }
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": 1.0
+}

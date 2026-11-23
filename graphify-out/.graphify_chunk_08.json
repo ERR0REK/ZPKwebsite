@@ -1,0 +1,34 @@
+{
+  "nodes": [
+    {
+      "id": "node_001",
+      "type": "IMAGE",
+      "label": "Screenshot of KOS members/team (Zrzut ekranu 2026-08-03 045621.png)",
+      "properties": {
+        "filename": "Zrzut ekranu 2026-08-03 045621.png",
+        "format": "PNG",
+        "dimensions": "994x147",
+        "color_depth": "8-bit/color RGBA",
+        "interlaced": false,
+        "file_size": "47.5K",
+        "source_file": "D:\\pliki\\projekty\\ZPKwebsite\\src\\Assets\\kos\\Zrzut ekranu 2026-08-03 045621.png",
+        "source_location": "visual",
+        "visual_description": "Screenshot image from 2026-08-03 04:56:21, likely showing KOS (KOS website) team members or related content based on directory path"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "node_001",
+      "target": "kos_asset",
+      "type": "PART_OF",
+      "properties": {
+        "context": "KOS asset directory"
+      }
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": 1.0
+}

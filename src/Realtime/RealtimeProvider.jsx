@@ -233,7 +233,9 @@ export function RealtimeProvider({ children }) {
                 for (const channelName of HISTORY_CHANNELS) {
                     try {
                         const channel = c.channels.get(channelName);
-                        const history = await channel.history({ limit: 50, untilAttach: true });
+                        // Attach channel first (untilAttach requires attached state)
+                        await channel.attach();
+                        const history = await channel.history({ limit: 50 });
                         // Replay w kolejności chronologicznej (od najstarszych)
                         history.items.reverse().forEach((msg) => channel.emit(msg.name, msg));
                     } catch (err) {

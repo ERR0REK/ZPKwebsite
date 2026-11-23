@@ -45,6 +45,8 @@ const WarLogs = () => {
     mvp: "",
     img: "",
     videoUrl: "",
+    enemyKD: "",
+    memberKD: "",
   });
   const [adminMessage, setAdminMessage] = useState("");
 
@@ -107,6 +109,40 @@ const WarLogs = () => {
     if (!form.opponent.trim()) return;
     setAdminMessage("");
 
+    // Parse KD fields from form (supports JSON array or pipe-separated lines)
+    const parseKD = (text) => {
+      if (!text || !text.trim()) return [];
+      const trimmed = text.trim();
+      try {
+        // Try JSON first
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          return parsed.map((p) => ({
+            name: String(p.name || "").trim(),
+            kills: Number(p.kills) || 0,
+            deaths: Number(p.deaths) || 0,
+          })).filter((p) => p.name);
+        }
+      } catch {
+        // Fallback: pipe-separated lines (name|kills|deaths)
+        return trimmed
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map((line) => {
+            const [name, kills, deaths] = line.split("|").map((s) => s.trim());
+            if (!name) return null;
+            return {
+              name,
+              kills: Number(kills) || 0,
+              deaths: Number(deaths) || 0,
+            };
+          })
+          .filter(Boolean);
+      }
+      return [];
+    };
+
     const newLog = {
       opponent: form.opponent.trim(),
       date: form.date,
@@ -117,8 +153,8 @@ const WarLogs = () => {
       mvp: form.mvp.trim(),
       img: form.img.trim() || WAR_BANNER_FALLBACK,
       videoUrl: form.videoUrl.trim(),
-      enemyKD: [],
-      memberKD: [],
+      enemyKD: parseKD(form.enemyKD),
+      memberKD: parseKD(form.memberKD),
     };
 
     // CROSS-PLATFORM: link obrazka z Discorda wygasa po ~24h — przenieś go
@@ -157,6 +193,8 @@ const WarLogs = () => {
             mvp: "",
             img: "",
             videoUrl: "",
+            enemyKD: "",
+            memberKD: "",
           });
         } else {
           setAdminMessage(`❌ ${data.error || "Błąd zapisu"}`);
@@ -179,6 +217,8 @@ const WarLogs = () => {
         mvp: "",
         img: "",
         videoUrl: "",
+        enemyKD: "",
+        memberKD: "",
       });
     }
   };

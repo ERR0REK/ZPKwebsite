@@ -69,7 +69,8 @@
       "factionAdded": "CLAN ADDED TO KOS",
       "warReport": "WAR REPORT",
       "announcement": "ANNOUNCEMENT",
-      "empty": "NO ACTIVITY — SYSTEM ON STANDBY"
+      "empty": "NO ACTIVITY — SYSTEM ON STANDBY",
+      "loading": "FETCHING ACTIVITY FROM CLOUD..."
     }
   },
   "loadingScreen": {
@@ -1463,6 +1464,27 @@
       }
     ],
     "release": [
+      {
+        "version": "1.1.1 hotfix",
+        "date": "Nov 23, 2026",
+        "changes": [
+          {
+            "type": "bugfix",
+            "title": "KOS: deleted targets stay deleted",
+            "description": "Fixed seed logic in blobStore.js — _seeded flag prevents re-adding deleted targets from seed on every GET. Cloud-added targets now persist permanently."
+          },
+          {
+            "type": "feature",
+            "title": "War Logs: KD fields in cloud management panel",
+            "description": "Added enemyKD and memberKD textareas (JSON or pipe-separated format). Parsing in WarLogs.jsx — enemy and faction member stats visible in war report modal."
+          },
+          {
+            "type": "improvement",
+            "title": "ActivityFeed: cloud sync on mount",
+            "description": "Feed fetches live data from /api/kos-store and /api/war-store on mount, then subscribes to realtime. Shows real War Logs timestamps instead of 'just now'."
+          }
+        ]
+      },
       {
         "version": "1.1.1",
         "date": "Nov 22, 2026",

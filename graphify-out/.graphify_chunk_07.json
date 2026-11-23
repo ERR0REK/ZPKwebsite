@@ -1,0 +1,24 @@
+{
+  "nodes": [
+    {
+      "id": "image:PolakexePFP.png",
+      "type": "IMAGE",
+      "label": "Staff member profile picture for Polakexe",
+      "properties": {
+        "filename": "PolakexePFP.png",
+        "format": "PNG",
+        "dimensions": "330x330",
+        "color_depth": "8-bit/color RGBA",
+        "file_size": "153.8K",
+        "source_file": "D:\\pliki\\projekty\\ZPKwebsite\\src\\Assets\\StaffMembersPFP\\PolakexePFP.png",
+        "source_location": "visual",
+        "visual_description": "Profile picture image for staff member Polakexe, 330x330 pixel PNG with transparency"
+      }
+    }
+  ],
+  "edges": [],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": 1.0
+}

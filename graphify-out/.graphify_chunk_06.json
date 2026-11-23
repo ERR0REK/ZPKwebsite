@@ -1,0 +1,22 @@
+{
+  "nodes": [
+    {
+      "id": "image:ERR0N1XPFP.webp",
+      "type": "IMAGE",
+      "label": "Profile picture for staff member ERR0N1X",
+      "properties": {
+        "filename": "ERR0N1XPFP.webp",
+        "format": "WebP",
+        "file_size_bytes": 10752,
+        "source_file": "D:\\pliki\\projekty\\ZPKwebsite\\src\\Assets\\StaffMembersPFP\\ERR0N1XPFP.webp",
+        "source_location": "visual",
+        "visual_description": "Staff member profile picture (WebP format, 10.5KB)"
+      }
+    }
+  ],
+  "edges": [],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": 1.0
+}

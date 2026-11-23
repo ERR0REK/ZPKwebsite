@@ -1,0 +1,23 @@
+{
+  "nodes": [
+    {
+      "id": "IMAGE:logo512.png",
+      "type": "IMAGE",
+      "label": "PNG logo image, 512x512 pixels, 8-bit RGB color",
+      "properties": {
+        "filename": "logo512.png",
+        "format": "PNG",
+        "dimensions": "512x512",
+        "color_depth": "8-bit/color RGB",
+        "interlaced": false,
+        "source_file": "public/logo512.png",
+        "source_location": "visual"
+      }
+    }
+  ],
+  "edges": [],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": 1.0
+}

@@ -1,0 +1,25 @@
+{
+  "nodes": [
+    {
+      "id": "img-kerainff-dowod",
+      "type": "IMAGE",
+      "label": "kerainff-dowod.png - PNG image (994x147, 8-bit RGBA)",
+      "properties": {
+        "filename": "kerainff-dowod.png",
+        "format": "PNG",
+        "dimensions": "994x147",
+        "color_depth": "8-bit",
+        "color_type": "RGBA",
+        "interlaced": false,
+        "source_file": "public/kos/kerainff-dowod.png",
+        "source_location": "visual",
+        "visual_description": "PNG image file, 994 pixels wide by 147 pixels tall, 8-bit color with RGBA channels, non-interlaced"
+      }
+    }
+  ],
+  "edges": [],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": 1.0
+}

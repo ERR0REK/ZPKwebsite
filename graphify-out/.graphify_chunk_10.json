@@ -1,0 +1,31 @@
+{
+  "nodes": [
+    {
+      "id": "node_001",
+      "type": "IMAGE",
+      "label": "KOS evidence image kerainff-dowod.png",
+      "properties": {
+        "filename": "kerainff-dowod.png",
+        "format": "PNG",
+        "file_size_bytes": 48638,
+        "source_file": "src/Assets/kos/kerainff-dowod.png",
+        "source_location": "visual",
+        "visual_description": "KOS evidence screenshot showing 'kerainff' target proof (Polish: dowód = proof)"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "node_001",
+      "target": "kos_evidence",
+      "type": "PART_OF",
+      "properties": {
+        "context": "KOS evidence assets"
+      }
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": 1.0
+}

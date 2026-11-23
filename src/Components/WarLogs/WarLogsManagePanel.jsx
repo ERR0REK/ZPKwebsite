@@ -190,6 +190,34 @@ const WarLogsManagePanel = ({
                 </div>
               </div>
 
+              {/* KD Statistics */}
+              <div className="warlogs-form-row">
+                <div className="warlogs-form-group flex-2">
+                  <label>KD WROGÓW (JSON lub po jednym w linii: nick|kills|deaths)</label>
+                  <textarea
+                    value={form.enemyKD || ""}
+                    onChange={(e) =>
+                      setForm({ ...form, enemyKD: e.target.value })
+                    }
+                    placeholder='np. [{"name":"Player1","kills":10,"deaths":5}]&#10;lub:&#10;Player1|10|5&#10;Player2|8|3'
+                    rows={3}
+                    style={{ fontFamily: "monospace", fontSize: "0.8rem" }}
+                  />
+                </div>
+                <div className="warlogs-form-group flex-2">
+                  <label>KD CZŁONKÓW (JSON lub po jednym w linii: nick|kills|deaths)</label>
+                  <textarea
+                    value={form.memberKD || ""}
+                    onChange={(e) =>
+                      setForm({ ...form, memberKD: e.target.value })
+                    }
+                    placeholder='np. [{"name":"Player1","kills":15,"deaths":3}]&#10;lub:&#10;Player1|15|3&#10;Player2|12|4'
+                    rows={3}
+                    style={{ fontFamily: "monospace", fontSize: "0.8rem" }}
+                  />
+                </div>
+              </div>
+
               <button type="submit" className="warlogs-admin-submit">
                 <Plus size={14} />
                 DODAJ RAPORT

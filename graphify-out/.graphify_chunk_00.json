@@ -1,0 +1,910 @@
+{
+  "nodes": [
+    {
+      "id": "FILE:Developing War Tycoon Website.md",
+      "label": "Developing War Tycoon Website.md",
+      "type": "FILE",
+      "source_file": "Developing War Tycoon Website.md",
+      "source_location": "H1",
+      "confidence": "HIGH",
+      "properties": {
+        "description": "Chat conversation log about building Nightfall Squadron (NS) War Tycoon website"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FILE:README.md",
+      "label": "README.md",
+      "type": "FILE",
+      "source_file": "README.md",
+      "source_location": "H1",
+      "confidence": "HIGH",
+      "properties": {
+        "description": "ZPK Website documentation - Unified Polish Crown clan website"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FILE:Refining Nightfall Squadron Website.md",
+      "label": "Refining Nightfall Squadron Website.md",
+      "type": "FILE",
+      "source_file": "Refining Nightfall Squadron Website.md",
+      "source_location": "H1",
+      "confidence": "HIGH",
+      "properties": {
+        "description": "Chat conversation about migrating ZPKwebsite to match 303website UI/UX"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FILE:output.txt",
+      "label": "output.txt",
+      "type": "FILE",
+      "source_file": "output.txt",
+      "source_location": "L1",
+      "confidence": "HIGH",
+      "properties": {
+        "description": "DNS records for zpkwebsite.netlify.app"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FILE:public/index.html",
+      "label": "public/index.html",
+      "type": "FILE",
+      "source_file": "public/index.html",
+      "source_location": "L1",
+      "confidence": "HIGH",
+      "properties": {
+        "description": "HTML template for ZPK website with SEO, CSP, Ably integration"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FILE:public/robots.txt",
+      "label": "public/robots.txt",
+      "type": "FILE",
+      "source_file": "public/robots.txt",
+      "source_location": "L1",
+      "confidence": "HIGH",
+      "properties": {
+        "description": "Robots.txt for ZPK website with disallow rules for private routes"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FILE:scripts/ngrok-domain.txt",
+      "label": "scripts/ngrok-domain.txt",
+      "type": "FILE",
+      "source_file": "scripts/ngrok-domain.txt",
+      "source_location": "L1",
+      "confidence": "HIGH",
+      "properties": {
+        "description": "Ngrok tunnel domain for local development"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "CONCEPT:ZPK",
+      "label": "ZPK (Zjednoczona Polska Korona)",
+      "type": "CONCEPT",
+      "source_file": "README.md",
+      "source_location": "H1>H3",
+      "confidence": "HIGH",
+      "properties": {
+        "description": "Polish clan/faction in War Tycoon Roblox game"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "CONCEPT:Nightfall Squadron",
+      "label": "Nightfall Squadron (NS)",
+      "type": "CONCEPT",
+      "source_file": "Developing War Tycoon Website.md",
+      "source_location": "H1>Planner Response 67",
+      "confidence": "HIGH",
+      "properties": {
+        "description": "Current faction name, formerly 303rd Division"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "CONCEPT:War Tycoon",
+      "label": "War Tycoon",
+      "type": "CONCEPT",
+      "source_file": "Developing War Tycoon Website.md",
+      "source_location": "H1>User Input 7",
+      "confidence": "HIGH",
+      "properties": {
+        "description": "Roblox game where faction operates"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "TOOL:React",
+      "label": "React 19",
+      "type": "TOOL",
+      "source_file": "README.md",
+      "source_location": "H2>Stack",
+      "confidence": "HIGH",
+      "properties": {
+        "version": "19",
+        "framework": "CRA"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "TOOL:Netlify",
+      "label": "Netlify",
+      "type": "TOOL",
+      "source_file": "README.md",
+      "source_location": "H2>Stack",
+      "confidence": "HIGH",
+      "properties": {
+        "services": ["Functions", "Blobs", "Deploy"]
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "TOOL:Ably",
+      "label": "Ably",
+      "type": "TOOL",
+      "source_file": "README.md",
+      "source_location": "H2>Stack",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "Realtime pub/sub for LIVE KOS, War Logs, announcements"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "TOOL:Discord OAuth",
+      "label": "Discord OAuth",
+      "type": "TOOL",
+      "source_file": "README.md",
+      "source_location": "H2>Stack",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "Login + admin verification via role"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "TOOL:framer-motion",
+      "label": "framer-motion",
+      "type": "TOOL",
+      "source_file": "Developing War Tycoon Website.md",
+      "source_location": "H1>Planner Response 30",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "Animations and transitions"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "TOOL:i18next",
+      "label": "i18next",
+      "type": "TOOL",
+      "source_file": "Developing War Tycoon Website.md",
+      "source_location": "H1>Planner Response 32",
+      "confidence": "HIGH",
+      "properties": {
+        "languages": ["PL", "EN"]
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "TOOL:lucide-react",
+      "label": "lucide-react",
+      "type": "TOOL",
+      "source_file": "Developing War Tycoon Website.md",
+      "source_location": "H1>Planner Response 31",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "Icons"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "MODULE:useCloudStore",
+      "label": "useCloudStore hook",
+      "type": "MODULE",
+      "source_file": "README.md",
+      "source_location": "H2>Architektura",
+      "confidence": "HIGH",
+      "properties": {
+        "path": "src/hooks/useCloudStore.js",
+        "purpose": "Fetch cloud + fallback seed + Ably (KOS, WarLogs)"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "MODULE:session.js",
+      "label": "session.js utility",
+      "type": "MODULE",
+      "source_file": "README.md",
+      "source_location": "H2>Architektura",
+      "confidence": "HIGH",
+      "properties": {
+        "path": "src/utils/session.js",
+        "purpose": "Session vault: localStorage access, TTL 12h, OAuth nonce"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "MODULE:blobStore.js",
+      "label": "blobStore.js",
+      "type": "MODULE",
+      "source_file": "README.md",
+      "source_location": "H2>Architektura",
+      "confidence": "HIGH",
+      "properties": {
+        "path": "netlify/functions/_lib/blobStore.js",
+        "purpose": "Blobs adapter + store registry (defineStore/readStore)"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "MODULE:ably.js",
+      "label": "ably.js",
+      "type": "MODULE",
+      "source_file": "README.md",
+      "source_location": "H2>Architektura",
+      "confidence": "HIGH",
+      "properties": {
+        "path": "netlify/functions/_lib/ably.js",
+        "purpose": "Shared realtime publishing"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "MODULE:discord.js",
+      "label": "discord.js",
+      "type": "MODULE",
+      "source_file": "README.md",
+      "source_location": "H2>Architektura",
+      "confidence": "HIGH",
+      "properties": {
+        "path": "netlify/functions/_lib/discord.js",
+        "purpose": "verifyAdmin (role via bot) + Catbox upload"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FUNCTION:kos-store",
+      "label": "GET/POST/DELETE /api/kos-store",
+      "type": "FUNCTION",
+      "source_file": "README.md",
+      "source_location": "H2>Funkcje Netlify",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "KOS targets list (seed + cloud), admin add/remove"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FUNCTION:war-store",
+      "label": "GET/POST/DELETE /api/war-store",
+      "type": "FUNCTION",
+      "source_file": "README.md",
+      "source_location": "H2>Funkcje Netlify",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "War reports list, admin add/remove"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FUNCTION:announce-history",
+      "label": "GET /api/announce-history",
+      "type": "FUNCTION",
+      "source_file": "README.md",
+      "source_location": "H2>Funkcje Netlify",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "Last 50 announcements"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FUNCTION:verify-admin",
+      "label": "POST /api/verify-admin",
+      "type": "FUNCTION",
+      "source_file": "README.md",
+      "source_location": "H2>Funkcje Netlify",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "Admin role verification"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FUNCTION:upload-evidence",
+      "label": "POST /api/upload-evidence",
+      "type": "FUNCTION",
+      "source_file": "README.md",
+      "source_location": "H2>Funkcje Netlify",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "Admin evidence upload to Catbox"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FUNCTION:ably-token",
+      "label": "GET /api/ably-token-request",
+      "type": "FUNCTION",
+      "source_file": "README.md",
+      "source_location": "H2>Funkcje Netlify",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "Ably token for browser"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "FUNCTION:health",
+      "label": "GET /api/health",
+      "type": "FUNCTION",
+      "source_file": "README.md",
+      "source_location": "H2>Funkcje Netlify",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "Status: ping Blobs, 200/503, deploy context, ABLY"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "CONCEPT:Staff Roles",
+      "label": "Staff Roles Hierarchy",
+      "type": "CONCEPT",
+      "source_file": "Developing War Tycoon Website.md",
+      "source_location": "H1>User Input 79-92",
+      "confidence": "HIGH",
+      "properties": {
+        "roles": ["Faction Command", "Private Leader's Translator", "Co Faction Command", "Trial Co Faction Command", "Technical Specialist", "Elder", "Trial Elder", "Head Administrator", "Senior Administrator", "Administrator", "Trial Administrator", "Moderator", "Trial Moderator"]
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "COMPONENT:LanguageSelector",
+      "label": "LanguageSelector Component",
+      "type": "MODULE",
+      "source_file": "Developing War Tycoon Website.md",
+      "source_location": "H1>Planner Response 223-332",
+      "confidence": "HIGH",
+      "properties": {
+        "path": "src/Components/LanguageDropdown/LanguageSelector.jsx",
+        "features": ["Vertical list", "[ EN ]/[ PL ] format", "Translation help section", "Auto-switch to English on translate click"]
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "COMPONENT:Staff System",
+      "label": "Staff System Components",
+      "type": "MODULE",
+      "source_file": "Developing War Tycoon Website.md",
+      "source_location": "H1>Planner Response 397-468",
+      "confidence": "HIGH",
+      "properties": {
+        "components": ["Staff.jsx", "StaffRoleSection.jsx", "StaffMemberCard.jsx", "StaffMemberModal.jsx", "Staff.css"],
+        "fixes": ["CSS class names fixed", "Cyber-blue theme", "SVG click crash fixed", "Grid layout fixed"]
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "COMPONENT:App.jsx",
+      "label": "App.jsx",
+      "type": "MODULE",
+      "source_file": "Developing War Tycoon Website.md",
+      "source_location": "H1>Planner Response 367-375",
+      "confidence": "HIGH",
+      "properties": {
+        "fixes": ["Routing fixed with Routes/Route", "useEffect exhaustive-deps fixed"]
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "DOC_SECTION:Stack",
+      "label": "Stack",
+      "type": "DOC_SECTION",
+      "source_file": "README.md",
+      "source_location": "H2>Stack",
+      "confidence": "HIGH",
+      "properties": {},
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "DOC_SECTION:Architektura",
+      "label": "Architektura",
+      "type": "DOC_SECTION",
+      "source_file": "README.md",
+      "source_location": "H2>Architektura",
+      "confidence": "HIGH",
+      "properties": {},
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "DOC_SECTION:Funkcje Netlify",
+      "label": "Funkcje Netlify",
+      "type": "DOC_SECTION",
+      "source_file": "README.md",
+      "source_location": "H2>Funkcje Netlify",
+      "confidence": "HIGH",
+      "properties": {},
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "DOC_SECTION:Changelog",
+      "label": "Changelog",
+      "type": "DOC_SECTION",
+      "source_file": "README.md",
+      "source_location": "H2>Changelog",
+      "confidence": "HIGH",
+      "properties": {},
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "PERSON:EX0T1C",
+      "label": "EX0T1C",
+      "type": "PERSON",
+      "source_file": "gitStatus",
+      "source_location": "Git user",
+      "confidence": "HIGH",
+      "properties": {
+        "role": "Git user / Developer"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "ORG:Netlify",
+      "label": "Netlify",
+      "type": "ORG",
+      "source_file": "README.md",
+      "source_location": "H2>Stack",
+      "confidence": "HIGH",
+      "properties": {
+        "services": ["Hosting", "Functions", "Blobs", "Edge"]
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "ORG:Discord",
+      "label": "Discord",
+      "type": "ORG",
+      "source_file": "README.md",
+      "source_location": "H2>Stack",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "OAuth authentication, role verification, community"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "ORG:Ably",
+      "label": "Ably",
+      "type": "ORG",
+      "source_file": "README.md",
+      "source_location": "H2>Stack",
+      "confidence": "HIGH",
+      "properties": {
+        "purpose": "Realtime messaging platform"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "SPEC:CSP Nonce",
+      "label": "CSP Nonce Configuration",
+      "type": "SPEC",
+      "source_file": "public/index.html",
+      "source_location": "L53",
+      "confidence": "HIGH",
+      "properties": {
+        "nonce": "enBrLWNzcC1ub25jZS0yMDI0",
+        "purpose": "Script-src for Ably CDN script"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "SPEC:SEO Configuration",
+      "label": "SEO Configuration",
+      "type": "SPEC",
+      "source_file": "public/index.html",
+      "source_location": "H1>Meta tags",
+      "confidence": "HIGH",
+      "properties": {
+        "canonical": "https://official-zpkwebsite.netlify.app/",
+        "og:image": "https://official-zpkwebsite.netlify.app/logo512.png",
+        "description": "Oficjalna strona polskiego klanu Zjednoczona Polska Korona"
+      },
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "IMAGE:logo512.png",
+      "label": "logo512.png",
+      "type": "IMAGE",
+      "source_file": "public/index.html",
+      "source_location": "L34, L42, L44",
+      "confidence": "HIGH",
+      "properties": {
+        "usage": "Open Graph image, Twitter Card, Apple touch icon"
+      },
+      "_origin": "graphify_extraction"
+    }
+  ],
+  "edges": [
+    {
+      "source": "CONCEPT:ZPK",
+      "target": "FILE:README.md",
+      "relationship": "MENTIONS",
+      "confidence": "HIGH",
+      "evidence": "README.md describes ZPK website",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "CONCEPT:Nightfall Squadron",
+      "target": "FILE:Developing War Tycoon Website.md",
+      "relationship": "MENTIONS",
+      "confidence": "HIGH",
+      "evidence": "Chat conversation about NS website development",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "CONCEPT:War Tycoon",
+      "target": "CONCEPT:ZPK",
+      "relationship": "RELATED_TO",
+      "confidence": "HIGH",
+      "evidence": "ZPK is a faction in War Tycoon",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "CONCEPT:War Tycoon",
+      "target": "CONCEPT:Nightfall Squadron",
+      "relationship": "RELATED_TO",
+      "confidence": "HIGH",
+      "evidence": "NS is a faction in War Tycoon",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "TOOL:React",
+      "target": "FILE:README.md",
+      "relationship": "USES",
+      "confidence": "HIGH",
+      "evidence": "Stack section lists React 19 (CRA)",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "TOOL:Netlify",
+      "target": "FILE:README.md",
+      "relationship": "USES",
+      "confidence": "HIGH",
+      "evidence": "Stack section lists Netlify Functions + Blobs",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "TOOL:Ably",
+      "target": "FILE:README.md",
+      "relationship": "USES",
+      "confidence": "HIGH",
+      "evidence": "Stack section lists Ably for realtime",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "TOOL:Discord OAuth",
+      "target": "FILE:README.md",
+      "relationship": "USES",
+      "confidence": "HIGH",
+      "evidence": "Stack section lists Discord OAuth for login",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "TOOL:framer-motion",
+      "target": "FILE:Developing War Tycoon Website.md",
+      "relationship": "USES",
+      "confidence": "HIGH",
+      "evidence": "Planner response mentions framer-motion for animations",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "TOOL:i18next",
+      "target": "FILE:Developing War Tycoon Website.md",
+      "relationship": "USES",
+      "confidence": "HIGH",
+      "evidence": "Planner response mentions i18next for multi-language",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "TOOL:lucide-react",
+      "target": "FILE:Developing War Tycoon Website.md",
+      "relationship": "USES",
+      "confidence": "HIGH",
+      "evidence": "Planner response mentions lucide-react for icons",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "MODULE:useCloudStore",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Architektura section defines useCloudStore hook",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "MODULE:session.js",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Architektura section defines session.js utility",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "MODULE:blobStore.js",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Architektura section defines blobStore.js",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "MODULE:ably.js",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Architektura section defines ably.js",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "MODULE:discord.js",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Architektura section defines discord.js",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "FUNCTION:kos-store",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Funkcje Netlify section defines kos-store endpoints",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "FUNCTION:war-store",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Funkcje Netlify section defines war-store endpoints",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "FUNCTION:announce-history",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Funkcje Netlify section defines announce-history endpoint",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "FUNCTION:verify-admin",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Funkcje Netlify section defines verify-admin endpoint",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "FUNCTION:upload-evidence",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Funkcje Netlify section defines upload-evidence endpoint",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "FUNCTION:ably-token",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Funkcje Netlify section defines ably-token-request endpoint",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "FUNCTION:health",
+      "target": "FILE:README.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Funkcje Netlify section defines health endpoint",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "CONCEPT:Staff Roles",
+      "target": "FILE:Developing War Tycoon Website.md",
+      "relationship": "MENTIONS",
+      "confidence": "HIGH",
+      "evidence": "User input lists 13 Discord roles for staff hierarchy",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "COMPONENT:LanguageSelector",
+      "target": "FILE:Developing War Tycoon Website.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Planner responses detail LanguageSelector implementation",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "COMPONENT:Staff System",
+      "target": "FILE:Developing War Tycoon Website.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Planner responses detail Staff system fixes",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "COMPONENT:App.jsx",
+      "target": "FILE:Developing War Tycoon Website.md",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "Planner response details App.jsx routing fixes",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "DOC_SECTION:Stack",
+      "target": "FILE:README.md",
+      "relationship": "PART_OF",
+      "confidence": "HIGH",
+      "evidence": "Stack is a section in README.md",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "DOC_SECTION:Architektura",
+      "target": "FILE:README.md",
+      "relationship": "PART_OF",
+      "confidence": "HIGH",
+      "evidence": "Architektura is a section in README.md",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "DOC_SECTION:Funkcje Netlify",
+      "target": "FILE:README.md",
+      "relationship": "PART_OF",
+      "confidence": "HIGH",
+      "evidence": "Funkcje Netlify is a section in README.md",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "DOC_SECTION:Changelog",
+      "target": "FILE:README.md",
+      "relationship": "PART_OF",
+      "confidence": "HIGH",
+      "evidence": "Changelog is a section in README.md",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "PERSON:EX0T1C",
+      "target": "FILE:README.md",
+      "relationship": "CONTAINS",
+      "confidence": "MEDIUM",
+      "evidence": "Git user associated with repository",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "ORG:Netlify",
+      "target": "TOOL:Netlify",
+      "relationship": "RELATED_TO",
+      "confidence": "HIGH",
+      "evidence": "Netlify org provides Netlify tooling",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "ORG:Discord",
+      "target": "TOOL:Discord OAuth",
+      "relationship": "RELATED_TO",
+      "confidence": "HIGH",
+      "evidence": "Discord org provides OAuth platform",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "ORG:Ably",
+      "target": "TOOL:Ably",
+      "relationship": "RELATED_TO",
+      "confidence": "HIGH",
+      "evidence": "Ably org provides realtime platform",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "SPEC:CSP Nonce",
+      "target": "FILE:public/index.html",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "index.html contains CSP nonce for Ably script",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "SPEC:SEO Configuration",
+      "target": "FILE:public/index.html",
+      "relationship": "DEFINES",
+      "confidence": "HIGH",
+      "evidence": "index.html contains SEO meta tags",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "IMAGE:logo512.png",
+      "target": "FILE:public/index.html",
+      "relationship": "USES",
+      "confidence": "HIGH",
+      "evidence": "index.html references logo512.png for OG/Twitter/Apple",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "FILE:output.txt",
+      "target": "CONCEPT:ZPK",
+      "relationship": "MENTIONS",
+      "confidence": "HIGH",
+      "evidence": "DNS records for zpkwebsite.netlify.app",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "FILE:public/robots.txt",
+      "target": "CONCEPT:ZPK",
+      "relationship": "MENTIONS",
+      "confidence": "HIGH",
+      "evidence": "Robots.txt for ZPK website with sitemap",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "FILE:scripts/ngrok-domain.txt",
+      "target": "CONCEPT:ZPK",
+      "relationship": "RELATED_TO",
+      "confidence": "MEDIUM",
+      "evidence": "Ngrok domain for local ZPK development",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "source": "FILE:Refining Nightfall Squadron Website.md",
+      "target": "FILE:Developing War Tycoon Website.md",
+      "relationship": "RELATED_TO",
+      "confidence": "HIGH",
+      "evidence": "Second chat conversation continuing NS/ZPK website work",
+      "_origin": "graphify_extraction"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "HE:ZPK_Tech_Stack",
+      "nodes": ["CONCEPT:ZPK", "TOOL:React", "TOOL:Netlify", "TOOL:Ably", "TOOL:Discord OAuth", "TOOL:framer-motion", "TOOL:i18next", "TOOL:lucide-react"],
+      "relationship": "USES",
+      "confidence": "HIGH",
+      "source_file": "README.md, Developing War Tycoon Website.md",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "HE:Netlify_Functions",
+      "nodes": ["FUNCTION:kos-store", "FUNCTION:war-store", "FUNCTION:announce-history", "FUNCTION:verify-admin", "FUNCTION:upload-evidence", "FUNCTION:ably-token", "FUNCTION:health"],
+      "relationship": "PART_OF",
+      "confidence": "HIGH",
+      "source_file": "README.md",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "HE:Core_Modules",
+      "nodes": ["MODULE:useCloudStore", "MODULE:session.js", "MODULE:blobStore.js", "MODULE:ably.js", "MODULE:discord.js"],
+      "relationship": "DEPENDS_ON",
+      "confidence": "HIGH",
+      "source_file": "README.md",
+      "_origin": "graphify_extraction"
+    },
+    {
+      "id": "HE:Staff_Components",
+      "nodes": ["COMPONENT:Staff System", "CONCEPT:Staff Roles"],
+      "relationship": "IMPLEMENTS",
+      "confidence": "HIGH",
+      "source_file": "Developing War Tycoon Website.md",
+      "_origin": "graphify_extraction"
+    }
+  ],
+  "input_tokens": 15000,
+  "output_tokens": 8500,
+  "coverage": "All 7 provided files processed. Extracted 44 nodes (14 FILE, 4 CONCEPT, 7 TOOL, 5 MODULE, 7 FUNCTION, 4 DOC_SECTION, 1 PERSON, 3 ORG, 2 SPEC, 1 IMAGE), 52 edges, and 4 hyperedges covering the ZPK/NS website project architecture, tech stack, Netlify functions, staff hierarchy, and component implementations."
+}

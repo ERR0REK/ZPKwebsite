@@ -1,0 +1,32 @@
+{
+  "nodes": [
+    {
+      "id": "node_001",
+      "type": "IMAGE",
+      "label": "Test screenshot: KOS Admin Panel - should add new personal target",
+      "properties": {
+        "filename": "test-failed-1.png",
+        "format": "PNG",
+        "file_size_bytes": 52378,
+        "source_file": "test-results/kos-KOS-Page-Admin-Panel-should-add-new-personal-target-chromium/test-failed-1.png",
+        "source_location": "visual",
+        "visual_description": "Playwright test failure screenshot showing KOS Admin Panel adding new personal target - test: 'should add new personal target'"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "node_001",
+      "target": "kos_admin_panel_test",
+      "type": "PART_OF",
+      "properties": {
+        "context": "KOS Admin Panel E2E tests",
+        "test_name": "should add new personal target"
+      }
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": 1.0
+}

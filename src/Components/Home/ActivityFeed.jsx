@@ -2,15 +2,16 @@
  * Live activity feed — pokazuje na stronie głównej wydarzenia na żywo:
  * zmiany w KOS, nowe raporty wojenne, ogłoszenia.
  *
- * Fallback: gdy realtime nie działa (lokalny dev / brak klucza), feed
- * pokazuje ostatnie wydarzenia z danych lokalnych (kosTargets.json +
- * warLogs.json), żeby sekcja nigdy nie była pusta.
+ * Na starcie pobiera AKTUALNE dane z chmury (/api/kos-store, /api/war-store),
+ * żeby feed pokazywał prawdziwą ostatnią aktywność, a nie statyczne dane z JSON.
+ * Realtime (Ably) dopisuje nowe wydarzenia na żywo.
+ * Fallback: gdy API nie odpowiada, używa danych z kosTargets.json + warLogs.json.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Skull, Sword, Megaphone, Radio, ShieldAlert, Activity } from 'lucide-react';
+import { Skull, Sword, Megaphone, Radio, ShieldAlert, Activity, Loader2 } from 'lucide-react';
 import { useRealtime } from '../../Realtime/RealtimeProvider';
 import './ActivityFeed.css';
 import kosTargets from '../../data/kosTargets.json';
@@ -25,45 +26,101 @@ const iconFor = (type) => {
   return <Activity size={14} />;
 };
 
+// Fallback seed z plików JSON (gdy API nie działa)
 const seedFromLocalData = (t) => {
   const items = [];
   const personal = Array.isArray(kosTargets.personal) ? kosTargets.personal : [];
   const factions = Array.isArray(kosTargets.factions) ? kosTargets.factions : [];
   const warLogs = Array.isArray(warLogsData.logs) ? warLogsData.logs : [];
 
-  personal.slice(0, 2).forEach((p) => {
+  // Ostatnie 3 cele osobowe (z timestampem "dawnym" by były na dole)
+  personal.slice(-3).reverse().forEach((p, idx) => {
     if (p && p.name) {
       items.push({
         id: `seed-kos-${p.name}`,
         type: 'kos',
         title: t('home.feed.kosAdded', 'CEL KOS DODANY'),
         message: p.name,
-        timestamp: Date.now()
+        timestamp: Date.now() - (1000 * 60 * 60 * 24 * (idx + 1)) // symulacja dawności
       });
     }
   });
-  factions.slice(0, 1).forEach((f) => {
+  // Ostatnie 2 klany
+  factions.slice(-2).reverse().forEach((f, idx) => {
     if (f && f.name) {
       items.push({
         id: `seed-fac-${f.name}`,
         type: 'kos',
         title: t('home.feed.factionAdded', 'KLAN DODANY DO KOS'),
         message: f.name,
-        timestamp: Date.now()
+        timestamp: Date.now() - (1000 * 60 * 60 * 24 * (idx + 4))
       });
     }
   });
-  warLogs.slice(0, 2).forEach((w) => {
+  // Ostatnie 3 raporty wojenne
+  warLogs.slice(-3).reverse().forEach((w, idx) => {
     if (w && w.opponent) {
       items.push({
         id: `seed-war-${w.opponent}`,
         type: 'war',
         title: t('home.feed.warReport', 'RAPORT WOJENNY'),
         message: w.opponent,
-        timestamp: Date.now()
+        timestamp: Date.now() - (1000 * 60 * 60 * 24 * (idx + 1))
       });
     }
   });
+  return items;
+};
+
+// Buduje itemy feedu z PRAWDZIWYCH danych chmury (z timestampami z danych jeśli są)
+const buildItemsFromCloud = (t, kosData, warData) => {
+  const items = [];
+  const now = Date.now();
+
+  // KOS personal - bierzemy ostatnie 3 (posortowane po nazwie w API, więc nie mamy daty dodania)
+  // Używamy malejących timestampów by nowe były na górze
+  (kosData?.personal || []).slice(-3).reverse().forEach((p, idx) => {
+    if (p && p.name) {
+      items.push({
+        id: `kos-${p.name}`,
+        type: 'kos',
+        title: t('home.feed.kosAdded', 'CEL KOS DODANY'),
+        message: p.name,
+        timestamp: now - idx * 1000 // rozrzut timestampów
+      });
+    }
+  });
+  // KOS factions
+  (kosData?.factions || []).slice(-2).reverse().forEach((f, idx) => {
+    if (f && f.name) {
+      items.push({
+        id: `kos-fac-${f.name}`,
+        type: 'kos',
+        title: t('home.feed.factionAdded', 'KLAN DODANY DO KOS'),
+        message: f.name,
+        timestamp: now - (idx + 3) * 1000
+      });
+    }
+  });
+  // War Logs - tu MAMY datę w danych! Używamy jej do sortowania
+  const sortedLogs = [...(warData?.logs || [])].sort((a, b) => {
+    const da = new Date(a.date || 0).getTime();
+    const db = new Date(b.date || 0).getTime();
+    return db - da; // najnowsze pierwsze
+  });
+  sortedLogs.slice(0, 3).forEach((w, idx) => {
+    if (w && w.opponent) {
+      const logTime = new Date(w.date || now).getTime();
+      items.push({
+        id: `war-${w.id || w.opponent}`,
+        type: 'war',
+        title: t('home.feed.warReport', 'RAPORT WOJENNY'),
+        message: w.opponent,
+        timestamp: logTime || (now - idx * 1000)
+      });
+    }
+  });
+
   return items;
 };
 
@@ -71,11 +128,38 @@ export const ActivityFeed = () => {
   const { t } = useTranslation();
   const realtime = useRealtime();
   const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Start z danymi lokalnymi (fallback + pierwszy render)
-  useEffect(() => {
-    setItems(seedFromLocalData(t));
+  // Pobierz AKTUALNE dane z chmury przy starcie
+  const fetchCloudData = useCallback(async () => {
+    try {
+      const [kosRes, warRes] = await Promise.all([
+        fetch('/api/kos-store').catch(() => null),
+        fetch('/api/war-store').catch(() => null)
+      ]);
+
+      const kosData = kosRes?.ok ? await kosRes.json().catch(() => null) : null;
+      const warData = warRes?.ok ? await warRes.json().catch(() => null) : null;
+
+      if (kosData?.ok && warData?.ok) {
+        // SUKCES: zbuduj feed z PRAWDZIWYCH danych chmury
+        setItems(buildItemsFromCloud(t, kosData, warData));
+      } else {
+        // FALLBACK: API nie zadziałało - użyj statycznych danych z JSON
+        setItems(seedFromLocalData(t));
+      }
+    } catch (err) {
+      console.warn('[ActivityFeed] Cloud fetch failed, using local seed:', err);
+      setItems(seedFromLocalData(t));
+    } finally {
+      setLoading(false);
+    }
   }, [t]);
+
+  // Initial load - pobierz dane z chmury
+  useEffect(() => {
+    fetchCloudData();
+  }, [fetchCloudData]);
 
   // Live — subskrybuj kanały KOS, wojen i ogłoszeń
   useEffect(() => {
@@ -86,7 +170,7 @@ export const ActivityFeed = () => {
         const d = msg.data || {};
         if (!d.name) return;
         setItems((prev) => [{
-          id: `kos-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          id: `kos-live-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           type: 'kos',
           title: d.action === 'removed'
             ? t('home.feed.kosRemoved', 'CEL KOS USUNIĘTY')
@@ -99,7 +183,7 @@ export const ActivityFeed = () => {
         const d = msg.data || {};
         if (!d.name) return;
         setItems((prev) => [{
-          id: `war-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          id: `war-live-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           type: 'war',
           title: t('home.feed.warReport', 'RAPORT WOJENNY'),
           message: d.name,
@@ -146,11 +230,21 @@ export const ActivityFeed = () => {
           <h2>{t('home.feed.title', 'AKTYWNOŚĆ FRAKCJI')}</h2>
         </div>
         <span className={`feed-status ${isLive ? 'live' : 'standby'}`}>
-          {isLive ? 'LIVE' : 'STANDBY'}
+          {loading ? (
+            <>
+              <Loader2 size={12} className="feed-loading-spinner" />
+              ŁADOWANIE...
+            </>
+          ) : isLive ? 'LIVE' : 'STANDBY'}
         </span>
       </div>
 
-      {sorted.length > 0 ? (
+      {loading ? (
+        <div className="feed-loading">
+          <Loader2 size={24} className="feed-loading-spinner" />
+          <span>{t('home.feed.loading', 'POBIERANIE AKTYWNOŚCI Z CHMURY...')}</span>
+        </div>
+      ) : sorted.length > 0 ? (
         <div className="feed-list">
           {sorted.map((item, i) => (
             <motion.div
