@@ -441,7 +441,7 @@
           "title": "What data we collect",
           "body": [
             "When logging in through Discord we receive: your user ID, username, and whether you belong to the ZPK server.",
-            "The login session (OAuth token) is stored only in your browser (localStorage) and expires automatically after 15 minutes.",
+            "The login session (OAuth token) is stored only in your browser (localStorage) and expires automatically after 7 days (Discord token lifetime).",
             "The hosting server (Netlify) and the site's security layer may log IP addresses and basic traffic information for protective and diagnostic purposes.",
             "If you are an administrator, we check your roles on the Discord server to verify permissions (only the fact that you hold an admin role — we do not store the full role list)."
           ]

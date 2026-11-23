@@ -441,7 +441,7 @@
           "title": "Jakie dane zbieramy",
           "body": [
             "Logując się przez Discorda, otrzymujemy: Twój identyfikator (user ID), nazwę użytkownika oraz informację, czy należysz do serwera ZPK.",
-            "Sesja logowania (token OAuth) jest przechowywana wyłącznie w Twojej przeglądarce (localStorage) i wygasa automatycznie po 15 minutach.",
+            "Sesja logowania (token OAuth) jest przechowywana wyłącznie w Twojej przeglądarce (localStorage) i wygasa automatycznie po 7 dniach (czas ważności tokena Discorda).",
             "Serwer hostingowy (Netlify) oraz warstwa bezpieczeństwa strony mogą rejestrować adres IP i podstawowe informacje o ruchu w celach ochronnych i diagnostycznych.",
             "Jeśli jesteś administratorem, sprawdzamy Twoje role na serwerze Discord w celu weryfikacji uprawnień (tylko fakt posiadania roli administracyjnej — nie zapisujemy pełnej listy ról)."
           ]
