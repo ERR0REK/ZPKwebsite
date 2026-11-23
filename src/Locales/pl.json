@@ -1481,7 +1481,7 @@
     ],
     "release": [
       {
-        "version": "1.1.1 hotfix",
+        "version": "v1.1.1 hotfix",
         "date": "23 lis 2026",
         "changes": [
           {
@@ -1502,7 +1502,7 @@
         ]
       },
       {
-        "version": "1.1.1",
+        "version": "v1.1.1",
         "date": "22 lis 2026",
         "changes": [
           {
@@ -1523,7 +1523,7 @@
           {
             "type": "improvement",
             "title": "Poprawiona kolejność wersji w changelogu",
-            "description": "Wersje stabilne: 1.1.0 → 1.0.1 → 1.0.0 (semver)."
+            "description": "Wersje stabilne: v1.1.0 → v1.0.1 → v1.0.0 (semver)."
           },
           {
             "type": "improvement",
@@ -1533,7 +1533,7 @@
         ]
       },
       {
-        "version": "1.1.0",
+        "version": "v1.1.0",
         "date": "25 wrz 2026",
         "changes": [
           {
@@ -1564,7 +1564,7 @@
         ]
       },
       {
-        "version": "1.0.1",
+        "version": "v1.0.1",
         "date": "3 wrz 2026",
         "changes": [
           {
@@ -1610,7 +1610,7 @@
         ]
       },
       {
-        "version": "1.0.0",
+        "version": "v1.0.0",
         "date": "23 sie 2026",
         "changes": [
           {

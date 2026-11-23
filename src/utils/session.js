@@ -9,20 +9,20 @@
  * ważności dla tej samej koncepcji).
  *
  * Interfejs:
- *   ACCESS_TOKEN_TTL_MS    — czas życia access tokenu (15 min)
- *   REFRESH_TOKEN_TTL_MS   — czas życia refresh tokenu (7 dni)
- *   saveSession(data)      — zapis sesji (access token + metadata)
- *   saveRefreshToken(token) — zapis refresh tokenu (HttpOnly cookie via Netlify Function)
- *   clearSession()         — usunięcie sesji i refresh tokenu
- *   clearRefreshToken()    — usunięcie tylko refresh tokenu
+ *   ACCESS_TOKEN_TTL_MS    — domyślny czas życia access tokenu (15 min, fallback)
+ *   saveSession(data)      — zapis sesji (access token + metadata + expires_in)
+ *   clearSession()         — usunięcie sesji
  *   readSession()          — luźny odczyt: co fizycznie siedzi w storage
  *   loadValidSession()     — odczyt + walidacja (user_id + TTL); sesja
  *                          przeterminowana/niepełna jest czyszczona → null
- *   isSessionValid()       — sprawdza czy access token jest ważny lub może być odświeżony
  *   invalidateSession()    — unieważnia sesję (password/role change, logout all devices)
  *   getSessionMetadata()   — pobiera metadane sesji (IP, UA, created_at)
  *   OAUTH_STATE_KEY        — klucz nonce OAuth (parametr `state`)
  *   generateOAuthState()   — losowy nonce dla OAuth
+ *
+ * Używamy Implicit Flow (Discord OAuth) — token przychodzi w hashu URL,
+ * nie ma refresh tokena. Sesja wygasa po czasie `expires_in` z Discorda
+ * (domyślnie 7 dni = 604800 sekund). Po wygaśnięciu użytkownik loguje się ponownie.
  *
  * WAŻNE: w komponentach pod Providerem preferuj useSession() z
  * SessionContext. Te funkcje są dla wyjątków (DiscordCallback poza
@@ -32,15 +32,8 @@
 // Jedyna kopia klucza w src/ — wszyscy czytają go stąd.
 export const SESSION_KEY = 'ZPK_auth_session';
 
-// Klucz refresh tokenu (przechowywany w HttpOnly cookie przez Netlify Function,
-// tutaj tylko fallback do localStorage dla developmentu bez backend)
-export const REFRESH_TOKEN_KEY = 'ZPK_refresh_token';
-
-// Czas życia access tokenu — 15 minut (Discord OAuth daje krótkotrwałe tokeny)
+// Domyślny TTL access tokenu — 15 minut (fallback gdy brak expires_in w sesji)
 export const ACCESS_TOKEN_TTL_MS = 15 * 60 * 1000;
-
-// Czas życia refresh tokenu — 7 dni
-export const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 // Dla kompatybilności wstecznej (SessionContext re-eksportuje)
 export const SESSION_TTL_MS = ACCESS_TOKEN_TTL_MS;
@@ -58,21 +51,6 @@ export const clearSession = () => {
   }
 };
 
-export const clearRefreshToken = () => {
-  try {
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    // Wywołaj Netlify Function do usunięcia HttpOnly cookie
-    if (typeof window !== 'undefined') {
-      fetch('/.netlify/functions/auth-refresh', {
-        method: 'DELETE',
-        credentials: 'include'
-      }).catch(() => { /* ignore network errors */ });
-    }
-  } catch (e) {
-    /* ignore */
-  }
-};
-
 // Luźny odczyt — co fizycznie siedzi w storage, bez walidacji TTL.
 // Używany tam, gdzie liczy się "czy cokolwiek jest zapisane" (np. edge
 // redirect w DiscordCallback). Do sprawdzania ważności użyj loadValidSession().
@@ -85,26 +63,7 @@ export const readSession = () => {
   }
 };
 
-// Odczyt refresh tokenu (fallback do localStorage gdy brak HttpOnly cookie)
-export const readRefreshToken = () => {
-  try {
-    const raw = localStorage.getItem(REFRESH_TOKEN_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    return null;
-  }
-};
-
-// Zapis refresh tokenu (fallback do localStorage gdy brak HttpOnly cookie)
-export const saveRefreshToken = (tokenData) => {
-  try {
-    localStorage.setItem(REFRESH_TOKEN_KEY, JSON.stringify(tokenData));
-  } catch (e) {
-    /* ignore */
-  }
-};
-
-// Odczyt + walidacja (user_id + TTL 15min). Jedna polityka ważności dla
+// Odczyt + walidacja (user_id + TTL). Jedna polityka ważności dla
 // wszystkich ścieżek: przeterminowana/niepełna sesja jest czyszczona
 // i traktowana jak brak sesji. Zepsuty JSON też jest czyszczony.
 export const loadValidSession = () => {
@@ -113,42 +72,13 @@ export const loadValidSession = () => {
     clearSession();
     return null;
   }
-  if (Date.now() - (session.timestamp || 0) > ACCESS_TOKEN_TTL_MS) {
+  // Użyj expires_in z sesji jeśli dostępne, fallback na ACCESS_TOKEN_TTL_MS
+  const ttl = session.expires_in ? session.expires_in * 1000 : ACCESS_TOKEN_TTL_MS;
+  if (Date.now() - (session.timestamp || 0) > ttl) {
     clearSession();
     return null;
   }
   return session;
-};
-
-// Sprawdza czy sesja jest ważna lub może zostać odświeżona
-// Zwraca: { valid: boolean, needsRefresh: boolean, session: object|null }
-export const isSessionValid = () => {
-  const session = readSession();
-
-  if (!session || !session.user_id) {
-    return { valid: false, needsRefresh: false, session: null };
-  }
-
-  const accessTokenAge = Date.now() - (session.timestamp || 0);
-
-  // Access token nadal ważny
-  if (accessTokenAge <= ACCESS_TOKEN_TTL_MS) {
-    return { valid: true, needsRefresh: false, session };
-  }
-
-  // Access token wygasł, sprawdź refresh token
-  const refreshToken = readRefreshToken();
-  if (refreshToken && refreshToken.token) {
-    const refreshTokenAge = Date.now() - (refreshToken.createdAt || 0);
-    if (refreshTokenAge <= REFRESH_TOKEN_TTL_MS) {
-      return { valid: false, needsRefresh: true, session };
-    }
-  }
-
-  // Refresh token też wygasł lub nie ma — wyczyść wszystko
-  clearSession();
-  clearRefreshToken();
-  return { valid: false, needsRefresh: false, session: null };
 };
 
 // Unieważnia sesję (password change, role change, logout all devices)
@@ -174,7 +104,6 @@ export const invalidateSession = (reason = 'manual') => {
   }
 
   clearSession();
-  clearRefreshToken();
 };
 
 // Pobiera metadane sesji (IP, UA, created_at)
@@ -232,6 +161,7 @@ export const generateOAuthState = () => {
 // PKCE (RFC 7636) — Authorization Code Flow with Proof Key for Code Exchange
 // Klucz współdzielony między LoginPage (generuje) a DiscordCallback
 // (używa do wymiany kodu na token), bo oba działają w tej samej karcie.
+// Zachowane na przyszłość — Implicit Flow nie używa PKCE.
 // ============================================================
 
 export const PKCE_VERIFIER_KEY = 'ZPK_pkce_verifier';
